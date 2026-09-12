@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+femaktiv_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$femaktiv_root"
+export UV_CACHE_DIR="${UV_CACHE_DIR:-/tmp/femaktiv-uv-cache}"
+uv sync --frozen
+./bin/translations
+.venv/bin/python manage.py migrate
+.venv/bin/python manage.py collectstatic --noinput
+printf '\nfemaktiv is ready. Start with ./bin/serve and open http://127.0.0.1:8000/\n'

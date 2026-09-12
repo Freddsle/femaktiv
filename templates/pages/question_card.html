@@ -1,0 +1,1 @@
+{% load i18n %}<a class="question-card" href="{% url 'pages:question' question.slug %}"><div class="card-kicker">{{ question.topic_title }}</div><h3>{{ question.title }}</h3><p>{{ question.summary }}</p><div class="card-bottom"><span class="example-label">{% translate 'Example discussion' %}</span>{% include 'components/icon.html' with name='arrow' %}</div></a>

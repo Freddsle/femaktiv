@@ -1,7 +1,7 @@
 version = 1
 
 # Contract: specs/behavior/files_relations.md.
-# Constant-root discovery: bin/depemesh/files.py; verification: bin/depemesh/check.py.
+# Discovery uses constant roots and exact predicates to preserve literal path names.
 
 [[relations]]
 id = "governed_by"
@@ -13,63 +13,114 @@ description = "Existing files governed by the specification."
 
 [[relations]]
 id = "tested_by"
-description = "Existing unit tests assigned to the source file."
+description = "Existing unit and explicitly assigned browser tests for the source file."
 
 [[relations]]
 id = "tests"
-description = "Existing source files assigned to the unit test."
+description = "Existing source files assigned to the test."
 
-# Specification authoring: both directions share the same ownership boundary.
+# Specification authoring.
+
 [[rules]]
 relation = "governed_by"
-input = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/specs/.+\\.md$" }, { type = "one_of", artifacts = ["@/AGENTS.md"] }] }, { type = "not", item = { type = "one_of", artifacts = ["@/specs/meta/general.md"] } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] }
+input = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/specs/.+\\.md$" }, { type = "one_of", artifacts = ["@/AGENTS.md"] }] }, { type = "not", item = { type = "one_of", artifacts = ["@/specs/meta/general.md"] } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
 output = { type = "files", pattern = "@/specs/meta/general.md" }
 
 [[rules]]
 relation = "governs"
 input = { type = "one_of", artifacts = ["@/specs/meta/general.md"] }
-output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py specs AGENTS.md" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/specs/.+\\.md$" }, { type = "one_of", artifacts = ["@/AGENTS.md"] }] }, { type = "not", item = { type = "one_of", artifacts = ["@/specs/meta/general.md"] } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] } }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py specs AGENTS.md" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/specs/.+\\.md$" }, { type = "one_of", artifacts = ["@/AGENTS.md"] }] }, { type = "not", item = { type = "one_of", artifacts = ["@/specs/meta/general.md"] } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
 
-# File relation tooling: both directions share the same ownership boundary.
+# File relation tooling.
+
 [[rules]]
 relation = "governed_by"
-input = { type = "all", items = [{ type = "any", items = [{ type = "one_of", artifacts = ["@/depmesh.toml", "@/AGENTS.md"] }, { type = "regex", pattern = "^@/bin/depemesh/.+$" }, { type = "regex", pattern = "^@/tests/unit/bin/depemesh/.+$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] }
+input = { type = "all", items = [{ type = "any", items = [{ type = "one_of", artifacts = ["@/depmesh.toml", "@/AGENTS.md"] }, { type = "regex", pattern = "^@/bin/depemesh/.+$" }, { type = "regex", pattern = "^@/tests/unit/bin/depemesh/.+$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
 output = { type = "files", pattern = "@/specs/behavior/files_relations.md" }
 
 [[rules]]
 relation = "governs"
 input = { type = "one_of", artifacts = ["@/specs/behavior/files_relations.md"] }
-output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py depmesh.toml AGENTS.md bin/depemesh tests/unit/bin/depemesh" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "one_of", artifacts = ["@/depmesh.toml", "@/AGENTS.md"] }, { type = "regex", pattern = "^@/bin/depemesh/.+$" }, { type = "regex", pattern = "^@/tests/unit/bin/depemesh/.+$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] } }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py depmesh.toml AGENTS.md bin/depemesh tests/unit/bin/depemesh" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "one_of", artifacts = ["@/depmesh.toml", "@/AGENTS.md"] }, { type = "regex", pattern = "^@/bin/depemesh/.+$" }, { type = "regex", pattern = "^@/tests/unit/bin/depemesh/.+$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
 
-# Donna workflow management: both directions share the same ownership boundary.
+# Donna workflow management.
+
 [[rules]]
 relation = "governed_by"
-input = { type = "all", items = [{ type = "any", items = [{ type = "one_of", artifacts = ["@/donna.toml", "@/AGENTS.md"] }, { type = "regex", pattern = "^@/workflows/.+\\.donna\\.md$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] }
+input = { type = "all", items = [{ type = "any", items = [{ type = "one_of", artifacts = ["@/donna.toml", "@/AGENTS.md"] }, { type = "regex", pattern = "^@/workflows/.+\\.donna\\.md$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
 output = { type = "files", pattern = "@/specs/general/workflows.md" }
 
 [[rules]]
 relation = "governs"
 input = { type = "one_of", artifacts = ["@/specs/general/workflows.md"] }
-output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py donna.toml AGENTS.md workflows" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "one_of", artifacts = ["@/donna.toml", "@/AGENTS.md"] }, { type = "regex", pattern = "^@/workflows/.+\\.donna\\.md$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] } }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py donna.toml AGENTS.md workflows" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "one_of", artifacts = ["@/donna.toml", "@/AGENTS.md"] }, { type = "regex", pattern = "^@/workflows/.+\\.donna\\.md$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
 
-# Prototype product contract: both directions share the same ownership boundary.
+# Historical TypeScript nutrition conventions.
+
 [[rules]]
 relation = "governed_by"
-input = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/(?:app|src|components|lib|content|public|docs|tests)/.+$" }, { type = "one_of", artifacts = ["@/README.md", "@/package.json", "@/package-lock.json", "@/pnpm-lock.yaml", "@/yarn.lock", "@/tsconfig.json", "@/next-env.d.ts"] }, { type = "regex", pattern = "^@/(?:next|postcss|tailwind|eslint|vitest|playwright)\\.config\\.[^/]+$" }] }, { type = "not", item = { type = "regex", pattern = "^@/tests/unit/bin/depemesh/.+$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] }
+input = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/(?:app|src|components|lib|public)/.+$" }, { type = "regex", pattern = "^@/tests/unit/(?:app|src|components|lib)/.+$" }, { type = "regex", pattern = "^@/tests/e2e/.+\\.spec\\.[jt]sx?$" }, { type = "one_of", artifacts = ["@/package.json", "@/package-lock.json", "@/pnpm-lock.yaml", "@/yarn.lock", "@/tsconfig.json", "@/next-env.d.ts"] }, { type = "regex", pattern = "^@/(?:next|postcss|tailwind|eslint|vitest|playwright)\\.config\\.[^/]+$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
 output = { type = "files", pattern = "@/00_initial/FEMAKTIV_BUILD_SPEC.md" }
 
 [[rules]]
 relation = "governs"
 input = { type = "one_of", artifacts = ["@/00_initial/FEMAKTIV_BUILD_SPEC.md"] }
-output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py --root-files app src components lib content public docs tests" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/(?:app|src|components|lib|content|public|docs|tests)/.+$" }, { type = "one_of", artifacts = ["@/README.md", "@/package.json", "@/package-lock.json", "@/pnpm-lock.yaml", "@/yarn.lock", "@/tsconfig.json", "@/next-env.d.ts"] }, { type = "regex", pattern = "^@/(?:next|postcss|tailwind|eslint|vitest|playwright)\\.config\\.[^/]+$" }] }, { type = "not", item = { type = "regex", pattern = "^@/tests/unit/bin/depemesh/.+$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] } }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py --root-files app src components lib public tests/unit/app tests/unit/src tests/unit/components tests/unit/lib tests/e2e" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/(?:app|src|components|lib|public)/.+$" }, { type = "regex", pattern = "^@/tests/unit/(?:app|src|components|lib)/.+$" }, { type = "regex", pattern = "^@/tests/e2e/.+\\.spec\\.[jt]sx?$" }, { type = "one_of", artifacts = ["@/package.json", "@/package-lock.json", "@/pnpm-lock.yaml", "@/yarn.lock", "@/tsconfig.json", "@/next-env.d.ts"] }, { type = "regex", pattern = "^@/(?:next|postcss|tailwind|eslint|vitest|playwright)\\.config\\.[^/]+$" }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
 
-# Exact filters keep captured [dynamic] route segments literal.
+# Historical TypeScript unit-test pairs.
+
 [[rules]]
 relation = "tested_by"
-input = { type = "all", items = [{ type = "regex", pattern = "^@/(?P<module>(?:app|src|components|lib)/.+)\\.(?P<extension>tsx?)$" }, { type = "not", item = { type = "regex", pattern = "^@/.*\\.(?:test|spec)\\.[^/]+$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] }
-output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py tests/unit" }, predicate = { type = "all", items = [{ type = "one_of", artifacts = ["@/tests/unit/{module}.test.{extension}"] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] } }
+input = { type = "all", items = [{ type = "regex", pattern = "^@/(?P<module>(?:app|src|components|lib)/.+)\\.(?P<extension>tsx?)$" }, { type = "not", item = { type = "regex", pattern = "^@/.*\\.(?:test|spec)\\.[^/]+$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py tests/unit" }, predicate = { type = "all", items = [{ type = "one_of", artifacts = ["@/tests/unit/{module}.test.{extension}"] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
 
 [[rules]]
 relation = "tests"
-input = { type = "all", items = [{ type = "regex", pattern = "^@/tests/unit/(?P<module>(?:app|src|components|lib)/.+)\\.test\\.(?P<extension>tsx?)$" }, { type = "not", item = { type = "regex", pattern = "^@/tests/unit/.*\\.(?:test|spec)\\.test\\.[^/]+$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] }
-output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py app src components lib" }, predicate = { type = "all", items = [{ type = "one_of", artifacts = ["@/{module}.{extension}"] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key))$" } }] } }
+input = { type = "all", items = [{ type = "regex", pattern = "^@/tests/unit/(?P<module>(?:app|src|components|lib)/.+)\\.test\\.(?P<extension>tsx?)$" }, { type = "not", item = { type = "regex", pattern = "^@/tests/unit/.*\\.(?:test|spec)\\.test\\.[^/]+$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py app src components lib" }, predicate = { type = "all", items = [{ type = "one_of", artifacts = ["@/{module}.{extension}"] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
+
+# Current Django platform ownership.
+
+[[rules]]
+relation = "governed_by"
+input = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/(?:accounts|notes|chats|pages|config|templates|static|locale|content|docs|tests|bin)/.+$" }, { type = "one_of", artifacts = ["@/README.md", "@/manage.py", "@/pyproject.toml", "@/uv.lock", "@/.python-version", "@/Makefile"] }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:bin/depemesh|tests/unit/bin/depemesh)/.+$" } }, { type = "not", item = { type = "regex", pattern = "^@/tests/unit/(?:app|src|components|lib)/.+$|^@/tests/e2e/.+\\.spec\\.[jt]sx?$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
+output = { type = "files", pattern = "@/specs/behavior/platform.md" }
+
+[[rules]]
+relation = "governs"
+input = { type = "one_of", artifacts = ["@/specs/behavior/platform.md"] }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py --root-files accounts notes chats pages config templates static locale content docs tests bin" }, predicate = { type = "all", items = [{ type = "any", items = [{ type = "regex", pattern = "^@/(?:accounts|notes|chats|pages|config|templates|static|locale|content|docs|tests|bin)/.+$" }, { type = "one_of", artifacts = ["@/README.md", "@/manage.py", "@/pyproject.toml", "@/uv.lock", "@/.python-version", "@/Makefile"] }] }, { type = "not", item = { type = "regex", pattern = "^@/(?:bin/depemesh|tests/unit/bin/depemesh)/.+$" } }, { type = "not", item = { type = "regex", pattern = "^@/tests/unit/(?:app|src|components|lib)/.+$|^@/tests/e2e/.+\\.spec\\.[jt]sx?$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
+
+# Python unit-test pairs.
+
+[[rules]]
+relation = "tested_by"
+input = { type = "all", items = [{ type = "regex", pattern = "^@/(?P<module>(?:accounts|notes|chats|pages|config|bin)(?:/[^/]+)*)/(?P<filename>[^/]+)\\.py$" }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?test_[^/]+\\.py$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py tests/unit" }, predicate = { type = "all", items = [{ type = "one_of", artifacts = ["@/tests/unit/{module}/test_{filename}.py"] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
+
+[[rules]]
+relation = "tests"
+input = { type = "all", items = [{ type = "regex", pattern = "^@/tests/unit/(?P<module>(?:accounts|notes|chats|pages|config|bin)(?:/[^/]+)*)/test_(?P<filename>[^/]+)\\.py$" }, { type = "not", item = { type = "regex", pattern = "^@/tests/unit/(?:.*/)?test_test_[^/]+\\.py$" } }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py accounts notes chats pages config bin" }, predicate = { type = "all", items = [{ type = "one_of", artifacts = ["@/{module}/{filename}.py"] }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
+
+[[rules]]
+relation = "tested_by"
+input = { type = "one_of", artifacts = ["@/manage.py"] }
+output = { type = "files", pattern = "@/tests/unit/test_manage.py" }
+
+[[rules]]
+relation = "tests"
+input = { type = "one_of", artifacts = ["@/tests/unit/test_manage.py"] }
+output = { type = "files", pattern = "@/manage.py" }
+
+# Explicit browser coverage.
+
+[[rules]]
+relation = "tested_by"
+input = { type = "one_of", artifacts = ["@/accounts/views.py", "@/notes/views.py", "@/chats/views.py", "@/pages/views.py", "@/static/js/chat.js", "@/templates/base.html"] }
+output = { type = "files", pattern = "@/tests/e2e/test_platform.py" }
+
+[[rules]]
+relation = "tests"
+input = { type = "one_of", artifacts = ["@/tests/e2e/test_platform.py"] }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py accounts notes chats pages static/js templates" }, predicate = { type = "one_of", artifacts = ["@/accounts/views.py", "@/notes/views.py", "@/chats/views.py", "@/pages/views.py", "@/static/js/chat.js", "@/templates/base.html"] } }

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+femaktiv_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$femaktiv_root"
+./bin/translations
+.venv/bin/ruff check .
+.venv/bin/ruff format --check .
+.venv/bin/python manage.py check
+.venv/bin/python manage.py makemigrations --check --dry-run
+.venv/bin/python manage.py collectstatic --noinput
+.venv/bin/python manage.py test tests.unit --verbosity 1
+.venv/bin/python manage.py test tests.e2e --verbosity 1

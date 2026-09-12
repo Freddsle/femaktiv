@@ -1,8 +1,8 @@
-# Working in FemAktiv
+# Working in femaktiv
 
 ## Read the applicable contracts
 
-Start with [the specification index](specs/intro.md) and [specification authoring requirements](specs/meta/general.md). Read the relevant specifications before changing files. For product work, also read the applicable sections of [the prototype build specification](00_initial/FEMAKTIV_BUILD_SPEC.md); it remains the detailed product contract. The unstructured overview is background, including ideas outside the current scope.
+Start with [the specification index](specs/intro.md) and [specification authoring requirements](specs/meta/general.md). Read the relevant specifications before changing files. For product work, read [the bilingual platform specification](specs/behavior/platform.md), which owns the current Django implementation. [The initial nutrition build specification](00_initial/FEMAKTIV_BUILD_SPEC.md) is preserved as a historical and future nutrition reference; its superseded architecture and acceptance gates do not govern the platform. The unstructured overview remains background.
 
 Explicit user instructions govern authorized requirement changes. Resolve conflicts using the ownership rules in the meta specification, and keep the affected documents consistent. Preserve unrelated work, including staged and untracked files.
 
@@ -29,7 +29,11 @@ Permanent workflows belong in `workflows/*.donna.md`; temporary plans and execut
 
 ## Preserve prototype boundaries
 
-Follow the build specification's fictional-adult demonstration scope, approved-content requirements, deterministic constraint checks, and separation of demo and live modes. Do not invent human content approval, clinical validation, or successful live integration results. Keep provider secrets server-side and out of tracked files, browser output, and logs. Routine automated checks must use mocks and must not consume provider credits.
+Follow the platform specification's private-data ownership, bilingual interface and honest placeholder/example requirements. The initial nutrition specification remains a reference for any separately authorized future nutrition feature. Do not invent human content approval, clinical validation, live AI replies, or community participation. Keep provider secrets server-side and out of tracked files, browser output, and logs. Routine automated checks must use mocks and must not consume provider credits.
+
+## Write commit messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/): `type(scope): description` (scope optional). Match the staged changes: `feat` for features, `fix` for bug fixes, `docs` for documentation, and `chore` for repository maintenance. Keep descriptions concise and imperative. Mark breaking changes with `!` before the colon.
 
 ## Verify and report
 

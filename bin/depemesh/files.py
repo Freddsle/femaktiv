@@ -11,7 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 EXCLUDED_DIRS = {
     ".git", ".session", ".agents", ".codex", "node_modules", ".next",
     "dist", "build", "coverage", "playwright-report", "test-results",
-    ".venv", "__pycache__", ".cache",
+    ".venv", "__pycache__", ".cache", ".local", ".ruff_cache",
+    ".pytest_cache", "staticfiles",
 }
 
 
@@ -21,7 +22,8 @@ def eligible(path):
         not EXCLUDED_DIRS.intersection(relative.parts)
         and path.name != ".env"
         and not path.name.startswith(".env.")
-        and path.suffix not in {".pyc", ".pem", ".key"}
+        and path.suffix not in {".pyc", ".pem", ".key", ".mo", ".sqlite", ".sqlite3", ".db"}
+        and not path.name.endswith(tuple(extension + ending for extension in (".sqlite", ".sqlite3", ".db") for ending in ("-wal", "-shm", "-journal")))
         and path.is_file()
         and path.resolve().is_relative_to(ROOT)
     )

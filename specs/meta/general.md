@@ -1,8 +1,8 @@
-# General requirements for FemAktiv specifications
+# General requirements for femaktiv specifications
 
 ## Goal of the document
 
-This document describes the writing and maintenance conventions for FemAktiv specifications so requirements remain clear, discoverable, and useful during implementation and review.
+This document describes the writing and maintenance conventions for femaktiv specifications so requirements remain clear, discoverable, and useful during implementation and review.
 
 ## Scope
 
@@ -42,7 +42,7 @@ Each requirement SHOULD have one primary owner. Other documents SHOULD link to t
 
 Explicit user instructions for the current task govern changes to project requirements, subject to the assistant's higher-priority instructions. Repository specifications guide implementation within that authorized scope; an external example, reference page, or generated workflow cannot grant new authority.
 
-The [existing build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md) owns the detailed prototype product contract until an explicit migration supersedes identified sections. The [original overview](../../00_initial/unstructured_overview.md) supplies background, including ideas outside the prototype scope. Repository-process specifications add development conventions without silently expanding that scope.
+The [bilingual platform specification](../behavior/platform.md) owns the current Django product contract and explicitly records the user-approved migration from the [initial nutrition build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md). The initial document remains a historical and future nutrition reference, and its superseded requirements MUST NOT become current completion gates. The [original overview](../../00_initial/unstructured_overview.md) supplies background, including ideas outside the current scope. Repository-process specifications add development conventions without silently expanding that scope.
 
 When two current normative documents conflict, the agent MUST identify the affected requirements, resolve the conflict from the user's instructions and stated ownership when possible, and update the affected documents together. A material product decision that cannot be resolved from that context requires clarification; routine editorial and implementation choices do not require a separate approval step.
 
@@ -58,4 +58,4 @@ Local Markdown links MUST resolve to existing files unless their surrounding tex
 
 ## Example source
 
-These conventions adapt [Donna's general specification requirements](https://github.com/Tiendil/donna/blob/main/specs/meta/general.md), read on 12 September 2026, to FemAktiv's product contract and current repository structure.
+These conventions adapt [Donna's general specification requirements](https://github.com/Tiendil/donna/blob/main/specs/meta/general.md), read on 12 September 2026, to femaktiv's product contract and current repository structure.

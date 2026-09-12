@@ -1,8 +1,8 @@
-# FemAktiv development workflows
+# femaktiv development workflows
 
 ## Goal of the document
 
-This document lists the Donna workflows needed to maintain FemAktiv's specifications, implement the prototype, verify its behavior, and prepare an honest demonstration.
+This document lists the Donna workflows needed to maintain femaktiv's specifications, implement the prototype, verify its behavior, and prepare an honest demonstration.
 
 ## Scope
 
@@ -24,25 +24,31 @@ Each workflow MUST be validated with `donna -p llm validate` before use. The age
 
 | Workflow | Artifact path | Status and introduction gate |
 | --- | --- | --- |
-| Establish specifications | [establish-specifications.donna.md](../../workflows/establish-specifications.donna.md) | Available; implements the six requested repository-setup steps and validation/review. |
-| Maintain specifications | `workflows/maintain-specifications.donna.md` | Planned; introduce for the next substantial specification or file-layout change. |
-| Plan prototype implementation | `workflows/plan-implementation.donna.md` | Planned; introduce before application implementation begins. |
-| Implement a scoped change | `workflows/implement-change.donna.md` | Planned; introduce with the first implementation work package. |
-| Verify implementation quality | `workflows/verify-quality.donna.md` | Planned; introduce when application scripts and test suites exist. |
-| Review evidence and catalogue | `workflows/review-evidence.donna.md` | Planned; introduce when content schemas and draft records exist, before presented recommendations. |
-| Verify live anymize integration | `workflows/verify-live-provider.donna.md` | Planned; introduce with the provider adapter and an explicitly authorized live check. |
-| Prepare the demonstration | `workflows/prepare-demo.donna.md` | Planned; introduce before demonstration acceptance and presentation. |
+| Establish specifications | [establish-specifications.donna.md](../../workflows/establish-specifications.donna.md) | Available; implements repository setup and validation/review. |
+| Implement the bilingual platform | [implement-platform.donna.md](../../workflows/implement-platform.donna.md) | Available; combines specification alignment, implementation planning, scoped implementation, quality checks and local handoff. |
+| Maintain specifications separately | `workflows/maintain-specifications.donna.md` | Planned; introduce if recurring independent specification work needs a dedicated controller. |
+| Review evidence and catalogue | `workflows/review-evidence.donna.md` | Deferred; needed only when separately authorized nutrition recommendations require reviewed content. |
+| Verify live provider integration | `workflows/verify-live-provider.donna.md` | Deferred; needed with a real provider adapter and an explicitly authorized live check. |
+| Prepare a nutrition demonstration | `workflows/prepare-demo.donna.md` | Deferred; applies to a separately authorized nutrition demonstration. |
 
-This table is the complete required workflow set for the current prototype scope. A planned workflow MUST be implemented and validated by its introduction gate, or reported as an unmet prerequisite. It MUST NOT appear as an available command or successful run before its artifact exists. A new permanent workflow MUST be added here in the same change that creates it; `donna list` and the available entries MUST agree.
+The available entries are the executable workflows required for the current scope. The platform workflow performs the planning, implementation and quality responsibilities described below in one controller; separate planning, implementation and quality workflow artifacts are not prerequisites. Planned or deferred entries MUST NOT be presented as runnable or successfully executed. A new permanent workflow MUST be added here in the same change; `donna list` and available entries MUST agree.
 
-The [build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md) owns the implementation milestones, acceptance cases T01–T20, content requirements, and P0/P1 boundaries. The workflow descriptions below sequence those requirements rather than replacing them.
+The [platform specification](../behavior/platform.md) owns current product behavior and acceptance. The [initial nutrition build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md) remains a historical/future reference; its T01–T20 gates and live-provider/evidence-review milestones do not apply to this placeholder platform.
+
+## Implement the bilingual platform
+
+- **Trigger and inputs:** the authorized platform implementation or a related scoped change; the current platform contract, repository reality, governing specifications, and relevant tests.
+- **Stages:** establish the migrated requirements and work packages; implement and integrate accounts, notes, persistent chats, bilingual examples and the placeholder API; run automated checks; repair failures; review browser behavior and local production serving; document actual results and local access commands.
+- **Failure handling:** failed checks route to repair and rerun. Missing dependencies are reported precisely. Existing task authorization covers routine fixes; no live AI, external publishing or forum functionality is implied.
+- **Outputs:** integrated application, dependency lockfile, migrations, translations, meaningful tests, startup instructions and `docs/VALIDATION.md` with observed results.
+- **Completion gate:** platform acceptance passes, automated repository checks pass, browser review covers both locales and 390px/1440px, production smoke checks pass, and the local URL is verified. Check Donna status before declaring the workflow complete.
 
 ## Establish specifications
 
 - **Trigger and inputs:** the user's request to establish or refresh repository specifications; the two supplied Donna examples; the current README, planning files, agent instructions, and Donna/Depmesh configuration.
 - **Stages:** read the examples and project context; create the index and meta requirements; align `AGENTS.md`; specify file relations; configure Depmesh and necessary helpers in `bin/depemesh/`; catalogue required workflows; run automated checks; review all six requested deliverables.
 - **Failure handling:** inaccessible examples require access recovery or a truthful source blocker. Configuration, link, graph, or workflow errors route to repair and revalidation. Re-execution MUST preserve unrelated changes and adapt existing files instead of overwriting them blindly.
-- **Outputs:** the four current specifications, root agent instructions, working relation configuration/helper, and the executable setup workflow. Execution evidence remains in Donna's session and the final report.
+- **Outputs:** the setup specifications, root agent instructions, working relation configuration/helper, and the executable setup workflow. Execution evidence remains in Donna's session and the final report.
 - **Completion gate:** `python3 bin/depemesh/check.py`, `donna -p llm validate --all`, and `git diff --check` pass; manual review confirms the product contract and six deliverables; Donna has no pending work for the completed task. This gate says nothing about application readiness.
 
 ## Maintain specifications
@@ -53,13 +59,13 @@ The [build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md) owns the impl
 - **Outputs:** a consistent specification change and updated impact mappings, with an explicit migration note when product-contract sections change ownership.
 - **Completion gate:** specification/relation checks pass, affected executable workflows validate, and the review identifies no stale authoritative copy or unindexed current spec.
 
-## Plan prototype implementation
+## Plan platform implementation
 
-- **Trigger and inputs:** a request to implement the prototype or a milestone; repository reality, installed tools, the build contract, and the relevant specification graph.
-- **Stages:** inspect existing code and commands; compare scope to actual implementation; identify dependencies and blockers; break the milestone into bounded changes with acceptance checks; create a temporary Donna implementation plan under `.session/donna/`; validate that plan.
+- **Trigger and inputs:** a request to implement the platform or a related milestone; repository reality, installed tools, the platform contract, and the relevant specification graph.
+- **Stages:** inspect existing code and commands; compare scope to actual implementation; identify dependencies and blockers; break the milestone into bounded changes with acceptance checks; record bounded work packages under `.session/donna/`; validate the execution workflow.
 - **Failure handling:** record missing credentials or tooling precisely and continue planning independent demo/mock work. Do not invent a package version, endpoint behavior, passed check, or guaranteed schedule.
-- **Outputs:** a dependency-ordered implementation plan, actual starting-state notes, and a validated session workflow whose steps connect to the build-specification milestones.
-- **Completion gate:** every planned work package names its inputs, outcome, and verification; P0 precedes P1; unrelated scope and automatic live-provider calls are absent. This workflow prepares the plan; implementation starts only within the user's authorized scope.
+- **Outputs:** dependency-ordered work packages and actual starting-state notes; the available platform workflow supplies the validated execution controller.
+- **Completion gate:** every planned work package names its inputs, outcome, and verification; platform dependencies determine the order; unrelated scope and live-provider calls are absent. This workflow prepares the plan; implementation starts only within the user's authorized scope.
 
 ## Implement a scoped change
 
@@ -72,12 +78,12 @@ The [build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md) owns the impl
 ## Verify implementation quality
 
 - **Trigger and inputs:** implementation changes ready for regression review, or an explicit request to check the app; installed dependencies, the actual package scripts, fixtures, and acceptance requirements.
-- **Stages:** resolve the repository's package manager from its manifest/lockfile; run the configured formatter when present and appropriate; run `lint`, `typecheck`, `test`, `test:e2e`, and `build`; exercise the local production server for relevant browser checks; inspect results and rerun only checks affected by repairs.
-- **Failure handling:** capture the command and its output; repair the specific failure; rerun the affected stage. Missing required scripts are an unmet implementation gate, not skipped success. Do not replace the lockfile merely to run preferred commands.
+- **Stages:** use the committed `uv` dependency lockfile; run the application check entrypoint, Django system and missing-migration checks, automated tests, translation compilation and static-file collection; exercise the local production server and relevant browser checks; inspect results and rerun only checks affected by repairs.
+- **Failure handling:** capture the command and its output; repair the specific failure; rerun the affected stage. Missing required check commands are an unmet implementation gate, not skipped success. Do not replace the lockfile merely to run preferred commands.
 - **Outputs:** reproducible commands and observed results, including which build/browser checks ran and any remaining blockers; maintain `docs/VALIDATION.md` once that report exists.
-- **Completion gate:** the build specification's applicable automated acceptance invariants and required commands pass. Routine runs MUST use deterministic demo/mock providers and MUST make no billable inference requests. Specification/tooling-only changes use the repository checks from the setup workflow instead of claiming application checks ran.
+- **Completion gate:** the platform specification's automated acceptance invariants and required checks pass. Routine runs MUST use the deterministic placeholder service and MUST make no provider requests. Specification/tooling-only changes use the repository checks from the setup workflow instead of claiming application checks ran.
 
-## Review evidence and catalogue
+## Future evidence and catalogue review
 
 - **Trigger and inputs:** new or changed source, claim, or option records; content schemas, source links, and an identified evidence/quality owner.
 - **Stages:** validate record structure and unique identifiers; verify option–claim–source references; inspect complete ingredient/allergen tags and eligibility behavior; prepare draft records and source-support notes; obtain the evidence owner's actual review; revalidate approved records and the approved-only output boundary.
@@ -85,7 +91,7 @@ The [build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md) owns the impl
 - **Outputs:** validated catalogue data, honest draft/approval metadata, and a record of actual source and ingredient review. Automated logs MUST NOT contain user health data.
 - **Completion gate:** structurally valid records, supported relationships, and actual human approval for the records presented in recommendations. This workflow MUST NOT invent reviewer identities or approve the agent's own drafts on behalf of a person.
 
-## Verify live anymize integration
+## Future live provider verification
 
 - **Trigger and inputs:** explicit authorization for a live check; the real adapter/smoke command, server-side credentials, account-accessible models, bounded fictional scenarios, and current provider documentation.
 - **Stages:** confirm configuration without revealing secrets; retrieve supported model identifiers; perform the build specification's bounded fictional smoke/evaluation cases; validate structured output and required provider metadata; check controlled failures and mode honesty; record non-sensitive measurements.
@@ -93,7 +99,7 @@ The [build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md) owns the impl
 - **Outputs:** actual model/output mode, observed pass/fail results, timing when measured, and remaining integration constraints. Ordinary quality checks MUST NOT invoke this workflow implicitly.
 - **Completion gate:** the authorized live cases actually ran and met the required adapter boundaries. If live access is unavailable, retain useful mock results but label live integration untested. Provider metadata MUST NOT be described as independent proof of anonymization quality.
 
-## Prepare the demonstration
+## Future nutrition demonstration
 
 - **Trigger and inputs:** a presentation-readiness request; the integrated app, quality results, human content-review state, and any separately authorized live evaluation results.
 - **Stages:** review T01–T20 coverage and known blockers; rehearse the canonical fictional scenario, a changed exclusion, an exact evidence explanation, and a refusal; review keyboard access and 390px/1440px layouts; verify reset, privacy, and mode labels; prepare a clearly identified backup recording and an accurate handoff.
@@ -103,6 +109,6 @@ The [build specification](../../00_initial/FEMAKTIV_BUILD_SPEC.md) owns the impl
 
 ## Maintenance and verification
 
-Workflow changes MUST keep this catalogue, the actual Donna artifacts, agent instructions, and dependency mappings consistent. Shared quality checks SHOULD be reused through an available child workflow rather than copied into multiple independent implementations. A parent action MUST wait for a child workflow's real outcome before reporting completion.
+Workflow changes MUST keep this catalogue, the actual Donna artifacts, agent instructions, and dependency mappings consistent. Shared quality checks SHOULD be reused through the application check entrypoint and available platform workflow. Separate child workflows MAY be introduced when needed. A parent action MUST wait for a child workflow's real outcome before reporting completion.
 
 The setup verification command checks specification structure and file links, not the semantic completeness of planned workflows. Manual review MUST compare the available entries with `donna -p llm list`, inspect `donna -p llm validate --all`, and confirm that the planned gates still match the current product scope. Execution reports MUST distinguish an available/valid workflow from a successfully executed workflow.

@@ -1,2 +1,24 @@
 # Donna runtime state and temporary workflows.
 /.session/donna/
+
+# Development documents
+00_initial/*
+
+# Local application state, secrets, dependencies and generated artifacts.
+/.local/
+/.venv/
+/staticfiles/
+/.ruff_cache/
+/.pytest_cache/
+/.coverage
+/htmlcov/
+/test-results/
+/playwright-report/
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.sqlite3-*
+.env
+.env.*
+!.env.example
+*.mo

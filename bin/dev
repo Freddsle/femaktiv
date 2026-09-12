@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+femaktiv_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$femaktiv_root"
+exec .venv/bin/python manage.py runserver "127.0.0.1:${FEMAKTIV_PORT:-8000}"

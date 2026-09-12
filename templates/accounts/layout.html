@@ -1,0 +1,3 @@
+{% extends 'base.html' %}{% load i18n %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}<section class="auth-layout page-width"><aside class="auth-aside"><span class="eyebrow">{% translate 'YOUR SPACE TO TAKE A BREATH' %}</span><h1>{% translate 'A little clarity.' %}<br><em>{% translate 'A little more you.' %}</em></h1><p>{% translate 'Keep your questions, your context, and your next steps together. Come as you are.' %}</p><div class="auth-flower" aria-hidden="true">✳</div><div class="auth-promise">{% include 'components/icon.html' with name='lock' %}<span>{% translate 'Your chats and notes are private to your account.' %}</span></div></aside><div class="auth-card">{% block auth_content %}{% endblock %}</div></section>{% endblock %}

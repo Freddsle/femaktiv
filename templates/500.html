@@ -1,0 +1,34 @@
+{% load i18n %}{% get_current_language as LANGUAGE_CODE %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fcf9f6">
+  <title>{% translate 'Something went wrong' %} · femaktiv</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #39273e; background: #fcf9f6; font: 15px/1.8 Arial, sans-serif; }
+    header { padding: 25px 7%; border-bottom: 1px solid #e7dfe4; }
+    .brand { color: #39273e; font: 600 32px Georgia, serif; letter-spacing: -.06em; text-decoration: none; }
+    .brand span { color: #dd9076; }
+    main { max-width: 550px; margin: 70px auto; padding: 0 25px; text-align: center; }
+    .flower { color: #a87bb8; font: 80px Georgia, serif; }
+    .code { color: #785098; font-size: 11px; letter-spacing: .17em; margin: 25px 0 15px; }
+    h1 { font: 400 clamp(38px, 6vw, 48px)/1.2 Georgia, serif; letter-spacing: -.04em; margin: 0 0 22px; }
+    p { color: #736675; margin-bottom: 30px; }
+    .button { display: inline-block; color: white; background: #785098; border-radius: 30px; padding: 13px 25px; font-size: 13px; text-decoration: none; }
+    a:focus-visible { outline: 3px solid #a778c6; outline-offset: 5px; }
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/{{ LANGUAGE_CODE }}/">femaktiv<span>.</span></a></header>
+  <main>
+    <div class="flower" aria-hidden="true">✳</div>
+    <div class="code">500</div>
+    <h1>{% translate 'A small pause.' %}</h1>
+    <p>{% translate 'Something went wrong on our side. Please try again shortly.' %}</p>
+    <a class="button" href="/{{ LANGUAGE_CODE }}/">{% translate 'Back to home' %}</a>
+  </main>
+</body>
+</html>

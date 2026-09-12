@@ -1,0 +1,1258 @@
+# German translations for femaktiv.
+# English is the source and default language.
+# Copyright (C) 2026 femaktiv contributors
+# This file is distributed under the same license as the femaktiv package.
+msgid ""
+msgstr ""
+"Project-Id-Version: femaktiv 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-12 16:34+0200\n"
+"PO-Revision-Date: 2026-09-12 14:48+0000\n"
+"Last-Translator: femaktiv development (AI-assisted)\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: accounts/admin.py:18
+msgid "Profile"
+msgstr "Profil"
+
+#: accounts/admin.py:19
+msgid "Permissions"
+msgstr "Berechtigungen"
+
+#: accounts/admin.py:20
+msgid "Dates"
+msgstr "Zeitangaben"
+
+#: accounts/apps.py:8
+msgid "Accounts"
+msgstr "Konten"
+
+#: accounts/forms.py:20
+msgid "An account with this email address already exists."
+msgstr "Für diese E-Mail-Adresse gibt es bereits ein Konto."
+
+#: accounts/forms.py:26 accounts/models.py:42
+msgid "Email address"
+msgstr "E-Mail-Adresse"
+
+#: accounts/forms.py:31
+msgid "Please enter a correct email address and password."
+msgstr ""
+"Bitte gib eine gültige E-Mail-Adresse und das zugehörige Passwort ein."
+
+#: accounts/forms.py:32
+msgid "This account is inactive."
+msgstr "Dieses Konto ist nicht aktiv."
+
+#: accounts/models.py:43
+msgid "Display name"
+msgstr "Anzeigename"
+
+#: accounts/views.py:34
+msgid "Your display name has been updated."
+msgstr "Dein Anzeigename wurde aktualisiert."
+
+#: bin/compile_translations.py:25 templates/accounts/settings.html:2
+msgid "Password"
+msgstr "Passwort"
+
+#: bin/compile_translations.py:26
+msgid "Password confirmation"
+msgstr "Passwort bestätigen"
+
+#: bin/compile_translations.py:27
+msgid "Old password"
+msgstr "Bisheriges Passwort"
+
+#: bin/compile_translations.py:28
+msgid "New password"
+msgstr "Neues Passwort"
+
+#: bin/compile_translations.py:29
+msgid "New password confirmation"
+msgstr "Neues Passwort bestätigen"
+
+#: bin/compile_translations.py:30
+msgid "Email"
+msgstr "E-Mail-Adresse"
+
+#: bin/compile_translations.py:31
+msgid "Enter the same password as before, for verification."
+msgstr "Gib zur Bestätigung dasselbe Passwort noch einmal ein."
+
+#: bin/compile_translations.py:32
+msgid "The two password fields didn’t match."
+msgstr "Die beiden Passwörter stimmen nicht überein."
+
+#: bin/compile_translations.py:33
+msgid "Your old password was entered incorrectly. Please enter it again."
+msgstr "Dein bisheriges Passwort ist nicht korrekt. Gib es noch einmal ein."
+
+#: bin/compile_translations.py:34
+msgid "Your password can’t be too similar to your other personal information."
+msgstr ""
+"Dein Passwort darf deinen anderen persönlichen Angaben nicht zu ähnlich "
+"sein."
+
+#: bin/compile_translations.py:35
+msgid "Your password can’t be a commonly used password."
+msgstr "Dein Passwort darf kein häufig verwendetes Passwort sein."
+
+#: bin/compile_translations.py:36
+msgid "Your password can’t be entirely numeric."
+msgstr "Dein Passwort darf nicht nur aus Ziffern bestehen."
+
+#: bin/compile_translations.py:37
+msgid "This password is too common."
+msgstr "Dieses Passwort wird zu häufig verwendet."
+
+#: bin/compile_translations.py:38
+msgid "This password is entirely numeric."
+msgstr "Dieses Passwort besteht nur aus Ziffern."
+
+#: bin/compile_translations.py:39
+#, python-format
+msgid "The password is too similar to the %(verbose_name)s."
+msgstr "Das Passwort ist dieser Angabe zu ähnlich: %(verbose_name)s."
+
+#: bin/compile_translations.py:40
+msgid "This field is required."
+msgstr "Dieses Feld ist erforderlich."
+
+#: bin/compile_translations.py:41
+msgid "Enter a valid email address."
+msgstr "Gib eine gültige E-Mail-Adresse ein."
+
+#: bin/compile_translations.py:43
+#, python-format
+msgid "Your password must contain at least %(min_length)d character."
+msgid_plural "Your password must contain at least %(min_length)d characters."
+msgstr[0] "Dein Passwort muss mindestens %(min_length)d Zeichen enthalten."
+msgstr[1] "Dein Passwort muss mindestens %(min_length)d Zeichen enthalten."
+
+#: chats/service.py:29
+msgid ""
+"Your message has been saved. AI replies are not connected yet. You can "
+"continue adding thoughts, attach your notes, or explore an example "
+"conversation."
+msgstr ""
+"Deine Nachricht wurde gespeichert. KI-Antworten sind noch nicht verfügbar. "
+"Du kannst weitere Gedanken hinzufügen, deine Notizen anhängen oder dir einen"
+" Beispielchat ansehen."
+
+#: chats/views.py:41 templates/chats/workspace.html:2
+msgid "New chat"
+msgstr "Neuer Chat"
+
+#: chats/views.py:56
+msgid "Choose a title between 1 and 120 characters."
+msgstr "Wähle einen Titel mit 1 bis 120 Zeichen."
+
+#: chats/views.py:60
+msgid "Chat renamed."
+msgstr "Der Chat wurde umbenannt."
+
+#: chats/views.py:69
+msgid "Chat and attached copies deleted."
+msgstr "Der Chat und die angehängten Kopien wurden gelöscht."
+
+#: chats/views.py:113
+msgid ""
+"This request was already used for another message. Refresh and try again."
+msgstr ""
+"Diese Anfrage wurde bereits für eine andere Nachricht verwendet. Lade die "
+"Seite neu und versuche es noch einmal."
+
+#: chats/views.py:124
+msgid "Please log in again to send your message."
+msgstr "Melde dich erneut an, um deine Nachricht zu senden."
+
+#: chats/views.py:147
+msgid "This message is too large."
+msgstr "Diese Nachricht ist zu lang."
+
+#: chats/views.py:151
+msgid ""
+"Write a message of up to 4,000 characters and select no more than five "
+"notes."
+msgstr ""
+"Schreibe eine Nachricht mit bis zu 4.000 Zeichen und wähle höchstens fünf "
+"Notizen aus."
+
+#: chats/views.py:158
+msgid "This chat is not available."
+msgstr "Dieser Chat ist nicht verfügbar."
+
+#: chats/views.py:168
+msgid ""
+"One of the selected notes is no longer available. Update your selection."
+msgstr ""
+"Eine der ausgewählten Notizen ist nicht mehr verfügbar. Aktualisiere deine "
+"Auswahl."
+
+#: chats/views.py:215
+msgid "This conversation changed. Refresh the page and try again."
+msgstr ""
+"Dieser Chat hat sich geändert. Lade die Seite neu und versuche es noch "
+"einmal."
+
+#: chats/views.py:220
+msgid "Your message could not be saved right now. Please try again."
+msgstr ""
+"Deine Nachricht konnte gerade nicht gespeichert werden. Versuche es noch "
+"einmal."
+
+#: config/views.py:23
+msgid "Your session could not be verified. Refresh the page and try again."
+msgstr ""
+"Deine Sitzung konnte nicht bestätigt werden. Lade die Seite neu und versuche"
+" es noch einmal."
+
+#: notes/apps.py:8
+msgid "Personal notes"
+msgstr "Persönliche Notizen"
+
+#: notes/forms.py:12
+msgid "For example: My food preferences"
+msgstr "Zum Beispiel: Meine Essensvorlieben"
+
+#: notes/forms.py:13
+msgid "Write what you would like to keep for future chats."
+msgstr "Schreibe auf, was du für spätere Chats festhalten möchtest."
+
+#: notes/models.py:12
+msgid "Title"
+msgstr "Titel"
+
+#: notes/models.py:13
+msgid "Note"
+msgstr "Notiz"
+
+#: notes/views.py:28
+msgid "Your note has been saved."
+msgstr "Deine Notiz wurde gespeichert."
+
+#: notes/views.py:41
+msgid "Your note has been updated."
+msgstr "Deine Notiz wurde aktualisiert."
+
+#: notes/views.py:53
+msgid "Your note has been deleted."
+msgstr "Deine Notiz wurde gelöscht."
+
+#: templates/404.html:1
+msgid "Page not found"
+msgstr "Seite nicht gefunden"
+
+#: templates/404.html:1
+#| msgid "A little more you."
+msgid "A little off the path."
+msgstr "Ein kleiner Umweg."
+
+#: templates/404.html:1
+msgid "This page is not available. Let us take you somewhere familiar."
+msgstr ""
+"Diese Seite ist nicht verfügbar. Wir bringen dich zurück auf vertraute Wege."
+
+#: templates/404.html:1 templates/500.html:1 templates/errors/403.html:1
+#: templates/pages/example.html:2
+msgid "Back to home"
+msgstr "Zurück zur Startseite"
+
+#: templates/500.html:1
+msgid "Something went wrong"
+msgstr "Etwas ist schiefgelaufen"
+
+#: templates/500.html:1
+msgid "A small pause."
+msgstr "Eine kleine Pause."
+
+#: templates/500.html:1
+msgid "Something went wrong on our side. Please try again shortly."
+msgstr "Bei uns ist etwas schiefgelaufen. Versuche es in Kürze noch einmal."
+
+#: templates/accounts/layout.html:3
+msgid "YOUR SPACE TO TAKE A BREATH"
+msgstr "DEIN RAUM ZUM DURCHATMEN"
+
+#: templates/accounts/layout.html:3
+msgid "A little clarity."
+msgstr "Ein bisschen Klarheit."
+
+#: templates/accounts/layout.html:3
+msgid "A little more you."
+msgstr "Ein bisschen mehr du."
+
+#: templates/accounts/layout.html:3
+msgid ""
+"Keep your questions, your context, and your next steps together. Come as you"
+" are."
+msgstr ""
+"Behalte deine Fragen, wichtige Details und nächste Schritte an einem Ort. "
+"Komm so, wie du bist."
+
+#: templates/accounts/layout.html:3
+msgid "Your chats and notes are private to your account."
+msgstr "Deine Chats und Notizen sind nur über dein Konto zugänglich."
+
+#: templates/accounts/login.html:1 templates/accounts/login.html:2
+#: templates/accounts/password_reset_complete.html:2
+#: templates/accounts/signup.html:2 templates/base.html:43
+msgid "Log in"
+msgstr "Anmelden"
+
+#: templates/accounts/login.html:2
+msgid "GOOD TO HAVE YOU HERE"
+msgstr "SCHÖN, DASS DU DA BIST"
+
+#: templates/accounts/login.html:2
+msgid "Welcome back."
+msgstr "Willkommen zurück."
+
+#: templates/accounts/login.html:2
+msgid "Your space is right where you left it."
+msgstr "Dein Bereich wartet auf dich."
+
+#: templates/accounts/login.html:2
+msgid "Forgot your password?"
+msgstr "Passwort vergessen?"
+
+#: templates/accounts/login.html:2
+msgid "New to femaktiv?"
+msgstr "Neu bei femaktiv?"
+
+#: templates/accounts/login.html:2 templates/accounts/signup.html:1
+msgid "Create an account"
+msgstr "Konto erstellen"
+
+#: templates/accounts/password_change.html:1
+#: templates/accounts/password_change.html:2
+#: templates/accounts/settings.html:2
+msgid "Change password"
+msgstr "Passwort ändern"
+
+#: templates/accounts/password_change.html:2
+#: templates/accounts/settings.html:1 templates/accounts/settings.html:2
+#: templates/base.html:43
+msgid "Account settings"
+msgstr "Kontoeinstellungen"
+
+#: templates/accounts/password_change.html:2
+msgid "A new password."
+msgstr "Ein neues Passwort."
+
+#: templates/accounts/password_change.html:2
+#: templates/accounts/password_reset_confirm.html:2
+msgid "Choose a strong password you do not use elsewhere."
+msgstr "Wähle ein sicheres Passwort, das du nirgendwo sonst verwendest."
+
+#: templates/accounts/password_change_done.html:1
+msgid "Password changed"
+msgstr "Passwort geändert"
+
+#: templates/accounts/password_change_done.html:2
+msgid "All updated."
+msgstr "Alles aktualisiert."
+
+#: templates/accounts/password_change_done.html:2
+msgid "Your password has been changed."
+msgstr "Dein Passwort wurde geändert."
+
+#: templates/accounts/password_change_done.html:2
+msgid "Back to account settings"
+msgstr "Zurück zu den Kontoeinstellungen"
+
+#: templates/accounts/password_reset.html:1
+msgid "Reset password"
+msgstr "Passwort zurücksetzen"
+
+#: templates/accounts/password_reset.html:2
+#: templates/accounts/password_reset_done.html:2
+msgid "Back to login"
+msgstr "Zurück zur Anmeldung"
+
+#: templates/accounts/password_reset.html:2
+msgid "Let us help you back in."
+msgstr "Wir helfen dir, zurückzukommen."
+
+#: templates/accounts/password_reset.html:2
+msgid "Enter your account email to request a password reset link."
+msgstr ""
+"Gib die E-Mail-Adresse deines Kontos ein, um einen Link zum Zurücksetzen "
+"anzufordern."
+
+#: templates/accounts/password_reset.html:2
+msgid "Send reset link"
+msgstr "Link zum Zurücksetzen senden"
+
+#: templates/accounts/password_reset_complete.html:1
+msgid "Password reset complete"
+msgstr "Passwort zurückgesetzt"
+
+#: templates/accounts/password_reset_complete.html:2
+msgid "You are ready to return."
+msgstr "Du kannst wieder loslegen."
+
+#: templates/accounts/password_reset_complete.html:2
+msgid "Your new password is saved. Log in to continue."
+msgstr ""
+"Dein neues Passwort ist gespeichert. Melde dich an, um weiterzumachen."
+
+#: templates/accounts/password_reset_confirm.html:1
+msgid "Choose a new password"
+msgstr "Neues Passwort wählen"
+
+#: templates/accounts/password_reset_confirm.html:2
+msgid "A fresh password."
+msgstr "Ein frisches Passwort."
+
+#: templates/accounts/password_reset_confirm.html:2
+msgid "Save new password"
+msgstr "Neues Passwort speichern"
+
+#: templates/accounts/password_reset_confirm.html:2
+msgid "This link has expired."
+msgstr "Dieser Link ist abgelaufen."
+
+#: templates/accounts/password_reset_confirm.html:2
+msgid "Request a new reset link to get back to your space."
+msgstr ""
+"Fordere einen neuen Link zum Zurücksetzen an, um wieder in deinen Bereich zu"
+" gelangen."
+
+#: templates/accounts/password_reset_confirm.html:2
+msgid "Request a new link"
+msgstr "Neuen Link anfordern"
+
+#: templates/accounts/password_reset_done.html:1
+msgid "Reset link requested"
+msgstr "Link zum Zurücksetzen angefordert"
+
+#: templates/accounts/password_reset_done.html:2
+msgid "Check your email."
+msgstr "Schau in dein E-Mail-Postfach."
+
+#: templates/accounts/password_reset_done.html:2
+msgid ""
+"If an account exists with that email, we have sent password reset "
+"instructions."
+msgstr ""
+"Wenn es zu dieser E-Mail-Adresse ein Konto gibt, haben wir dir eine "
+"Anleitung zum Zurücksetzen geschickt."
+
+#: templates/accounts/password_reset_email.txt:1
+msgid "Hello from femaktiv,"
+msgstr "Hallo von femaktiv,"
+
+#: templates/accounts/password_reset_email.txt:3
+msgid ""
+"You requested a password reset. Open the link below to choose a new "
+"password:"
+msgstr ""
+"Du hast angefordert, dein Passwort zurückzusetzen. Öffne den folgenden Link,"
+" um ein neues Passwort zu wählen:"
+
+#: templates/accounts/password_reset_email.txt:7
+msgid ""
+"If you did not request this, you can ignore this email. Your password will "
+"stay the same."
+msgstr ""
+"Falls du das nicht angefordert hast, kannst du diese E-Mail ignorieren. Dein"
+" Passwort bleibt unverändert."
+
+#: templates/accounts/password_reset_subject.txt:1
+msgid "Reset your femaktiv password"
+msgstr "Dein femaktiv-Passwort zurücksetzen"
+
+#: templates/accounts/settings.html:2
+msgid "Back to chats"
+msgstr "Zurück zu den Chats"
+
+#: templates/accounts/settings.html:2
+msgid "YOUR PERSONAL SPACE"
+msgstr "DEIN PERSÖNLICHER BEREICH"
+
+#: templates/accounts/settings.html:2
+msgid "The small details that make this space yours."
+msgstr "Die kleinen Details, die diesen Ort zu deinem machen."
+
+#: templates/accounts/settings.html:2
+msgid "Save changes"
+msgstr "Änderungen speichern"
+
+#: templates/accounts/settings.html:2
+msgid "Keep your account secure with a strong password."
+msgstr "Schütze dein Konto mit einem sicheren Passwort."
+
+#: templates/accounts/signup.html:2
+msgid "A FRESH START"
+msgstr "EIN FRISCHER ANFANG"
+
+#: templates/accounts/signup.html:2
+msgid "Make yourself at home."
+msgstr "Komm erst einmal an."
+
+#: templates/accounts/signup.html:2
+msgid "Create your personal femaktiv space."
+msgstr "Erstelle deinen persönlichen femaktiv-Bereich."
+
+#: templates/accounts/signup.html:2
+msgid "Create account"
+msgstr "Konto erstellen"
+
+#: templates/accounts/signup.html:2
+msgid "Already have an account?"
+msgstr "Hast du schon ein Konto?"
+
+#: templates/accounts/signup.html:2
+msgid ""
+"An early prototype: chats and personal notes are available. AI replies are "
+"not connected yet."
+msgstr ""
+"Ein früher Prototyp: Chats und persönliche Notizen sind verfügbar. KI-"
+"Antworten sind noch nicht angebunden."
+
+#: templates/base.html:7
+msgid ""
+"A little more clarity. A little more room for you. Discover femaktiv, your "
+"personal space for everyday questions."
+msgstr ""
+"Ein bisschen mehr Klarheit. Ein bisschen mehr Raum für dich. Entdecke "
+"femaktiv, deinen persönlichen Ort für Alltagsfragen."
+
+#: templates/base.html:8
+msgid "A little more room for you"
+msgstr "Ein bisschen mehr Raum für dich"
+
+#: templates/base.html:15
+msgid "Skip to content"
+msgstr "Zum Inhalt springen"
+
+#: templates/base.html:35
+msgid "Home"
+msgstr "Startseite"
+
+#: templates/base.html:36
+msgid "Open navigation"
+msgstr "Navigation öffnen"
+
+#: templates/base.html:37
+msgid "Main navigation"
+msgstr "Hauptnavigation"
+
+#: templates/base.html:38 templates/chats/workspace.html:1
+msgid "My chats"
+msgstr "Meine Chats"
+
+#: templates/base.html:39 templates/chats/workspace.html:2
+#: templates/notes/list.html:1 templates/notes/list.html:2
+msgid "My notes"
+msgstr "Meine Notizen"
+
+#: templates/base.html:40
+msgid "Community"
+msgstr "Community"
+
+#: templates/base.html:40
+msgid "Preview"
+msgstr "Vorschau"
+
+#: templates/base.html:43
+msgid "Log out"
+msgstr "Abmelden"
+
+#: templates/base.html:43
+msgid "Get started"
+msgstr "Loslegen"
+
+#: templates/base.html:49
+msgid "A little more room for you."
+msgstr "Ein bisschen mehr Raum für dich."
+
+#: templates/base.html:49
+msgid "Prototype · AI connection coming later"
+msgstr "Prototyp · KI-Anbindung folgt später"
+
+#: templates/chats/confirm_delete.html:1 templates/chats/confirm_delete.html:2
+#: templates/chats/workspace.html:2
+#| msgid "Delete note"
+msgid "Delete chat"
+msgstr "Chat löschen"
+
+#: templates/chats/confirm_delete.html:2
+#| msgid "Back to chats"
+msgid "Back to chat"
+msgstr "Zurück zum Chat"
+
+#: templates/chats/confirm_delete.html:2
+#| msgid "Delete this note?"
+msgid "Delete this conversation?"
+msgstr "Diesen Chat löschen?"
+
+#: templates/chats/confirm_delete.html:2
+msgid ""
+"This permanently deletes the chat, all its messages, and its attached note "
+"copies. The original notes in your library are kept."
+msgstr ""
+"Damit löschst du den Chat, alle Nachrichten und angehängten Notizkopien "
+"dauerhaft. Die ursprünglichen Notizen in deiner Sammlung bleiben erhalten."
+
+#: templates/chats/confirm_delete.html:2
+#| msgid "New chat"
+msgid "Keep chat"
+msgstr "Chat behalten"
+
+#: templates/chats/workspace.html:2
+#| msgid "YOUR PERSONAL SPACE"
+msgid "YOUR SPACE"
+msgstr "DEIN BEREICH"
+
+#: templates/chats/workspace.html:2
+msgid "Close chat history"
+msgstr "Chatverlauf schließen"
+
+#: templates/chats/workspace.html:2
+#| msgid "Example conversation"
+msgid "Your conversations"
+msgstr "Deine Gespräche"
+
+#: templates/chats/workspace.html:2
+msgid "Chat history"
+msgstr "Chatverlauf"
+
+#: templates/chats/workspace.html:2
+msgid "A fresh start. Your conversations will appear here."
+msgstr "Ein frischer Anfang. Deine Gespräche erscheinen hier."
+
+#: templates/chats/workspace.html:2
+msgid "The context that matters"
+msgstr "Die Details, die wichtig sind"
+
+#: templates/chats/workspace.html:2
+#| msgid "Create an account"
+msgid "Private to your account"
+msgstr "Privat in deinem Konto"
+
+#: templates/chats/workspace.html:2
+msgid "Open chat history"
+msgstr "Chatverlauf öffnen"
+
+#: templates/chats/workspace.html:2
+#| msgid "A little more room for you"
+msgid "A little space for you"
+msgstr "Ein bisschen Raum für dich"
+
+#: templates/chats/workspace.html:2
+#| msgid "Create your personal femaktiv space."
+msgid "Your personal assistant workspace"
+msgstr "Dein persönlicher Assistenzbereich"
+
+#: templates/chats/workspace.html:2
+msgid "AI placeholder"
+msgstr "KI-Platzhalter"
+
+#: templates/chats/workspace.html:2
+msgid "Chat options"
+msgstr "Chatoptionen"
+
+#: templates/chats/workspace.html:2
+msgid "Chat title"
+msgstr "Chattitel"
+
+#: templates/chats/workspace.html:2
+#| msgid "New chat"
+msgid "Rename chat"
+msgstr "Chat umbenennen"
+
+#: templates/chats/workspace.html:3
+#| msgid ""
+#| "An early prototype: chats and personal notes are available. AI replies are "
+#| "not connected yet."
+msgid "Your messages are saved. AI replies are not connected yet."
+msgstr ""
+"Deine Nachrichten werden gespeichert. KI-Antworten sind noch nicht "
+"verfügbar."
+
+#: templates/chats/workspace.html:3
+msgid "Conversation messages"
+msgstr "Nachrichten im Chat"
+
+#: templates/chats/workspace.html:3
+#| msgid "Start with what is on your mind"
+msgid "What is on your mind?"
+msgstr "Was beschäftigt dich?"
+
+#: templates/chats/workspace.html:3
+msgid ""
+"Start with a question or a few thoughts. Add a note if there is context you "
+"want to keep with this conversation."
+msgstr ""
+"Beginne mit einer Frage oder ein paar Gedanken. Hänge eine Notiz an, wenn du"
+" wichtige Details für dieses Gespräch festhalten möchtest."
+
+#: templates/chats/workspace.html:3 templates/chats/workspace.html:4
+msgid "Placeholder reply"
+msgstr "Platzhalterantwort"
+
+#: templates/chats/workspace.html:3 templates/chats/workspace.html:4
+msgid "You"
+msgstr "Du"
+
+#: templates/chats/workspace.html:3 templates/chats/workspace.html:4
+msgid "Included notes"
+msgstr "Angehängte Notizen"
+
+#: templates/chats/workspace.html:4
+#| msgid "Your message could not be saved right now. Please try again."
+msgid ""
+"Your message could not be sent. Your draft is still here. Please try again."
+msgstr ""
+"Deine Nachricht konnte nicht gesendet werden. Dein Entwurf ist noch da. "
+"Versuche es noch einmal."
+
+#: templates/chats/workspace.html:4
+msgid "Saving your message…"
+msgstr "Deine Nachricht wird gespeichert …"
+
+#: templates/chats/workspace.html:4
+msgid "Message saved. Placeholder reply received."
+msgstr "Nachricht gespeichert. Platzhalterantwort empfangen."
+
+#: templates/chats/workspace.html:4
+msgid "You can attach up to five notes per message."
+msgstr "Du kannst bis zu fünf Notizen pro Nachricht anhängen."
+
+#: templates/chats/workspace.html:4
+msgid "Your message"
+msgstr "Deine Nachricht"
+
+#: templates/chats/workspace.html:4
+#| msgid "What would make today easier?"
+msgid "What would make life a little easier today?"
+msgstr "Was würde dein Leben heute ein bisschen leichter machen?"
+
+#: templates/chats/workspace.html:4
+#| msgid "My notes"
+msgid "Attach notes"
+msgstr "Notizen anhängen"
+
+#: templates/chats/workspace.html:4
+#| msgid "Keep your context close"
+msgid "Choose your context"
+msgstr "Wähle die passenden Details"
+
+#: templates/chats/workspace.html:4
+msgid ""
+"Select up to five notes. Only selected notes are included with this message."
+msgstr ""
+"Wähle bis zu fünf Notizen aus. Nur die ausgewählten Notizen werden dieser "
+"Nachricht beigefügt."
+
+#: templates/chats/workspace.html:4
+#| msgid "Preview"
+msgid "Preview note"
+msgstr "Notiz ansehen"
+
+#: templates/chats/workspace.html:4
+msgid "No notes yet. Save a few useful details to bring into your chats."
+msgstr ""
+"Noch keine Notizen. Speichere ein paar hilfreiche Details, die du in deine "
+"Chats einbringen möchtest."
+
+#: templates/chats/workspace.html:4
+#| msgid "Create account"
+msgid "Create a note"
+msgstr "Notiz erstellen"
+
+#: templates/chats/workspace.html:4
+msgid "Send message"
+msgstr "Nachricht senden"
+
+#: templates/chats/workspace.html:4
+#| msgid ""
+#| "This is an early prototype. Chats and notes work; AI replies are not "
+#| "connected yet."
+msgid "Your private chat · AI replies are not connected yet"
+msgstr "Dein privater Chat · KI-Antworten sind noch nicht verfügbar"
+
+#: templates/chats/workspace.html:4
+msgid ""
+"Enable JavaScript to send chat messages. Your saved history and notes remain"
+" available."
+msgstr ""
+"Aktiviere JavaScript, um Chatnachrichten zu senden. Dein gespeicherter "
+"Verlauf und deine Notizen bleiben zugänglich."
+
+#: templates/chats/workspace.html:5
+#, python-format
+msgid "A MOMENT FOR YOU, %(name)s"
+msgstr "EIN MOMENT FÜR DICH, %(name)s"
+
+#: templates/chats/workspace.html:5
+msgid "Where shall we begin?"
+msgstr "Wo wollen wir anfangen?"
+
+#: templates/chats/workspace.html:5
+msgid ""
+"A full mind, a small question, a new chapter. This is your space to bring it"
+" together."
+msgstr ""
+"Ein voller Kopf, eine kleine Frage, ein neues Kapitel. Hier ist dein Raum, "
+"um alles zusammenzubringen."
+
+#: templates/chats/workspace.html:5
+#| msgid "Start a chat"
+msgid "Start a new chat"
+msgstr "Neuen Chat starten"
+
+#: templates/chats/workspace.html:5
+msgid "OR EXPLORE AN EXAMPLE"
+msgstr "ODER ENTDECKE EIN BEISPIEL"
+
+#: templates/chats/workspace.html:5
+msgid "My wellbeing"
+msgstr "Mein Wohlbefinden"
+
+#: templates/chats/workspace.html:5
+msgid "A little more ease at mealtimes"
+msgstr "Ein bisschen mehr Leichtigkeit beim Essen"
+
+#: templates/chats/workspace.html:5
+msgid "Care for family"
+msgstr "Für die Familie sorgen"
+
+#: templates/chats/workspace.html:5
+msgid "A clearer plan for caring"
+msgstr "Ein klarerer Plan für die Betreuung"
+
+#: templates/chats/workspace.html:5
+#| msgid ""
+#| "An early prototype: chats and personal notes are available. AI replies are "
+#| "not connected yet."
+msgid "Chats and notes are ready. AI replies are not connected yet."
+msgstr ""
+"Chats und Notizen sind bereit. KI-Antworten sind noch nicht verfügbar."
+
+#: templates/errors/403.html:1
+msgid "Please try again"
+msgstr "Versuche es noch einmal"
+
+#: templates/errors/403.html:1
+#| msgid "Let us help you back in."
+msgid "Let us try that again."
+msgstr "Versuchen wir es noch einmal."
+
+#: templates/errors/403.html:1
+#| msgid ""
+#| "Your session could not be verified. Refresh the page and try again."
+msgid "The request could not be verified. Reload the page and try again."
+msgstr ""
+"Die Anfrage konnte nicht bestätigt werden. Lade die Seite neu und versuche "
+"es noch einmal."
+
+#: templates/notes/confirm_delete.html:1 templates/notes/confirm_delete.html:2
+msgid "Delete note"
+msgstr "Notiz löschen"
+
+#: templates/notes/confirm_delete.html:2 templates/notes/form.html:2
+msgid "Back to my notes"
+msgstr "Zurück zu meinen Notizen"
+
+#: templates/notes/confirm_delete.html:2
+msgid "Delete this note?"
+msgstr "Diese Notiz löschen?"
+
+#: templates/notes/confirm_delete.html:2
+msgid ""
+"This removes the note from your library. Copies already attached to chat "
+"messages will stay in those conversations. Delete a chat to remove its "
+"attached copies."
+msgstr ""
+"Die Notiz wird aus deiner Sammlung entfernt. Kopien, die du bereits an "
+"Nachrichten angehängt hast, bleiben in diesen Chats erhalten. Lösche den "
+"jeweiligen Chat, um auch seine angehängten Kopien zu entfernen."
+
+#: templates/notes/confirm_delete.html:2
+msgid "Keep note"
+msgstr "Notiz behalten"
+
+#: templates/notes/form.html:1 templates/notes/list.html:2
+msgid "Edit note"
+msgstr "Notiz bearbeiten"
+
+#: templates/notes/form.html:1 templates/notes/list.html:2
+msgid "New note"
+msgstr "Neue Notiz"
+
+#: templates/notes/form.html:2
+msgid "THE DETAILS THAT MATTER TO YOU"
+msgstr "DIE DETAILS, DIE DIR WICHTIG SIND"
+
+#: templates/notes/form.html:2
+msgid "Edit your note"
+msgstr "Deine Notiz bearbeiten"
+
+#: templates/notes/form.html:2
+msgid "A note for later"
+msgstr "Eine Notiz für später"
+
+#: templates/notes/form.html:2
+msgid "Keep it simple. A few useful details are a good place to start."
+msgstr ""
+"Mach es dir leicht. Ein paar hilfreiche Details sind ein guter Anfang."
+
+#: templates/notes/form.html:2
+msgid "Save note"
+msgstr "Notiz speichern"
+
+#: templates/notes/form.html:2
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: templates/notes/form.html:2
+msgid ""
+"This note stays private. Attach it only when it is relevant to your chat."
+msgstr ""
+"Diese Notiz bleibt privat. Hänge sie nur an, wenn sie für deinen Chat "
+"relevant ist."
+
+#: templates/notes/list.html:2
+msgid "A LITTLE CONTEXT GOES A LONG WAY"
+msgstr "EIN PAAR DETAILS MACHEN EINEN UNTERSCHIED"
+
+#: templates/notes/list.html:2
+msgid ""
+"Your preferences, circumstances, and things worth remembering. Ready when "
+"you need them in a chat."
+msgstr ""
+"Deine Vorlieben, Umstände und alles, was du festhalten möchtest. Bereit, "
+"wenn du es in einem Chat brauchst."
+
+#: templates/notes/list.html:2
+msgid ""
+"Only you can access your notes. You choose which ones to attach to each "
+"message."
+msgstr ""
+"Nur du kannst auf deine Notizen zugreifen. Du entscheidest bei jeder "
+"Nachricht, welche du anhängst."
+
+#: templates/notes/list.html:2
+#, python-format
+msgid "Delete %(title)s"
+msgstr "%(title)s löschen"
+
+#: templates/notes/list.html:2
+msgid "Keep the useful little details."
+msgstr "Halte die hilfreichen kleinen Details fest."
+
+#: templates/notes/list.html:2
+msgid ""
+"Start with a note about your meal preferences, a family situation, or a "
+"question you want to come back to."
+msgstr ""
+"Beginne mit einer Notiz zu deinen Essensvorlieben, einer Familiensituation "
+"oder einer Frage, auf die du zurückkommen möchtest."
+
+#: templates/notes/list.html:2
+msgid "Create my first note"
+msgstr "Meine erste Notiz erstellen"
+
+#: templates/pages/community.html:1 templates/pages/community.html:2
+#: templates/pages/question.html:2
+msgid "Community preview"
+msgstr "Community-Vorschau"
+
+#: templates/pages/community.html:2
+msgid "Some questions"
+msgstr "Manche Fragen"
+
+#: templates/pages/community.html:2
+msgid "are better shared."
+msgstr "bringen uns zusammen."
+
+#: templates/pages/community.html:2
+msgid ""
+"A future space to exchange everyday experiences. For now, explore a few "
+"examples of the conversations we imagine here."
+msgstr ""
+"Hier soll ein Ort für den Austausch über Alltagserfahrungen entstehen. Bis "
+"dahin kannst du einige Beispiele für mögliche Gespräche entdecken."
+
+#: templates/pages/community.html:2
+msgid "Filter by topic"
+msgstr "Nach Thema filtern"
+
+#: templates/pages/community.html:2
+msgid "All topics"
+msgstr "Alle Themen"
+
+#: templates/pages/community.html:2
+msgid "A look at what could come next"
+msgstr "Ein Blick auf mögliche nächste Schritte"
+
+#: templates/pages/community.html:2
+msgid ""
+"These discussions are written examples. Community posting and member replies"
+" are not available yet. Your personal chats and notes stay private."
+msgstr ""
+"Diese Diskussionen sind vorbereitete Beispiele. Beiträge und Antworten von "
+"Mitgliedern sind noch nicht möglich. Deine persönlichen Chats und Notizen "
+"bleiben privat."
+
+#: templates/pages/example.html:2
+msgid "Read-only example"
+msgstr "Beispiel zum Ansehen"
+
+#: templates/pages/example.html:2
+msgid "Fictional context"
+msgstr "Erfundener Hintergrund"
+
+#: templates/pages/example.html:2
+msgid ""
+"This preview uses fictional information. It does not use your notes or "
+"generate a live AI answer."
+msgstr ""
+"Diese Vorschau verwendet erfundene Angaben. Sie greift nicht auf deine "
+"Notizen zu und erstellt keine KI-Antwort."
+
+#: templates/pages/example.html:2
+msgid "Open my workspace"
+msgstr "Meinen Bereich öffnen"
+
+#: templates/pages/example.html:2
+msgid "Answer preview"
+msgstr "Antwortvorschau"
+
+#: templates/pages/example.html:2
+msgid "Example question"
+msgstr "Beispielfrage"
+
+#: templates/pages/example.html:2
+msgid "Illustrative answer"
+msgstr "Beispielantwort"
+
+#: templates/pages/example.html:2
+msgid ""
+"Future evidence-based answers will show supporting sources here. No sources "
+"are claimed for this example."
+msgstr ""
+"Bei künftigen evidenzbasierten Antworten findest du hier die zugehörigen "
+"Quellen. Für dieses Beispiel werden keine Quellen beansprucht."
+
+#: templates/pages/home.html:5
+msgid "FOR EVERYTHING LIFE ASKS OF YOU"
+msgstr "FÜR ALLES, WAS DAS LEBEN VON DIR VERLANGT"
+
+#: templates/pages/home.html:5
+msgid "Life is a lot."
+msgstr "Das Leben fordert viel."
+
+#: templates/pages/home.html:5
+msgid "You deserve a little ease."
+msgstr "Du verdienst etwas Leichtigkeit."
+
+#: templates/pages/home.html:5
+msgid ""
+"A thoughtful space for your questions, your wellbeing, and the people you "
+"care for. Bring it all together, one conversation at a time."
+msgstr ""
+"Ein Ort für deine Fragen, dein Wohlbefinden und die Menschen, für die du "
+"sorgst. Bringe alles zusammen – ein Gespräch nach dem anderen."
+
+#: templates/pages/home.html:5
+msgid "Start a chat"
+msgstr "Chat starten"
+
+#: templates/pages/home.html:5
+msgid "Take a look around"
+msgstr "In Ruhe umsehen"
+
+#: templates/pages/home.html:5
+msgid "Your own space. Your own pace."
+msgstr "Dein eigener Raum. Dein eigenes Tempo."
+
+#: templates/pages/home.html:6
+msgid "A little clarity"
+msgstr "Ein bisschen Klarheit"
+
+#: templates/pages/home.html:6
+msgid "A moment for you"
+msgstr "Ein Moment für dich"
+
+#: templates/pages/home.html:6
+msgid "less on your mind, more room for life"
+msgstr "weniger im Kopf, mehr Raum fürs Leben"
+
+#: templates/pages/home.html:8
+msgid "Start with what is on your mind"
+msgstr "Beginne mit dem, was dich beschäftigt"
+
+#: templates/pages/home.html:8
+msgid "Keep your context close"
+msgstr "Behalte wichtige Details im Blick"
+
+#: templates/pages/home.html:8
+msgid "Choose what you share"
+msgstr "Entscheide selbst, was du teilst"
+
+#: templates/pages/home.html:9
+msgid "A STARTING POINT, JUST FOR YOU"
+msgstr "EIN ANFANG, NUR FÜR DICH"
+
+#: templates/pages/home.html:9
+msgid "What would make today easier?"
+msgstr "Was würde deinen Tag leichter machen?"
+
+#: templates/pages/home.html:9
+msgid ""
+"Big questions or everyday things. Explore what a little support could look "
+"like."
+msgstr ""
+"Große Fragen oder kleine Alltagsthemen. Entdecke, wie ein wenig "
+"Unterstützung aussehen könnte."
+
+#: templates/pages/home.html:9
+msgid "Example conversation"
+msgstr "Beispielchat"
+
+#: templates/pages/home.html:9
+msgid "Explore the example"
+msgstr "Beispiel entdecken"
+
+#: templates/pages/home.html:10
+msgid "LESS REPEATING. MORE LIVING."
+msgstr "WENIGER WIEDERHOLEN. MEHR LEBEN."
+
+#: templates/pages/home.html:10
+msgid "A space that starts"
+msgstr "Ein Ort, der mit"
+
+#: templates/pages/home.html:10
+msgid "with your story."
+msgstr "deiner Geschichte beginnt."
+
+#: templates/pages/home.html:10
+msgid ""
+"Keep the details that matter in one place, ready for the conversations where"
+" you need them."
+msgstr ""
+"Sammle wichtige Details an einem Ort, damit du sie im passenden Gespräch "
+"griffbereit hast."
+
+#: templates/pages/home.html:10
+msgid "Built around you, step by step"
+msgstr "Schritt für Schritt auf dich abgestimmt"
+
+#: templates/pages/home.html:10
+msgid "Make yourself at home"
+msgstr "Komm erst einmal an"
+
+#: templates/pages/home.html:10
+msgid "Create an account for your private chats and personal notes."
+msgstr "Erstelle ein Konto für deine privaten Chats und persönlichen Notizen."
+
+#: templates/pages/home.html:10
+msgid "Bring the relevant details"
+msgstr "Nimm die wichtigen Details mit"
+
+#: templates/pages/home.html:10
+msgid ""
+"Save your preferences and circumstances. Attach only the notes you choose."
+msgstr ""
+"Halte deine Vorlieben und Umstände fest. Hänge nur die Notizen an, die du "
+"selbst auswählst."
+
+#: templates/pages/home.html:10
+msgid "Pick up where you left off"
+msgstr "Mach dort weiter, wo du aufgehört hast"
+
+#: templates/pages/home.html:10
+msgid ""
+"Your conversations stay together, so you can come back whenever you need."
+msgstr ""
+"Deine Gespräche bleiben erhalten, damit du jederzeit daran anknüpfen kannst."
+
+#: templates/pages/home.html:11
+msgid "QUESTIONS WE CAN RELATE TO"
+msgstr "FRAGEN, DIE WIR KENNEN"
+
+#: templates/pages/home.html:11
+msgid "A glimpse of the community"
+msgstr "Ein Einblick in die Community"
+
+#: templates/pages/home.html:11
+msgid "Explore the preview"
+msgstr "Vorschau entdecken"
+
+#: templates/pages/home.html:11
+msgid ""
+"An idea for what comes next: a shared place for everyday questions. These "
+"are illustrative examples, not member posts."
+msgstr ""
+"Eine Idee für die Zukunft: ein gemeinsamer Ort für Alltagsfragen. Hier "
+"siehst du vorbereitete Beispiele, keine Beiträge von Mitgliedern."
+
+#: templates/pages/home.html:12
+msgid "Start with one thing."
+msgstr "Fang mit einer Sache an."
+
+#: templates/pages/home.html:12
+msgid "You do not have to have it all figured out."
+msgstr "Du musst noch nicht auf alles eine Antwort haben."
+
+#: templates/pages/home.html:12
+msgid "Find your starting point"
+msgstr "Finde deinen Anfang"
+
+#: templates/pages/home.html:12
+msgid ""
+"This is an early prototype. Chats and notes work; AI replies are not "
+"connected yet."
+msgstr ""
+"Dies ist ein früher Prototyp. Chats und Notizen funktionieren; KI-Antworten "
+"sind noch nicht verfügbar."
+
+#: templates/pages/question.html:2
+msgid "Example discussion · not a member post"
+msgstr "Beispieldiskussion · kein Mitgliedsbeitrag"
+
+#: templates/pages/question.html:2
+msgid "An example answer"
+msgstr "Eine Beispielantwort"
+
+#: templates/pages/question.html:2
+msgid "Illustrative content · not generated by AI"
+msgstr "Beispielinhalt · nicht von KI erstellt"
+
+#: templates/pages/question.html:2
+msgid "A practical starting point"
+msgstr "Ein praktischer Anfang"
+
+#: templates/pages/question.html:2
+msgid "Make space for your own question"
+msgstr "Gib deiner eigenen Frage Raum"
+
+#: templates/pages/question.html:2
+msgid ""
+"Your private workspace is ready to save chats and notes. AI replies will be "
+"connected in a future version."
+msgstr ""
+"In deinem privaten Bereich kannst du Chats und Notizen speichern. KI-"
+"Antworten kommen in einer späteren Version hinzu."
+
+#: templates/pages/question.html:2
+msgid "Go to my chats"
+msgstr "Zu meinen Chats"
+
+#: templates/pages/question_card.html:1
+msgid "Example discussion"
+msgstr "Beispieldiskussion"
+
+#: config/urls.py:9
+msgid "femaktiv administration"
+msgstr "femaktiv-Verwaltung"
