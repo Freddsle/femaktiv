@@ -24,7 +24,7 @@ id = "implement"
 kind = "donna.lib.request_action"
 ```
 
-Implement accounts, notes, chat persistence and placeholder API, public bilingual examples, reusable responsive UI and translations according to specs/behavior/platform.md. Delegate bounded independent modules if useful, retaining a single owner for shared contracts and dependencies. Integrate all modules and add meaningful ownership, persistence, localization and browser tests. When the application and verification commands exist, {{ donna.lib.goto("verify") }}.
+Implement accounts, notes, chat persistence and placeholder API, public bilingual examples, reusable responsive UI and translations according to specs/behavior/platform.md. Preserve the approved website wording and follow the platform's wording-approval contract for future example changes. Unchanged approved copy does not require another approval request. Delegate bounded independent modules if useful, retaining a single owner for shared contracts and dependencies. Integrate all modules and add meaningful ownership, persistence, localization and browser tests. When the application and verification commands exist, {{ donna.lib.goto("verify") }}.
 
 ## Run the required verification
 
@@ -68,7 +68,7 @@ id = "review"
 kind = "donna.lib.request_action"
 ```
 
-Review all test results, the English/German interface and screenshots at 390px and 1440px. Exercise the production server locally. Confirm no external LLM requests occurred, private objects are owner-restricted, previews are labelled, and the final documentation reports actual outcomes. Start the local website and verify its URL. Write docs/VALIDATION.md and README startup instructions. If repairs are needed, {{ donna.lib.goto("implement") }}. If all required work and review are complete, {{ donna.lib.goto("finish") }}.
+Review all test results, the English/German interface and screenshots at 390px and 1440px. Exercise the production server locally. Confirm no external LLM requests occurred, private objects are owner-restricted, previews are labelled, approved wording was preserved or changes match subsequent user authorization, and the final documentation reports actual outcomes. Start the local website and verify its URL. Write docs/VALIDATION.md and README startup instructions. If repairs are needed, {{ donna.lib.goto("implement") }}. If all required work and review are complete, {{ donna.lib.goto("finish") }}.
 
 ```text
 {{ donna.lib.task_variable("checks_stdout") }}

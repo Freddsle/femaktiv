@@ -38,6 +38,14 @@ The deterministic response service MUST make no external requests and clearly sa
 
 Provide two read-only conversation previews for wellbeing/nutrition and family care. Demonstrate summaries and practical planning steps without pretending to use private data or inventing medical sources. Public Q&A is six static bilingual example discussions in wellbeing/nutrition, family care and everyday organisation. Support category filtering and detail pages; show example/preview labels. No posting, voting, reporting or moderation backend is required. Load fixtures separately from templates so later database-backed discussions can reuse the view structure.
 
+## Website wording approval
+
+On 12 September 2026, the user explicitly approved all wording currently available on the website and instructed that it remain unchanged. This approval covers the existing English/German interface copy, labels, example conversations and Q&A. It does not approve alternative drafts prepared for the earlier example-copy review. Existing approved wording MUST NOT be submitted for approval again merely to continue development.
+
+Agents MUST preserve the approved website wording unless the user subsequently authorizes a wording change. General development, repair or verification requests MUST NOT be treated as permission to rewrite it. Before adding, revising, removing or translating an example, present the exact proposed change in each affected language and obtain approval covering each affected example and shared label. Exact wording supplied or already explicitly approved by the user is authorized within that scope and does not require another approval request.
+
+Record the user's actual decision and its scope in the ignored Donna session. Unapproved drafts MUST NOT be applied to the application or its running preview. Wording approval is editorial approval and MUST NOT be represented as clinical validation or evidence review.
+
 ## Implementation boundaries
 
 Use a single Django 5.2 LTS application, Python 3.14, `uv`, SQLite locally, reusable Django templates, CSS tokens and small JavaScript modules. Domain modules are `accounts`, `notes`, `chats` and `pages`; project configuration is `config`. GNU gettext or compatible PO/MO tooling compiles translation catalogues. Use Django's built-in auth/session/password features. Prepare environment-based production settings and static serving; no external deployment occurs in this phase.

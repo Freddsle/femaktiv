@@ -25,11 +25,13 @@ Read [the workflow catalogue](specs/general/workflows.md) and inspect `donna -p 
 
 Use `donna -p llm skill usage` for CLI guidance and `donna -p llm skill workflows` before authoring workflows. Run a workflow when requested by the user, an applicable project instruction, or an active Donna action. Complete action requests only after doing the work, using the exact request id and allowed transition Donna supplies.
 
-Permanent workflows belong in `workflows/*.donna.md`; temporary plans and execution evidence belong in ignored `.session/donna/`. Every workflow edit requires Donna validation. Keep the catalogue's available/planned statuses accurate. Routine authorized edits and local checks do not need a separate approval step.
+Permanent workflows belong in `workflows/*.donna.md`; temporary plans and execution evidence belong in ignored `.session/donna/`. Every workflow edit requires Donna validation. Keep the catalogue's available/planned statuses accurate. Routine authorized edits and local checks do not need a separate approval step unless the user explicitly requires one.
 
 ## Preserve prototype boundaries
 
 Follow the platform specification's private-data ownership, bilingual interface and honest placeholder/example requirements. The initial nutrition specification remains a reference for any separately authorized future nutrition feature. Do not invent human content approval, clinical validation, live AI replies, or community participation. Keep provider secrets server-side and out of tracked files, browser output, and logs. Routine automated checks must use mocks and must not consume provider credits.
+
+Preserve the [approved website wording](specs/behavior/platform.md#website-wording-approval). Follow that contract before future example changes; unchanged wording is already approved and must not block development.
 
 ## Write commit messages
 

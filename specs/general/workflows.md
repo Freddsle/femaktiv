@@ -20,6 +20,8 @@ A failing check MUST lead to a repair step and a relevant rerun. A retry loop MU
 
 Each workflow MUST be validated with `donna -p llm validate` before use. The agent MUST follow actual action-request ids and allowed transitions, and MUST verify the final Donna status before claiming completion. Starting a workflow grants no authority beyond the user's task and applicable instructions.
 
+Workflows MUST preserve the platform's [approved website wording](../behavior/platform.md#website-wording-approval). Unchanged approved copy MUST NOT create a new approval gate or block authorized development. Future example changes follow that contract's requirement for approval of the exact proposed text.
+
 ## Workflow inventory and status
 
 | Workflow | Artifact path | Status and introduction gate |
