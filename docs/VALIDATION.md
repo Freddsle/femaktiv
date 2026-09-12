@@ -48,13 +48,33 @@ The five new launcher tests cover the default loopback HTTP mode and stable priv
 
 A separate smoke check started the actual `./bin/serve` process on temporary loopback ports in both modes. Local HTTP, English/German pages, collected CSS and logo assets, HTTPS redirects, exact host validation, secure CSRF cookies and same-origin/foreign-origin form handling passed. The check simulated ngrok's `Host` and `X-Forwarded-Proto` headers; it created no accounts and stopped both test servers. No external tunnel or provider request was made.
 
-The ngrok CLI was not installed in the inspected environment. A public ngrok endpoint, account authentication and ngrok's actual TLS termination remain untested; the user must install/authenticate ngrok and supply its URL to start the preview.
+At that implementation review, the ngrok CLI was not installed in the inspected environment, so the checks above did not exercise a public endpoint. The subsequent live tunnel check is recorded below.
+
+### Live tunnel access repair
+
+Later on 12 September 2026, the user's existing `https://unlocked-fabric-nearness.ngrok-free.dev` tunnel returned HTTP 400 from Gunicorn while local HTTP returned 200. The running Django server still had `DJANGO_LOCAL_HTTP=1` and allowed only loopback hosts. Sending the public Host header directly to the local server reproduced the same 400 response.
+
+Restarted the identified femaktiv server with `FEMAKTIV_PUBLIC_URL=https://unlocked-fabric-nearness.ngrok-free.dev ./bin/serve`. The existing launcher required no code change. The restart preserved the signing key and database configuration; the user's existing ngrok process remained running with traffic inspection disabled.
+
+Live HTTPS checks passed for the root redirect to English, `/en/`, `/de/`, both language versions of the login page, the collected CSS and the rounded logo. The CSRF cookie was secure; an empty same-origin login submission reached normal form validation (200), and a foreign-origin submission was rejected (403). Local requests confirmed rejection of a foreign hostname (400) and redirecting HTTP to the exact configured HTTPS origin (301). The probes used ngrok's browser-warning bypass header and did not create accounts or access private content.
+
+Public browser checks also passed for English and German at 1440px and 390px: pages returned 200, the logo loaded at its expected resolution, there was no horizontal overflow, and no JavaScript or HTTP errors were observed. Screenshots are saved as `.local/screenshots/ngrok-{en,de}-{desktop,mobile}.png`; the English desktop and German mobile screenshots were visually reviewed.
+
+A separate `./bin/check` run during concurrent homepage/translation edits passed translation compilation, lint/format, Django system/migration checks, static collection and all 63 backend tests. Three browser journeys passed; the responsive bilingual journey initially failed its German mobile overflow assertion. After the concurrent task finished, a focused rerun of `tests.e2e.test_platform.PlatformBrowserTests.test_public_examples_and_responsive_bilingual_layouts` passed without any source/test edits for this access repair. The initial failure was not reproduced by the live public browser checks. Depmesh (117 files, 264 directed edges and 15 isolated fixture pairs), Donna validation and `git diff --check` passed. The shared Donna session advanced externally during this repair and was idle at the final status check; it was not reset. Final public requests to both language pages still returned 200.
 
 ## Prototype boundaries
 
 Chat persistence and account ownership are real. Replies are deterministic, visibly labelled placeholders; no LLM or anymize requests or provider credits are used. Q&A and the two public conversations contain authored examples. Public posting, moderation, file uploads, clinical review and live AI remain future work.
 
-This delivery has not been published on the internet. PostgreSQL, external SMTP delivery, reverse-proxy HTTPS and a hosting provider are configurable but not exercised locally. Password recovery uses the local console email backend. The browser suite uses fictional data and a disposable test database.
+The application is accessible through the user's temporary ngrok preview while both processes are running; no hosting-provider deployment was performed. HTTPS forwarding was exercised by the live tunnel check above. PostgreSQL, external SMTP delivery and a hosting provider remain untested. Password recovery uses the local console email backend. The browser suite uses fictional data and a disposable test database.
+
+## Homepage headline update
+
+On 12 September 2026, the homepage's emphasized headline changed to “Find trusted health answers faster.” in English and “Finde schneller verlässliche Antworten auf deine Gesundheitsfragen.” in German. The existing typography and surrounding copy are retained.
+
+`./bin/check` passed through Donna: 260 translations validated and compiled, Ruff and Django checks passed, static collection succeeded, and all 63 backend tests and four browser journeys passed. Depmesh verification, Donna validation and `git diff --check` also passed. The first browser attempt was blocked by sandbox socket restrictions; the rerun with local socket/browser access passed.
+
+Additional production-browser checks confirmed the exact headlines, correct language and no horizontal overflow at 390px and 1440px in both languages. Reviewed all four `headline-{en,de}-{desktop,mobile}.png` screenshots in `.local/screenshots/`. The existing preview workers were reloaded, and both updated headlines were verified through loopback requests using its configured preview headers. The temporary production-check server was stopped; the existing preview remains running. No external tunnel or provider request was made. The existing README startup instructions remain applicable.
 
 ## Rounded logo refinement
 

@@ -1053,8 +1053,8 @@ msgid "Life is a lot."
 msgstr "Das Leben fordert viel."
 
 #: templates/pages/home.html:5
-msgid "You deserve a little ease."
-msgstr "Du verdienst etwas Leichtigkeit."
+msgid "Find trusted health answers faster."
+msgstr "Finde schneller verlässliche Antworten auf deine Gesundheitsfragen."
 
 #: templates/pages/home.html:5
 msgid ""

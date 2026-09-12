@@ -33,6 +33,8 @@ Open that public URL for English or append `/de/` for German. The launcher confi
 
 Keep both processes running while showing the site. If the ngrok URL changes, restart `bin/serve` with the new URL. The public URL must be an HTTPS origin without a path, credentials or wildcard. To return to local HTTP, stop the server and run `./bin/serve` without `FEMAKTIV_PUBLIC_URL`. The helper never starts ngrok itself. Password recovery still prints emails in the server terminal with the default console backend.
 
+If the public URL returns **Bad Request (400)** while `http://127.0.0.1:8000/` works, check whether femaktiv is still running in local HTTP mode. Starting ngrok does not reconfigure an already running Django server. Stop that server, then restart it with `FEMAKTIV_PUBLIC_URL` set in the same command as `./bin/serve`, as shown above. The launcher's startup line should display your HTTPS public URL. An “address already in use” error means the previous server still needs to be stopped.
+
 ## What works
 
 - Real email/password registration, login/logout, account settings and password change/recovery.
