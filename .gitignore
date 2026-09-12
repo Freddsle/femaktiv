@@ -1,2 +1,4 @@
 # Donna runtime state and temporary workflows.
 /.session/donna/
+
+workflows/
