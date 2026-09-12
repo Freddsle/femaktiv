@@ -85,15 +85,25 @@ def complete(*, messages, schema, name, language, budget):
         or result["_anymize"].get("anonymized") is not True
     ):
         raise ChatError("privacy_failed")
+    choices = result.get("choices")
+    if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
+        raise ChatError("invalid_reply", failure_reason="invalid_message")
+    choice = choices[0]
+    if choice.get("finish_reason") == "length":
+        raise ChatError("invalid_reply", failure_reason="completion_truncated")
+    message = choice.get("message")
+    if isinstance(message, dict) and message.get("tool_calls"):
+        raise ChatError("invalid_reply", failure_reason="unexpected_tool_call")
+    if choice.get("finish_reason") != "stop":
+        raise ChatError("invalid_reply", failure_reason="unexpected_completion")
+    if not isinstance(message, dict):
+        raise ChatError("invalid_reply", failure_reason="invalid_message")
+    text = message.get("content")
+    if not isinstance(text, str) or len(text) > 24000:
+        raise ChatError("invalid_reply", failure_reason="invalid_message")
     try:
-        choice = result["choices"][0]
-        if choice.get("finish_reason") != "stop" or choice["message"].get("tool_calls"):
-            raise ValueError
-        text = choice["message"]["content"]
-        if not isinstance(text, str) or len(text) > 24000:
-            raise ValueError
         output = json.loads(text)
-    except KeyError, IndexError, TypeError, ValueError, AttributeError:
-        raise ChatError("invalid_reply") from None
+    except ValueError, RecursionError:
+        raise ChatError("invalid_reply", failure_reason="invalid_model_json") from None
     budget.remaining()
     return validate(output, schema)

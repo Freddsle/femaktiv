@@ -79,16 +79,21 @@ def answer_schema(source_ids):
 
 def validate(value, schema):
     # Error objects include instance data: deliberately never format or log them.
-    if not Draft202012Validator(schema).is_valid(value):
-        raise ChatError("invalid_reply")
+    error = next(Draft202012Validator(schema).iter_errors(value), None)
+    if error is not None:
+        raise ChatError(
+            "invalid_reply", failure_reason="schema_validation", validation_rule=error.validator
+        )
     return value
 
 
 def validate_prose(text):
-    if not text.strip() or re.search(
+    if not text.strip():
+        raise ChatError("invalid_reply", failure_reason="empty_prose")
+    if re.search(
         r"\[\[|\[(?:PERSON|NAME|LOCATION|ADDRESS|EMAIL|PHONE|ORG)[_ :\d][^\]]*\]|https?://|www\.|\b\S+@\S+|(?:\d[ ()+./-]*){9,}",
         text,
         re.I,
     ):
-        raise ChatError("invalid_reply")
+        raise ChatError("invalid_reply", failure_reason="invalid_prose")
     return text

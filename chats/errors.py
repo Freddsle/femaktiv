@@ -43,12 +43,42 @@ FAILURE_REASONS = frozenset(
         "unsupported_encoding",
         "response_too_large",
         "timeout",
+        "completion_truncated",
+        "unexpected_completion",
+        "unexpected_tool_call",
+        "invalid_message",
+        "invalid_model_json",
+        "schema_validation",
+        "invalid_prose",
+        "empty_prose",
+        "inconsistent_intake",
+    }
+)
+VALIDATION_RULES = frozenset(
+    {
+        "type",
+        "enum",
+        "required",
+        "additionalProperties",
+        "minLength",
+        "maxLength",
+        "minItems",
+        "maxItems",
+        "uniqueItems",
     }
 )
 
 
 class ChatError(Exception):
-    def __init__(self, code, status=502, *, provider_http_status=None, failure_reason=None):
+    def __init__(
+        self,
+        code,
+        status=502,
+        *,
+        provider_http_status=None,
+        failure_reason=None,
+        validation_rule=None,
+    ):
         self.code = code if code in MESSAGES else "provider_unavailable"
         self.status = status
         # Only content-free, application-defined diagnostics may reach evaluation reports.
@@ -60,6 +90,11 @@ class ChatError(Exception):
         self.failure_reason = (
             failure_reason
             if type(failure_reason) is str and failure_reason in FAILURE_REASONS
+            else None
+        )
+        self.validation_rule = (
+            validation_rule
+            if type(validation_rule) is str and validation_rule in VALIDATION_RULES
             else None
         )
         super().__init__(self.code)

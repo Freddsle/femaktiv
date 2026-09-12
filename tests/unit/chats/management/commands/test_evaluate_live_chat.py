@@ -106,6 +106,7 @@ class LiveEvaluationTests(SimpleTestCase):
             intake(intro="Visit https://untrusted.example.test"),
             intake(decision="clarification", questions=[]),
             intake(decision="answer", questions=["Which meal?"]),
+            intake(facts=[""]),
         ):
             with (
                 self.subTest(response=response),
@@ -125,6 +126,9 @@ class LiveEvaluationTests(SimpleTestCase):
                 case = json.loads(output.read_text())["cases"][0]
                 self.assertEqual(case["failure_stage"], "intake")
                 self.assertEqual(case["error_code"], "invalid_reply")
+                if response["facts"] == [""]:
+                    self.assertEqual(case["validation_rule"], "minLength")
+                    self.assertIn("schema rule minLength", str(raised.exception))
                 self.assertIn("intake", str(raised.exception))
                 model.assert_called_once()
 

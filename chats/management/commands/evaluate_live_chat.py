@@ -91,6 +91,8 @@ class Command(BaseCommand):
             details["provider_http_status"] = error.provider_http_status
         if error.failure_reason is not None:
             details["failure_reason"] = error.failure_reason
+        if error.validation_rule is not None:
+            details["validation_rule"] = error.validation_rule
         return details
 
     def failure_summary(self, report):
@@ -105,6 +107,8 @@ class Command(BaseCommand):
             summary += f", provider HTTP {status}"
         if reason:
             summary += f", {reason}"
+        if failed.get("validation_rule"):
+            summary += f", schema rule {failed['validation_rule']}"
         summary += ". "
         if code == "not_configured":
             summary += "Check Anymize settings in this terminal and model access. "

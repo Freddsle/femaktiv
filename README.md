@@ -147,6 +147,8 @@ Run the command in a terminal with the same Anymize settings loaded; it does not
 
 On failure, the terminal summary and report identify the case and stage (`model_access`, `intake`, `composition` or `scenario_checks`). When available, `provider_http_status` and a fixed `failure_reason` distinguish an HTTP rejection from connection, timeout, encoding or JSON failures. Raw provider error bodies, headers and credentials are excluded. `model_available: true` confirms that the key could list the selected model, but does not prove anonymous generation works. `masking.status: "not_evaluated"` is an optional inspection status and does not itself fail integration. Diagnose the reported failure before deliberately running another paid evaluation; there are no automatic retries.
 
+HTTP 200 confirms a response arrived, not that its contents passed validation. For `invalid_reply`, the failure reason identifies truncation, unexpected tools, malformed content/JSON, rejected prose or schema validation; `validation_rule` names the failed schema rule when relevant. All response checks remain enforced.
+
 `./bin/check` forces `FEMAKTIV_OFFLINE_CHECKS=1` and uses mocked live integrations even if real credentials are inherited. The opt-in evaluation refuses to run with this switch enabled. No live provider evaluation was performed as part of routine implementation checks.
 
 Optional developer masking inspection is separate from normal chat and setup. Export fixed fictional inputs without any external calls:

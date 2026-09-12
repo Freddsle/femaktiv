@@ -27,6 +27,14 @@ class TransportTests(SimpleTestCase):
                 error = ChatError("provider_unavailable", failure_reason=reason)
                 self.assertIsNone(error.failure_reason)
                 self.assertEqual(error.args, ("provider_unavailable",))
+        self.assertEqual(
+            ChatError("invalid_reply", validation_rule="maxLength").validation_rule, "maxLength"
+        )
+        for rule in (None, True, 1, [], {}, "FICTIONAL_PRIVATE_SCHEMA_TEXT"):
+            with self.subTest(rule=rule):
+                error = ChatError("invalid_reply", validation_rule=rule)
+                self.assertIsNone(error.validation_rule)
+                self.assertNotIn("FICTIONAL_PRIVATE", repr(vars(error)))
 
     def test_http_errors_report_status_without_provider_content_or_retry(self):
         private_text = "FICTIONAL_PRIVATE_PROVIDER_TEXT"

@@ -149,7 +149,7 @@ def _live_reply(history, context, language, budget, intake_observer=None):
     if (intake["decision"] == "clarification" and not questions) or (
         intake["decision"] == "answer" and questions
     ):
-        raise ChatError("invalid_reply")
+        raise ChatError("invalid_reply", failure_reason="inconsistent_intake")
     if intake_observer is not None:
         intake_observer(intake)
     if intake["decision"] == "urgent":
