@@ -1,0 +1,182 @@
+{
+  "version": 1,
+  "records": [
+    {
+      "id": "dge-food",
+      "title": "DGE: Food-based dietary guidance",
+      "url": "https://www.dge.de/gesunde-ernaehrung/gut-essen-und-trinken/dge-empfehlungen/",
+      "section": "Legumes and nuts; whole grains; milk and dairy",
+      "topics": [
+        "protein",
+        "fibre"
+      ],
+      "applicability": "General everyday food choices for healthy adults aged 18–65 in Germany who eat a mixed diet.",
+      "limitations": "Not an individual hypertension treatment plan; do not assume dairy or nuts suit a person's allergies or a vegan diet.",
+      "passage": "Whole grains, vegetables, fruit and legumes contribute fibre. Beans, lentils and peas provide both protein and fibre. Nuts and dairy are additional protein sources when compatible with a person's dietary restrictions. Use this as a basis for practical food combinations, adapting ingredients to declared allergies, preferences, time and budget.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "Deutsche Gesellschaft für Ernährung e. V. (DGE)",
+      "updated_date": null
+    },
+    {
+      "id": "nhlbi-dash",
+      "title": "NHLBI: Following the DASH eating plan",
+      "url": "https://www.nhlbi.nih.gov/health/dash/following-dash",
+      "section": "DASH eating plan; sodium; food groups",
+      "topics": [
+        "dash",
+        "salt",
+        "protein",
+        "fibre"
+      ],
+      "applicability": "Dietary pattern information related to blood pressure; US guidance.",
+      "limitations": "Serving examples depend on energy needs. Sodium limits are source-level guidance, not a personal prescription. Kidney disease, medicines and other conditions may change individual advice; do not recommend potassium supplements or potassium salt substitutes by default.",
+      "passage": "DASH emphasises vegetables, fruit, whole grains, beans, nuts, fish, poultry and low-fat dairy, with less sodium and saturated fat. Legumes and whole grains can help combine protein and fibre goals. The plan describes sodium limits of 2,300 mg daily and a lower 1,500 mg option associated with further blood-pressure reduction. These sodium amounts are not grams of salt. Discuss individual targets with a clinician; do not change prescribed treatment.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "National Heart, Lung, and Blood Institute (NHLBI), NIH",
+      "updated_date": "2026-02-25"
+    },
+    {
+      "id": "bund-discharge",
+      "title": "gesund.bund.de: Discharge from hospital",
+      "url": "https://gesund.bund.de/en/entlassung-aus-dem-krankenhaus",
+      "section": "Discharge management and support after discharge",
+      "topics": [
+        "discharge"
+      ],
+      "applicability": "People arranging follow-up support after a hospital stay in Germany.",
+      "limitations": "An injury does not itself establish eligibility for a particular funded service. The hospital and insurer must confirm the person's situation.",
+      "passage": "Hospital discharge management coordinates support needed after a stay. Ask the ward or hospital social service early about the discharge plan, follow-up care and practical help at home. Temporary support may be relevant even without a recognised long-term care grade. The hospital and health insurer can clarify arrangements and entitlement.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "Bundesministerium für Gesundheit / gesund.bund.de",
+      "updated_date": "2026-07-31"
+    },
+    {
+      "id": "bund-care-advice",
+      "title": "gesund.bund.de: Care advice and training",
+      "url": "https://gesund.bund.de/en/beratung-und-schulung",
+      "section": "Individual care advice and local advice services",
+      "topics": [
+        "care_support"
+      ],
+      "applicability": "People with care needs and relatives seeking advice in Germany.",
+      "limitations": "Advice can explain possible services and applications; funding, eligibility and availability still require confirmation. Do not assume English-speaking staff.",
+      "passage": "Care advice helps people needing support and their relatives understand services, applications and suitable next steps. Care insurance funds and local care advice centres are useful starting points. Prepare a description of daily tasks the person cannot currently manage, what support is already available and the questions to ask. Contact details should be checked on a current official or service-provider page.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "Bundesministerium für Gesundheit / gesund.bund.de",
+      "updated_date": "2025-01-01"
+    },
+    {
+      "id": "zqp-advice",
+      "title": "ZQP: Directory of care advice services",
+      "url": "https://www.zqp.de/beratung-pflege/",
+      "section": "Search for local care advice",
+      "topics": [
+        "care_support"
+      ],
+      "applicability": "Finding care advice in Germany.",
+      "limitations": "A directory listing does not confirm current appointments, language support or an individual's eligibility.",
+      "passage": "ZQP provides a directory for finding care advice services in Germany. Search using the locality where support is needed. Confirm contact information on the service's own page where possible, and ask directly about appointments, languages and who the service can advise.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "Zentrum für Qualität in der Pflege (ZQP)",
+      "updated_date": null
+    },
+    {
+      "id": "nih-iron",
+      "title": "NIH ODS: Iron",
+      "url": "https://ods.od.nih.gov/factsheets/Iron-HealthProfessional/",
+      "section": "Sources of iron",
+      "topics": [
+        "iron"
+      ],
+      "applicability": "General information about iron in foods.",
+      "limitations": "US reference and fortification context; this is not a diagnosis of deficiency or a supplement recommendation.",
+      "passage": "Meat and seafood provide heme iron. Beans and other plant foods provide nonheme iron. Vitamin C can improve absorption of nonheme iron. Food-source advice alone cannot establish whether symptoms are due to iron deficiency; laboratory assessment and supplement decisions belong with a clinician.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "NIH Office of Dietary Supplements (ODS)",
+      "updated_date": "2025-09-04"
+    },
+    {
+      "id": "nih-b12",
+      "title": "NIH ODS: Vitamin B12",
+      "url": "https://ods.od.nih.gov/factsheets/VitaminB12-HealthProfessional/",
+      "section": "Sources of vitamin B12",
+      "topics": [
+        "b12"
+      ],
+      "applicability": "General food-source information, including diets avoiding animal products.",
+      "limitations": "Fortification varies by country and product; check German product labels. This passage does not determine a personal supplement dose.",
+      "passage": "Vitamin B12 occurs naturally in animal foods including fish, meat, eggs and dairy. Plant foods do not naturally provide vitamin B12; fortified foods can provide it. A person avoiding all animal products needs a reliable B12 source, with appropriate professional advice about supplementation and assessment.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "NIH Office of Dietary Supplements (ODS)",
+      "updated_date": "2025-07-02"
+    },
+    {
+      "id": "nih-calcium",
+      "title": "NIH ODS: Calcium",
+      "url": "https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/",
+      "section": "Sources of calcium",
+      "topics": [
+        "calcium"
+      ],
+      "applicability": "General information about calcium-containing foods.",
+      "limitations": "US fortification examples may differ from Germany. Adapt dairy suggestions to allergies and preferences; no individual intake or supplement prescription.",
+      "passage": "Dairy foods are common calcium sources. Alternatives include some green vegetables, fish with edible bones and calcium-fortified products. Check labels on plant-based drinks and other fortified foods because products vary. Ingredient suitability and calcium content both matter when choosing an alternative.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "NIH Office of Dietary Supplements (ODS)",
+      "updated_date": null
+    },
+    {
+      "id": "nih-vitamin-d",
+      "title": "NIH ODS: Vitamin D",
+      "url": "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/",
+      "section": "Food sources of vitamin D",
+      "topics": [
+        "vitamin_d"
+      ],
+      "applicability": "General food-source information.",
+      "limitations": "US fortification practices differ from Germany. This does not establish vitamin D status or a supplement dose.",
+      "passage": "Few foods naturally contain much vitamin D. Fatty fish are food sources; egg yolks contain smaller amounts. Mushroom content varies, including with ultraviolet exposure. Fortified foods may contribute, depending on the product. Food advice is not a substitute for assessing a suspected deficiency.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "NIH Office of Dietary Supplements (ODS)",
+      "updated_date": "2025-06-27"
+    },
+    {
+      "id": "efsa-reference-values",
+      "title": "EFSA: Dietary reference values",
+      "url": "https://www.efsa.europa.eu/de/topics/topic/dietary-reference-values",
+      "section": "What dietary reference values mean",
+      "topics": [
+        "iron",
+        "b12",
+        "calcium",
+        "vitamin_d"
+      ],
+      "applicability": "Interpreting reference values for healthy population groups.",
+      "limitations": "Reference values are not individual treatment targets and may not apply to people with disease.",
+      "passage": "Dietary reference values describe nutrient needs for healthy population groups. They support dietary assessment and planning, but are not a personal prescription. Do not derive an individual target from a reference value without considering the person's circumstances.",
+      "publication_date": null,
+      "checked_date": "2026-09-12",
+      "kind": "evidence",
+      "organisation": "European Food Safety Authority (EFSA)",
+      "updated_date": null
+    }
+  ]
+}

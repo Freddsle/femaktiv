@@ -28,6 +28,7 @@ Workflows MUST preserve the platform's [approved website wording](../behavior/pl
 | --- | --- | --- |
 | Establish specifications | [establish-specifications.donna.md](../../workflows/establish-specifications.donna.md) | Available; implements repository setup and validation/review. |
 | Implement the bilingual platform | [implement-platform.donna.md](../../workflows/implement-platform.donna.md) | Available; combines specification alignment, implementation planning, scoped implementation, quality checks and local handoff. |
+| Implement live chat | [implement-live-chat.donna.md](../../workflows/implement-live-chat.donna.md) | Available; scoped contracts, live adapters and UI, offline checks and honest live-evaluation handoff. |
 | Maintain specifications separately | `workflows/maintain-specifications.donna.md` | Planned; introduce if recurring independent specification work needs a dedicated controller. |
 | Review evidence and catalogue | `workflows/review-evidence.donna.md` | Deferred; needed only when separately authorized nutrition recommendations require reviewed content. |
 | Verify live provider integration | `workflows/verify-live-provider.donna.md` | Deferred; needed with a real provider adapter and an explicitly authorized live check. |
@@ -44,6 +45,10 @@ The [platform specification](../behavior/platform.md) owns current product behav
 - **Failure handling:** failed checks route to repair and rerun. Missing dependencies are reported precisely. Existing task authorization covers routine fixes; no live AI, external publishing or forum functionality is implied.
 - **Outputs:** integrated application, dependency lockfile, migrations, translations, meaningful tests, startup instructions and `docs/VALIDATION.md` with observed results.
 - **Completion gate:** platform acceptance passes, automated repository checks pass, browser review covers both locales and 390px/1440px, production smoke checks pass, and the local URL is verified. Check Donna status before declaring the workflow complete.
+
+## Implement live chat
+
+The [live-chat contract](../behavior/live_chat.md) owns the authorised fictional prototype. Its workflow establishes scoped requirements, implements the feature, runs offline quality checks, repairs failures, and reviews bilingual browser/production behavior. Source checks are recorded honestly without invented human or clinical approval. The separate opt-in live evaluation is not an ordinary quality gate. The historical catalogue review and nutrition-demonstration processes below do not govern this extension.
 
 ## Establish specifications
 
@@ -83,7 +88,7 @@ The [platform specification](../behavior/platform.md) owns current product behav
 - **Stages:** use the committed `uv` dependency lockfile; run the application check entrypoint, Django system and missing-migration checks, automated tests, translation compilation and static-file collection; exercise the local production server and relevant browser checks; inspect results and rerun only checks affected by repairs.
 - **Failure handling:** capture the command and its output; repair the specific failure; rerun the affected stage. Missing required check commands are an unmet implementation gate, not skipped success. Do not replace the lockfile merely to run preferred commands.
 - **Outputs:** reproducible commands and observed results, including which build/browser checks ran and any remaining blockers; maintain `docs/VALIDATION.md` once that report exists.
-- **Completion gate:** the platform specification's automated acceptance invariants and required checks pass. Routine runs MUST use the deterministic placeholder service and MUST make no provider requests. Specification/tooling-only changes use the repository checks from the setup workflow instead of claiming application checks ran.
+- **Completion gate:** the platform specification's automated acceptance invariants and required checks pass. Routine runs MUST use the deterministic placeholder service or mocked live adapters and MUST make no provider requests. Specification/tooling-only changes use the repository checks from the setup workflow instead of claiming application checks ran.
 
 ## Future evidence and catalogue review
 

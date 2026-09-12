@@ -6,7 +6,7 @@ Define the approved first implementation of femaktiv: an English/German public w
 
 ## Scope
 
-This contract governs the Django application, accounts, personal notes, chat history, example conversations and public Q&A previews. The user approved implementation through Donna and subsequently requested optional ngrok previews through the existing launcher. Delivery is local with hosting preparation and explicit HTTPS tunnel previews; live AI, real community posting, file uploads and external hosting deployment are deferred.
+This contract governs the Django application, accounts, personal notes, chat history, example conversations and public Q&A previews. The user approved implementation through Donna and subsequently requested optional ngrok previews through the existing launcher. Delivery is local with hosting preparation and explicit HTTPS tunnel previews; optional live AI is governed by [the live-chat extension](live_chat.md); real community posting, file uploads and external hosting deployment remain deferred.
 
 ## Authority and migration
 
@@ -27,6 +27,8 @@ Notes MUST have an owner, UUID identifier, title and text body. Owners can creat
 On each message the owner explicitly selects up to five notes. Save immutable title/body snapshots with the user message. Editing or deleting a source note does not alter prior snapshots; explain this at deletion. Deleting a chat removes its messages/snapshots. Inputs are plain text, validated and escaped; request bodies and private content MUST NOT appear in operational logs or public previews. All mutations use CSRF protection and private responses use no-store cache controls.
 
 ## Chat interface contract
+
+The requirements below describe the default placeholder mode. [Live chat](live_chat.md) owns the explicitly authorised provider integration, durable reservations, active context and extended responses. Account, ownership, language and private-storage requirements continue to apply in both modes.
 
 `POST /<language>/api/chats/<chat_id>/messages/` accepts exactly `content` (1–4000 non-whitespace characters), `note_ids` (up to five distinct UUIDs), and `client_request_id` (UUID). The authenticated owner and reply language come from the server session/URL. Reject inaccessible notes before saving any part of a turn.
 

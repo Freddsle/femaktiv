@@ -1,6 +1,6 @@
 # femaktiv
 
-A bilingual space for everyday questions, personal context and future AI assistance. The public website and private workspace run together in one Django application.
+A bilingual space for everyday questions, personal context and optional live AI assistance. The public website and private workspace run together in one Django application.
 
 ## Start locally
 
@@ -44,11 +44,11 @@ If the public URL returns **Bad Request (400)** while `http://127.0.0.1:8000/` w
 - English and German navigation, forms, errors, account emails and example content. English is the first-visit default; an explicit language choice is remembered.
 - Two read-only conversation examples and six public Q&A previews in three topics.
 
-The chat API saves each message and returns a visibly labelled **placeholder reply**. No LLM or anymize requests are made. Example answers are illustrative authored content, not personalised recommendations or reviewed medical guidance. Q&A posting and moderation are not implemented.
+Chat defaults to visibly labelled **placeholder replies**, with no provider calls. Optional live mode adds Anymize intake and answers, a small evidence library, and Brave lookup for local care contacts. This is a private prototype for fictional information. Example answers are illustrative authored content, not personalised recommendations or reviewed medical guidance. Q&A posting and moderation are not implemented.
 
 ## Accounts and data
 
-Accounts, chats, notes and sessions are stored in `.local/db.sqlite3`; they survive refreshes and server restarts. Logout does not delete stored data. Users can delete their notes and chats. Deleting a note leaves copies already attached to messages; deleting a chat removes those copies. Both `.local/` and secrets are ignored by Git.
+Accounts, chats, notes and sessions are stored in `.local/db.sqlite3`; they survive refreshes and server restarts. Logout does not delete stored data. Users can delete their notes and chats. Deleting a source note leaves saved copies in chats; remove an active copy using its chat’s context controls to stop sending it. Deleting a chat removes its messages, copies, citations and request records. Both `.local/` and secrets are ignored by Git.
 
 Password recovery prints an email and reset URL in the local server terminal. This console backend is for local development only; configure SMTP for a hosted site. Create an administrator when needed with:
 
@@ -75,20 +75,50 @@ Screenshots from the browser suite are saved under `.local/screenshots/`. See [v
 
 - `accounts/`: custom email user, forms and standard Django authentication views.
 - `notes/`: owner-restricted saved context.
-- `chats/`: durable conversations, immutable attachments, API validation and a replaceable reply service.
+- `chats/`: durable conversations, active context, request reservations, Anymize, evidence and safe search adapters.
+- `content/evidence.json`: versioned paraphrases, source dates, applicability and limitations.
 - `pages/` and `content/examples.json`: public pages and bilingual static examples.
 - `templates/`, `static/` and `locale/`: shared presentation, small JavaScript modules and translations.
 - `config/`: settings, route prefixes, deployment entrypoint and cache controls.
 
-The active requirements are in [the platform specification](specs/behavior/platform.md). The original nutrition build specification is preserved as historical/future reference; its Next.js, English-only, no-account and no-database requirements do not govern this version. Development follows the project's Donna workflow and Depmesh ownership mappings.
+The active requirements are in [the platform specification](specs/behavior/platform.md) and [live-chat extension](specs/behavior/live_chat.md). The original nutrition build specification is preserved as historical/future reference; its Next.js, English-only, no-account and no-database requirements do not govern this version. Development follows the project's Donna workflow and Depmesh ownership mappings.
 
-### Connect a future LLM
+### Configure live chat locally
 
-Replace `chats/service.py:generate_reply` with an explicitly configured server-side adapter. Its inputs are conversation history, the selected note context and the requested reply language. Keep ownership, persistence, retry identifiers and response-mode labels in the HTTP/storage layer. Do not turn on a paid provider in ordinary tests.
+Keep secrets in your server environment or secret manager. `.env.example` documents the settings; it is **not loaded automatically**. Live mode requires all of:
 
-The current endpoint is `POST /<language>/api/chats/<chat UUID>/messages/`, with a JSON body containing only `content`, `note_ids` and `client_request_id`. Session authentication and CSRF are required. Successful replies include both stored messages, chat metadata and `mode: "placeholder"`. A reused request identifier with the same payload returns the existing turn; a different payload returns a conflict.
+- `FEMAKTIV_AI_MODE=live`
+- `ANYMIZE_API_KEY` and `ANYMIZE_MODEL`, using a model identifier accessible to your account.
+- `BRAVE_SEARCH_API_KEY` for current local contacts.
+- `ANYMIZE_ZDR_CONFIRMED=1`, **after enabling account-level Zero Data Retention in Anymize**. This records your confirmation; the app cannot remotely attest to the account setting.
 
-A real provider integration needs its own bounded history/token handling, provider error handling and content policy. The current adapter does not provide medical advice, retrieval, live sources or autonomous agents.
+Install dependencies/apply migrations with `./bin/setup`, then restart `./bin/serve` with these variables in its environment. Missing settings, rejected anonymization metadata and malformed replies produce errors; they never switch providers or return a placeholder as a live answer. Leave `FEMAKTIV_AI_MODE=placeholder` to use the default offline mode.
+
+Anymize receives the submitted message, current chat context and attached copies, then masks identifiers before the downstream model. Health details remain sensitive. No names are restored. The city/postcode field is separately editable; only it and a fixed service category go to Brave. Anymize's ZDR setting does not describe Brave's retention. No credentials or private payloads are written to application logs.
+
+Notes stay active within their chat until removed. Source edits/deletion do not change a copy; refresh explicitly to replace it. Removing or refreshing a copy, replacing a saved locality or resetting message context starts a new AI segment. Earlier messages stay visible but are no longer sent, including answers derived from removed notes. Resetting message context keeps active note copies; remove those individually if needed. Setting the first locality preserves the current conversation so you can answer a location clarification without repeating the original question. Nothing carries into another chat automatically. An existing placeholder conversation starts a fresh context on its first live turn.
+
+The message endpoint remains `POST /<language>/api/chats/<chat UUID>/messages/` with exactly `content`, `note_ids` and `client_request_id`. Session authentication and CSRF are required. Complete replies return both stored messages, actual mode, answer/clarification kind, paragraph citations, source snapshots, lookup status and active context. A duplicate reuses the saved reservation/result; a different payload with the same id conflicts. `GET .../turns/<request UUID>/` returns processing (202), a result or a terminal error. `POST .../context/` accepts `remove`/`refresh` with `note_id`, `locality` with `locality`, or `reset` alone.
+
+Each turn permits at most two model calls, two searches and three public-page requests including redirects, within 60 seconds. Gunicorn's local timeout is 90 seconds; hosting proxies should allow at least that long. There is no streaming or automatic paid retry. The prototype allows 30 new reservations per account per hour. Context is limited to 60,000 characters; exceeding this asks for a reset or smaller note selection rather than dropping earlier restrictions. A timed-out reservation cannot resume or charge again on a duplicate; a deliberate new send uses a new request id. The browser stops waiting after 75 seconds while retaining the original id for recovery. If a context update cannot be confirmed, refresh before sending again.
+
+### Evaluate the configured provider explicitly
+
+After configuring live mode, run this separately when you intend to make paid calls:
+
+```bash
+.venv/bin/python manage.py evaluate_live_chat --allow-provider-calls
+```
+
+This uses four predefined fictional English/German cases, checks account model access, structured output, anonymization metadata, essential intake facts, citations and local-contact lookup. Maximum cost exposure is eight model calls and four searches; it stops on a failed case without retrying. The report is saved to ignored `.local/live-chat-evaluation.json` and includes fictional answers for human review. Metadata and keyword checks **do not prove anonymization accuracy, clinical correctness or answer quality**.
+
+`./bin/check` forces `FEMAKTIV_OFFLINE_CHECKS=1` and uses mocked live integrations even if real credentials are inherited. The opt-in evaluation refuses to run with this switch enabled. No live provider/search evaluation was performed as part of routine implementation checks.
+
+### Maintain evidence
+
+The initial library covers ordinary DGE food choices, NHLBI DASH context, federal discharge/care advice and ZQP's directory. NIH/EFSA entries are retrieved only for the covered specific nutrient questions. Population limits and German versus US applicability travel with each passage. Unknown publication dates remain null; checked dates record an actual source read, not human clinical approval. Review changes against the linked page and increment the library version. Saved replies retain their original citation snapshots.
+
+Local contacts require fetched-page evidence for locality, service identity and contact details; search snippets are insufficient. Fetching is bounded, validates public DNS destinations and redirects, pins the connection address, and does not forward credentials. Page text is untrusted. Contact extraction is conservative and may miss valid services; availability, language support and eligibility remain unconfirmed. When verification fails, the answer explains the gap and points to existing advice channels.
 
 ### Extend Q&A later
 
@@ -119,4 +149,4 @@ This delivery is local; no public site has been published. `.env.example` lists 
 
 For hosting, set a unique `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, explicit allowed hosts and CSRF origins, PostgreSQL credentials and SMTP. Use HTTPS and leave `DJANGO_LOCAL_HTTP` unset. Set `DJANGO_TRUST_PROXY=1` only behind a trusted proxy that sanitizes `X-Forwarded-Proto`. Run migrations, translation compilation and `collectstatic` during deployment, then serve `config.wsgi:application` using Gunicorn. The `bin/serve` helper is intentionally for local use only.
 
-Run `.venv/bin/python manage.py check --deploy` under the actual hosting configuration. Hosting decisions still include persistent database storage/backups, recovery email delivery, rate limits for account endpoints and operational monitoring. Application logs should contain operational status, not note text, message bodies or passwords. Live AI and a public user-generated forum remain separate future work.
+Run `.venv/bin/python manage.py check --deploy` under the actual hosting configuration. Hosting decisions still include persistent database storage/backups, recovery email delivery, rate limits for account endpoints and operational monitoring. Application logs should contain operational status, not note text, message bodies or passwords. Broader health use requires further evaluation; a public user-generated forum remains separate future work.

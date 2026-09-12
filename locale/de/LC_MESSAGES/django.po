@@ -1256,3 +1256,265 @@ msgstr "Beispieldiskussion"
 #: config/urls.py:9
 msgid "femaktiv administration"
 msgstr "femaktiv-Verwaltung"
+
+#: chats/errors.py:24
+msgid ""
+"A chat can use up to five active notes. Remove one before attaching another."
+msgstr ""
+"Ein Chat kann bis zu fünf aktive Notizen verwenden. Entferne eine, bevor du "
+"eine weitere anhängst."
+
+#: templates/chats/workspace.html:4
+msgid ""
+"AI can make mistakes. Check important health and care decisions with a "
+"qualified person."
+msgstr ""
+"KI kann Fehler machen. Besprich wichtige Gesundheits- und "
+"Pflegeentscheidungen mit einer qualifizierten Fachperson."
+
+#: templates/chats/live_context.html:6
+msgid ""
+"AI context updated. Earlier messages remain visible but will not be sent "
+"again."
+msgstr ""
+"KI-Kontext aktualisiert. Frühere Nachrichten bleiben sichtbar, werden aber "
+"nicht erneut übermittelt."
+
+#: chats/errors.py:11 templates/chats/workspace.html:3
+#: templates/chats/workspace.html:4
+msgid "AI reply"
+msgstr "KI-Antwort"
+
+#: templates/chats/live_context.html:7 templates/chats/workspace.html:4
+msgid "Active AI context"
+msgstr "Aktiver KI-Kontext"
+
+#: chats/errors.py:19
+msgid ""
+"Another reply is being prepared in this chat. Please wait for it to finish."
+msgstr ""
+"In diesem Chat wird bereits eine Antwort vorbereitet. Warte bitte, bis sie "
+"fertig ist."
+
+#: templates/chats/cited_reply.html:10 templates/chats/workspace.html:4
+msgid ""
+"Availability, language support and eligibility are unknown. Please confirm "
+"directly."
+msgstr ""
+"Verfügbarkeit, Sprachunterstützung und Anspruch sind nicht geklärt. Frage "
+"bitte direkt nach."
+
+#: templates/chats/live_context.html:13
+msgid "City or German postcode for local support"
+msgstr "Stadt oder deutsche Postleitzahl für Hilfe vor Ort"
+
+#: chats/errors.py:22
+msgid ""
+"Enter a German city or a five-digit postcode, without a street address."
+msgstr ""
+"Gib eine deutsche Stadt oder eine fünfstellige Postleitzahl ohne "
+"Straßenadresse ein."
+
+#: chats/errors.py:30
+msgid "External services are disabled during automated checks."
+msgstr "Externe Dienste sind während automatisierter Prüfungen deaktiviert."
+
+#: chats/service.py:228
+msgid ""
+"I could not verify a local contact on a current page. Use the care-advice "
+"directory or ask the hospital social service or insurer for a local contact."
+msgstr ""
+"Ich konnte keinen örtlichen Kontakt auf einer aktuellen Seite überprüfen. "
+"Nutze das Verzeichnis für Pflegeberatung oder frage beim "
+"Krankenhaussozialdienst oder bei der Versicherung nach einem Kontakt vor "
+"Ort."
+
+#: chats/service.py:151
+msgid ""
+"If there is immediate danger, contact the local emergency service now. This "
+"chat cannot assess an emergency. Ask someone nearby to help if you can."
+msgstr ""
+"Wende dich bei unmittelbarer Gefahr jetzt an den örtlichen Rettungsdienst. "
+"Dieser Chat kann einen Notfall nicht beurteilen. Bitte nach Möglichkeit "
+"jemanden in deiner Nähe um Hilfe."
+
+#: templates/chats/workspace.html:5
+msgid ""
+"Live AI is enabled for this private prototype. Use fictional information."
+msgstr ""
+"Live-KI ist für diesen privaten Prototyp aktiviert. Verwende erfundene "
+"Angaben."
+
+#: chats/errors.py:7
+msgid ""
+"Live AI is not configured. Ask the prototype operator to check the server "
+"settings."
+msgstr ""
+"Live-KI ist nicht eingerichtet. Bitte die Person, die den Prototyp betreibt,"
+" die Servereinstellungen zu prüfen."
+
+#: templates/chats/workspace.html:2
+msgid "Live AI · prototype"
+msgstr "Live-KI · Prototyp"
+
+#: chats/errors.py:32
+msgid "Local services could not be checked right now."
+msgstr "Örtliche Angebote konnten gerade nicht überprüft werden."
+
+#: templates/chats/live_context.html:5
+msgid "No active notes. Attach a note to keep its copy in this chat."
+msgstr ""
+"Keine aktiven Notizen. Hänge eine Notiz an, um ihre Kopie in diesem Chat zu "
+"behalten."
+
+#: templates/chats/live_context.html:9
+msgid ""
+"Only messages in the current AI context and these saved note copies are "
+"included. Removing or refreshing a copy starts a new context. Earlier "
+"messages stay in your history."
+msgstr ""
+"Nur Nachrichten im aktuellen KI-Kontext und diese gespeicherten Notizkopien "
+"werden einbezogen. Wenn du eine Kopie entfernst oder aktualisierst, beginnt "
+"ein neuer Kontext. Frühere Nachrichten bleiben im Verlauf."
+
+#: templates/chats/live_context.html:16
+msgid ""
+"Only this locality and the type of service go to Brave Search. Replacing a "
+"saved locality starts a new AI context; include any details still needed in "
+"your next message."
+msgstr ""
+"Nur dieser Ort und die Art des Angebots werden an Brave Search übermittelt. "
+"Wenn du einen gespeicherten Ort ersetzt, beginnt ein neuer KI-Kontext. Nenne"
+" weiterhin benötigte Angaben in deiner nächsten Nachricht erneut."
+
+#: templates/chats/cited_reply.html:9 templates/chats/workspace.html:4
+msgid "Open source page"
+msgstr "Quellenseite öffnen"
+
+#: templates/chats/cited_reply.html:11 templates/chats/workspace.html:4
+msgid "Page checked"
+msgstr "Seite geprüft"
+
+#: templates/chats/workspace.html:4
+msgid "Preparing your reply…"
+msgstr "Deine Antwort wird vorbereitet…"
+
+#: templates/chats/live_context.html:4
+msgid "Refresh copy"
+msgstr "Kopie aktualisieren"
+
+#: templates/chats/live_context.html:4
+msgid "Remove copy"
+msgstr "Kopie entfernen"
+
+#: templates/chats/workspace.html:4
+msgid "Reply saved."
+msgstr "Antwort gespeichert."
+
+#: templates/chats/live_context.html:17
+msgid "Reset message context"
+msgstr "Nachrichtenkontext zurücksetzen"
+
+#: templates/chats/live_context.html:14
+msgid "Save locality"
+msgstr "Ort speichern"
+
+#: templates/chats/workspace.html:4
+msgid ""
+"Selected notes stay active as saved copies in this chat. You can remove or "
+"refresh them in Active AI context."
+msgstr ""
+"Ausgewählte Notizen bleiben als gespeicherte Kopien in diesem Chat aktiv. "
+"Unter „Aktiver KI-Kontext“ kannst du sie entfernen oder aktualisieren."
+
+#: templates/chats/cited_reply.html:12
+msgid "Source date"
+msgstr "Datum der Quelle"
+
+#: chats/errors.py:11
+msgid "The AI reply could not be verified. Your draft is still here."
+msgstr ""
+"Die KI-Antwort konnte nicht überprüft werden. Dein Entwurf ist noch da."
+
+#: chats/errors.py:9
+msgid "The AI service is unavailable. Your draft is still here."
+msgstr "Der KI-Dienst ist nicht verfügbar. Dein Entwurf ist noch da."
+
+#: chats/errors.py:17
+msgid ""
+"The chat context changed. The old reply was discarded; review your draft and"
+" send again."
+msgstr ""
+"Der Chat-Kontext hat sich geändert. Die alte Antwort wurde verworfen. Prüfe "
+"deinen Entwurf und sende ihn erneut."
+
+#: chats/errors.py:29
+msgid "The context update is invalid. Refresh the page and try again."
+msgstr ""
+"Die Kontextänderung ist ungültig. Lade die Seite neu und versuche es noch "
+"einmal."
+
+#: chats/errors.py:10
+msgid "The service did not confirm anonymization. No answer was accepted."
+msgstr ""
+"Der Dienst hat die Anonymisierung nicht bestätigt. Es wurde keine Antwort "
+"übernommen."
+
+#: chats/errors.py:14
+msgid ""
+"This AI context is too long. Remove a note or reset the AI context before "
+"trying again."
+msgstr ""
+"Dieser KI-Kontext ist zu lang. Entferne eine Notiz oder setze den KI-Kontext"
+" zurück, bevor du es erneut versuchst."
+
+#: chats/errors.py:25
+msgid "This chat or note is not available."
+msgstr "Dieser Chat oder diese Notiz ist nicht verfügbar."
+
+#: chats/errors.py:20
+msgid ""
+"This prototype's request limit has been reached. Please try again later."
+msgstr ""
+"Das Anfragelimit dieses Prototyps ist erreicht. Versuche es später noch "
+"einmal."
+
+#: chats/errors.py:12
+msgid "This request timed out. It will not be retried automatically."
+msgstr ""
+"Die Zeit für diese Anfrage ist abgelaufen. Sie wird nicht automatisch "
+"wiederholt."
+
+#: chats/errors.py:31
+msgid "This source could not be opened safely."
+msgstr "Diese Quelle konnte nicht sicher geöffnet werden."
+
+#: templates/chats/workspace.html:3
+msgid ""
+"Use fictional information. Anymize receives your message and active context,"
+" then masks identifiers for the model. Health details remain sensitive."
+msgstr ""
+"Verwende erfundene Angaben. Anymize erhält deine Nachricht und den aktiven "
+"Kontext und maskiert dann Identifikatoren für das Modell. Gesundheitsangaben"
+" bleiben sensibel."
+
+#: chats/service.py:163
+msgid ""
+"Which city or German postcode needs support? Enter it in the locality field "
+"so I can look for local services."
+msgstr ""
+"In welcher Stadt oder deutschen Postleitzahl wird Unterstützung gebraucht? "
+"Trage den Ort in das Ortsfeld ein, damit ich nach Angeboten vor Ort suchen "
+"kann."
+
+#: templates/chats/live_context.html:6
+msgid "Locality saved. Your current conversation remains in the AI context."
+msgstr "Ort gespeichert. Das aktuelle Gespräch bleibt im KI-Kontext."
+
+#: templates/chats/live_context.html:7
+msgid ""
+"The context update could not be confirmed. Refresh the page before sending "
+"another message."
+msgstr ""
+"Die Kontextänderung konnte nicht bestätigt werden. Lade die Seite neu, bevor"
+" du eine weitere Nachricht sendest."

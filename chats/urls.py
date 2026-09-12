@@ -10,4 +10,6 @@ urlpatterns = [
     path("chats/<uuid:pk>/rename/", views.rename, name="rename"),
     path("chats/<uuid:pk>/delete/", views.delete, name="delete"),
     path("api/chats/<uuid:pk>/messages/", views.send_message, name="send"),
+    path("api/chats/<uuid:pk>/context/", views.update_context, name="context"),
+    path("api/chats/<uuid:pk>/turns/<uuid:request_id>/", views.turn_status, name="turn-status"),
 ]

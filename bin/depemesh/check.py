@@ -30,6 +30,7 @@ RELATIONS = "@/specs/behavior/files_relations.md"
 WORKFLOWS = "@/specs/general/workflows.md"
 HISTORICAL = "@/00_initial/FEMAKTIV_BUILD_SPEC.md"
 PRODUCT = "@/specs/behavior/platform.md"
+LIVE = "@/specs/behavior/live_chat.md"
 
 
 def require(condition, message):
@@ -142,6 +143,7 @@ def check_fixtures():
             ("src/.helpers/meal.ts", "tests/unit/src/.helpers/meal.test.ts"),
             ("accounts/models.py", "tests/unit/accounts/test_models.py"),
             ("chats/services.py", "tests/unit/chats/test_services.py"),
+            ("chats/management/commands/evaluate_live_chat.py", "tests/unit/chats/management/commands/test_evaluate_live_chat.py"),
             ("notes/forms.py", "tests/unit/notes/test_forms.py"),
             ("config/settings.py", "tests/unit/config/test_settings.py"),
             ("pages/nested/[slug]/content.py", "tests/unit/pages/nested/[slug]/test_content.py"),
@@ -151,7 +153,8 @@ def check_fixtures():
         excluded_paths = [f"src/{name}/hidden.ts" for name in EXCLUDED_DIRS]
         excluded_paths += ["src/.env", "src/.env.local", "src/private.pem", "src/private.key", "src/cache.pyc", "accounts/db.sqlite3", "accounts/db.sqlite3-wal", "accounts/db.db-journal", "locale/de/LC_MESSAGES/django.mo"]
         names = [
-            META[2:], RELATIONS[2:], WORKFLOWS[2:], PRODUCT[2:], HISTORICAL[2:],
+            META[2:], RELATIONS[2:], WORKFLOWS[2:], PRODUCT[2:], LIVE[2:], HISTORICAL[2:],
+            "content/evidence.json", "tests/e2e/test_live_chat.py", "templates/chats/live_context.html", "templates/chats/cited_reply.html", "static/css/site.css",
             "specs/intro.md", "README.md", "AGENTS.md", "donna.toml",
             "workflows/example.donna.md", "bin/depemesh/check.py", "bin/depemesh/files.py",
             "tests/unit/bin/depemesh/test_check.py", "00_initial/unstructured_overview.md",
@@ -186,11 +189,14 @@ def check_fixtures():
         for name in ["src/no-test.ts", "package.json", "vitest.config.ts", "src/data/example.json"]:
             graph.expect("@/" + name, "governed_by", {HISTORICAL})
         for name in ["README.md", "manage.py", "pyproject.toml", "uv.lock", ".python-version", "Makefile", "bin/check", "accounts/models.py", "chats/services.py", "notes/forms.py", "config/settings.py", "content/examples.json", "templates/base.html", "static/js/chat.js", "locale/de/LC_MESSAGES/django.po", "docs/VALIDATION.md", "tests/e2e/test_platform.py"]:
-            graph.expect("@/" + name, "governed_by", {PRODUCT})
+            graph.expect("@/" + name, "governed_by", {PRODUCT, LIVE} if name in {"chats/services.py", "config/settings.py", "static/js/chat.js"} else {PRODUCT})
         browser_sources = {"@/" + name for name in ["accounts/views.py", "notes/views.py", "chats/views.py", "pages/views.py", "static/js/chat.js", "templates/base.html"]}
+        for name in ["content/evidence.json", "templates/chats/live_context.html", "templates/chats/cited_reply.html", "static/css/site.css", "chats/management/commands/evaluate_live_chat.py", "tests/e2e/test_live_chat.py"]:
+            graph.expect("@/" + name, "governed_by", {PRODUCT, LIVE})
+        graph.expect("@/chats/future_adapter.py", "governed_by", {PRODUCT, LIVE})
         graph.expect("@/tests/e2e/test_platform.py", "tests", browser_sources)
         for artifact in browser_sources:
-            graph.expect(artifact, "tested_by", {"@/tests/e2e/test_platform.py"})
+            graph.expect(artifact, "tested_by", {"@/tests/e2e/test_platform.py", "@/tests/e2e/test_live_chat.py"} if artifact in {"@/chats/views.py", "@/static/js/chat.js"} else {"@/tests/e2e/test_platform.py"})
         graph.expect("@/accounts/test_helper.py", "tested_by", set())
         graph.expect("@/tests/unit/accounts/test_test_helper.py", "tests", set())
         graph.expect("@/pages/orphan.py", "governed_by", {PRODUCT})
@@ -233,7 +239,7 @@ def local_links(path):
 
 def check_specs():
     specs = sorted((ROOT / "specs").rglob("*.md"))
-    expected = {"specs/intro.md", "specs/meta/general.md", "specs/behavior/files_relations.md", "specs/behavior/platform.md", "specs/general/workflows.md"}
+    expected = {"specs/behavior/live_chat.md", "specs/intro.md", "specs/meta/general.md", "specs/behavior/files_relations.md", "specs/behavior/platform.md", "specs/general/workflows.md"}
     require(expected <= {str(path.relative_to(ROOT)) for path in specs}, "A required specification is missing")
     for path in specs:
         content = without_fences(path.read_text(encoding="utf-8"))

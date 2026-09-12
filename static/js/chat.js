@@ -28,8 +28,14 @@
   let navigating = false;
   let controller = null;
   let lastAttempt = null;
+  let contextBusy = false;
+  let contextEpoch = 0;
+  let contextController = null;
+  let contextUncertain = false;
+  const contextPanel = document.querySelector('[data-live-context]');
+  let activeContext = JSON.parse(document.querySelector('#active-context-data')?.textContent || 'null');
   const present = () => !navigating && form.isConnected && window.location.pathname === initialPath;
-  const prepareNavigation = () => { navigating = true; controller?.abort(); };
+  const prepareNavigation = () => { navigating = true; controller?.abort(); contextController?.abort(); };
   window.addEventListener('pagehide', prepareNavigation);
   window.addEventListener('pageshow', (event) => { if (event.persisted) window.location.reload(); });
   document.addEventListener('submit', (event) => {
@@ -62,6 +68,86 @@
     if (text !== undefined) node.textContent = text;
     return node;
   };
+  const sourceLink = (url, label) => {
+    const link = element('a', '', label);
+    try {
+      const target = new URL(url);
+      if (!['https:', 'http:'].includes(target.protocol) || target.username || target.password) return element('span', '', label);
+      link.href = target.href;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    } catch { return element('span', '', label); }
+    return link;
+  };
+  const renderContext = (value) => {
+    if (!contextPanel || !value) return;
+    activeContext = value;
+    contextPanel.querySelector('[data-active-count]').textContent = String(value.notes.length);
+    contextPanel.querySelector('#chat-locality').value = value.locality;
+    const list = contextPanel.querySelector('[data-active-notes]');
+    list.replaceChildren();
+    if (!value.notes.length) list.append(element('p', '', contextPanel.dataset.empty));
+    value.notes.forEach((note) => {
+      const item = element('div', 'active-note');
+      const preview = element('details', '');
+      preview.append(element('summary', '', note.title), element('p', '', note.body));
+      const actions = element('div', 'active-note-actions');
+      ['remove', 'refresh'].forEach((action) => {
+        const button = element('button', 'button button-small button-secondary', contextPanel.dataset[action]);
+        button.type = 'button';
+        button.disabled = action === 'refresh' && !note.can_refresh;
+        button.addEventListener('click', () => changeContext({ action, note_id: note.id }));
+        actions.append(button);
+      });
+      item.append(preview, actions);
+      list.append(item);
+    });
+  };
+  const changeContext = async (payload) => {
+    if (contextBusy || !present()) return;
+    contextBusy = true;
+    contextPanel.setAttribute('aria-busy', 'true');
+    contextController = new AbortController();
+    const requestController = contextController;
+    const contextTimeout = setTimeout(() => requestController.abort(new DOMException(contextPanel.dataset.failed, 'TimeoutError')), 15000);
+    status.classList.remove('is-error');
+    try {
+      const response = await fetch(contextPanel.dataset.url, {
+        method: 'POST', credentials: 'same-origin', signal: contextController.signal,
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (!present()) return;
+      if (!response.ok) throw new Error(result.error?.message || form.dataset.error);
+      contextEpoch += 1;
+      controller?.abort();
+      lastAttempt = null;
+      renderContext(result.active_context);
+      if (payload.action === 'remove') {
+        noteInputs.forEach((note) => { if (note.value === payload.note_id) note.checked = false; });
+        updateNotes();
+      }
+      status.textContent = result.history_reset ? contextPanel.dataset.updated : contextPanel.dataset.localitySaved;
+      if (payload.action === 'locality') contextPanel.open = false;
+    } catch (error) {
+      if (present() && error.name !== 'AbortError') {
+        status.classList.add('is-error');
+        contextUncertain = error instanceof TypeError || error instanceof SyntaxError || error.name === 'TimeoutError';
+        status.textContent = contextUncertain ? contextPanel.dataset.failed : error.message;
+      }
+    } finally {
+      clearTimeout(contextTimeout);
+      contextBusy = false;
+      contextPanel.removeAttribute('aria-busy');
+    }
+  };
+  contextPanel?.querySelector('[data-locality-form]').addEventListener('submit', (event) => {
+    event.preventDefault();
+    changeContext({ action: 'locality', locality: contextPanel.querySelector('#chat-locality').value });
+  });
+  contextPanel?.querySelector('[data-context-reset]').addEventListener('click', () => changeContext({ action: 'reset' }));
+  renderContext(activeContext);
   const appendMessage = (message) => {
     if ([...thread.querySelectorAll('[data-message-id]')].some((node) => node.dataset.messageId === message.id)) return;
     const article = element('article', `message message-${message.role === 'user' ? 'user' : 'assistant'}`);
@@ -75,9 +161,36 @@
       avatar.height = 2048;
       meta.append(avatar);
       meta.append(element('strong', '', 'femaktiv'));
-      meta.append(element('span', 'example-label', form.dataset.placeholder));
+      meta.append(element('span', 'example-label', message.mode === 'live' ? form.dataset.liveLabel : form.dataset.placeholder));
     } else meta.append(element('strong', '', form.dataset.you));
-    article.append(meta, element('div', 'message-content', message.content));
+    article.append(meta);
+    if (message.paragraphs?.length) {
+      const body = element('div', 'message-content cited-reply');
+      message.paragraphs.forEach((paragraph) => {
+        const block = element('div', 'answer-paragraph');
+        block.append(element('p', '', paragraph.text));
+        if (paragraph.citations?.length) {
+          const links = element('div', 'paragraph-citations');
+          paragraph.citations.forEach((source) => links.append(sourceLink(source.url, source.title)));
+          block.append(links);
+        }
+        body.append(block);
+      });
+      (message.citations || []).forEach((source) => {
+        const card = element('details', 'source-card');
+        card.open = source.kind === 'contact';
+        card.append(element('summary', '', source.title), sourceLink(source.url, form.dataset.openSource));
+        if (source.kind === 'contact') {
+          card.append(element('p', '', source.locality));
+          [...(source.phones || []), ...(source.emails || [])].forEach((contact) => card.append(element('p', '', contact)));
+          card.append(element('p', '', form.dataset.contactUnknown));
+        } else card.append(element('p', '', source.section));
+        card.append(element('p', 'source-checked', `${form.dataset.checked}: ${source.checked_date}`));
+        if (source.updated_date || source.publication_date) card.append(element('p', 'source-checked', `${form.dataset.sourceDate}: ${source.updated_date || source.publication_date}`));
+        body.append(card);
+      });
+      article.append(body);
+    } else article.append(element('div', 'message-content', message.content));
     if (message.context?.length) {
       const details = element('details', 'message-context');
       details.append(element('summary', '', `${form.dataset.context} (${message.context.length})`));
@@ -92,7 +205,9 @@
   };
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (pending || !input.value.trim() || !present()) return;
+    if (pending || contextBusy || !input.value.trim() || !present()) return;
+    if (contextUncertain) { status.textContent = contextPanel.dataset.failed; return; }
+    const submittedEpoch = contextEpoch;
     const content = input.value.trim();
     const noteIds = noteInputs.filter((note) => note.checked).map((note) => note.value);
     if (noteIds.length > 5) { status.textContent = form.dataset.noteLimit; return; }
@@ -108,19 +223,37 @@
     status.classList.remove('is-error');
     status.textContent = form.dataset.sending;
     controller = new AbortController();
+    const requestController = controller;
+    const requestTimeout = setTimeout(() => requestController.abort(new DOMException(form.dataset.error, 'TimeoutError')), 75000);
     try {
-      const response = await fetch(form.action, {
+      let response = await fetch(form.action, {
         method: 'POST', credentials: 'same-origin', signal: controller.signal,
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value },
         body: JSON.stringify({ content, note_ids: noteIds, client_request_id: lastAttempt.id }),
       });
-      const result = await response.json();
-      if (!present()) return;
-      if (!response.ok) throw new Error(result.error?.message || form.dataset.error);
-      if (result.chat.id !== chatId || result.mode !== 'placeholder') throw new Error(form.dataset.error);
+      let result = await response.json();
+      const pollingDeadline = Date.now() + 65000;
+      while (response.status === 202 && result.status === 'processing') {
+        if (!present() || contextBusy || contextEpoch !== submittedEpoch) return;
+        if (Date.now() > pollingDeadline) throw new Error(form.dataset.error);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        response = await fetch(form.dataset.turnUrl.replace('00000000-0000-0000-0000-000000000000', lastAttempt.id), {
+          credentials: 'same-origin', signal: controller.signal, cache: 'no-store',
+        });
+        result = await response.json();
+      }
+      if (!present() || contextBusy || contextEpoch !== submittedEpoch) return;
+      if (!response.ok) {
+        renderContext(result.active_context);
+        if (result.error?.terminal) lastAttempt = null; // Only a deliberate new send can incur another call.
+        throw new Error(result.error?.message || form.dataset.error);
+      }
+      if (result.chat?.id !== chatId || !['placeholder', 'live'].includes(result.mode)) throw new Error(form.dataset.error);
       thread.querySelector('[data-thread-empty]')?.remove();
       appendMessage(result.user_message);
       appendMessage(result.assistant_message);
+      renderContext(result.active_context);
+      if (result.assistant_message.lookup_status === 'needs_locality' && contextPanel) contextPanel.open = true;
       document.querySelector('[data-chat-title]').textContent = result.chat.title;
       const historyTitle = document.querySelector(`[data-chat-link="${chatId}"] span`);
       if (historyTitle) historyTitle.textContent = result.chat.title;
@@ -141,6 +274,7 @@
         status.textContent = error instanceof TypeError || error instanceof SyntaxError ? form.dataset.error : error.message;
       }
     } finally {
+      clearTimeout(requestTimeout);
       pending = false;
       if (present()) {
         sendButton.disabled = false;

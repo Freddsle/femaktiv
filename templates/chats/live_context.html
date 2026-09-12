@@ -1,0 +1,21 @@
+{% load i18n %}
+{{ active_context|json_script:'active-context-data' }}
+<details class="live-context" data-live-context data-url="{% url 'chats:context' current_chat.pk %}"
+ data-remove="{% translate 'Remove copy' %}" data-refresh="{% translate 'Refresh copy' %}"
+ data-empty="{% translate 'No active notes. Attach a note to keep its copy in this chat.' %}"
+ data-locality-saved="{% translate 'Locality saved. Your current conversation remains in the AI context.' %}"
+ data-failed="{% translate 'The context update could not be confirmed. Refresh the page before sending another message.' %}"
+ data-updated="{% translate 'AI context updated. Earlier messages remain visible but will not be sent again.' %}">
+  <summary>{% translate 'Active AI context' %} <span data-active-count>{{ active_context.notes|length }}</span></summary>
+  <div class="live-context-body">
+    <p>{% translate 'Only messages in the current AI context and these saved note copies are included. Removing or refreshing a copy starts a new context. Earlier messages stay in your history.' %}</p>
+    <div data-active-notes></div>
+    <form data-locality-form>
+      {% csrf_token %}
+      <label for="chat-locality">{% translate 'City or German postcode for local support' %}</label>
+      <div class="locality-row"><input id="chat-locality" name="locality" maxlength="80" value="{{ active_context.locality }}" autocomplete="off" placeholder="Berlin / 10115"><button class="button button-small button-secondary" type="submit">{% translate 'Save locality' %}</button></div>
+    </form>
+    <p>{% translate 'Only this locality and the type of service go to Brave Search. Replacing a saved locality starts a new AI context; include any details still needed in your next message.' %}</p>
+    <button type="button" class="button button-small button-secondary" data-context-reset>{% translate 'Reset message context' %}</button>
+  </div>
+</details>

@@ -2,6 +2,7 @@
 set -euo pipefail
 femaktiv_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$femaktiv_root"
+export FEMAKTIV_AI_MODE=placeholder FEMAKTIV_OFFLINE_CHECKS=1
 ./bin/translations
 .venv/bin/ruff check .
 .venv/bin/ruff format --check .

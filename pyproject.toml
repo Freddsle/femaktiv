@@ -8,6 +8,7 @@ dependencies = [
   "gunicorn>=23,<24",
   "whitenoise>=6.9,<7",
   "psycopg[binary]>=3.2,<4",
+  "jsonschema>=4.26,<5",
 ]
 
 [dependency-groups]

@@ -1,6 +1,7 @@
 import json
 from uuid import UUID
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import RequestDataTooBig
@@ -8,15 +9,20 @@ from django.db import IntegrityError, OperationalError, transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from notes.models import PersonalNote
 
+from . import context, turns
+from .errors import ChatError
 from .models import Chat, Message, MessageContextSnapshot
 from .service import ContextNote, generate_reply
 
 
 def _workspace(request, chat=None):
+    entries = list(chat.messages.prefetch_related("context_snapshots")) if chat else []
+    for entry in entries:
+        entry.display_paragraphs = turns.serialize(entry)["paragraphs"]
     return render(
         request,
         "chats/workspace.html",
@@ -24,8 +30,10 @@ def _workspace(request, chat=None):
             "section": "chats",
             "chats": Chat.objects.filter(owner=request.user),
             "current_chat": chat,
-            "chat_messages": chat.messages.prefetch_related("context_snapshots") if chat else [],
+            "chat_messages": entries,
             "notes": PersonalNote.objects.filter(owner=request.user),
+            "live_mode": settings.FEMAKTIV_AI_MODE == "live",
+            "active_context": context.public_context(chat) if chat else None,
         },
     )
 
@@ -89,7 +97,9 @@ def _serialize(message):
 def _turn_response(chat, user_message, assistant_message, status):
     return JsonResponse(
         {
-            "mode": "placeholder",
+            "mode": assistant_message.mode,
+            "status": "completed",
+            "kind": "answer",
             "user_message": _serialize(user_message),
             "assistant_message": _serialize(assistant_message),
             "chat": {"id": str(chat.id), "title": chat.title},
@@ -149,6 +159,16 @@ def send_message(request, pk):
         return _error(
             "invalid_input",
             _("Write a message of up to 4,000 characters and select no more than five notes."),
+        )
+
+    if settings.FEMAKTIV_AI_MODE == "live":
+        return turns.submit(
+            owner=request.user,
+            pk=pk,
+            request_id=request_id,
+            content=content,
+            note_ids=note_ids,
+            language=request.LANGUAGE_CODE,
         )
 
     try:
@@ -220,3 +240,47 @@ def send_message(request, pk):
             _("Your message could not be saved right now. Please try again."),
             503,
         )
+
+
+@require_GET
+def turn_status(request, pk, request_id):
+    if not request.user.is_authenticated:
+        return _error(
+            "authentication_required", _("Please log in again to send your message."), 401
+        )
+    chat = Chat.objects.filter(pk=pk, owner=request.user).first()
+    if chat is None:
+        return turns.error_response(ChatError("not_found", 404))
+    turns.expire(chat)
+    turn = chat.turns.filter(client_request_id=request_id).first()
+    if turn is None:
+        return turns.error_response(ChatError("not_found", 404))
+    return turns.result(chat, turn)
+
+
+@require_POST
+def update_context(request, pk):
+    if not request.user.is_authenticated:
+        return _error(
+            "authentication_required", _("Please log in again to send your message."), 401
+        )
+    try:
+        payload = json.loads(request.body)
+        with transaction.atomic():
+            chat = Chat.objects.select_for_update().filter(pk=pk, owner=request.user).first()
+            if chat is None:
+                raise ChatError("not_found", 404)
+            history_reset = context.update(chat, payload)
+            return JsonResponse(
+                {
+                    "status": "updated",
+                    "active_context": context.public_context(chat),
+                    "history_reset": history_reset,
+                }
+            )
+    except RequestDataTooBig, ValueError, TypeError:
+        return turns.error_response(ChatError("invalid_context", 400))
+    except ChatError as error:
+        return turns.error_response(error)
+    except IntegrityError, OperationalError:
+        return turns.error_response(ChatError("chat_busy", 409))

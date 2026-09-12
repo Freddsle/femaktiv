@@ -100,7 +100,7 @@ def main():
             "--threads",
             "2",
             "--timeout",
-            "30",
+            "90",
         ],
         environment,
     )

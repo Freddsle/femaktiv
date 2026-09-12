@@ -125,6 +125,14 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_REFERRER_POLICY = "same-origin"
 DATA_UPLOAD_MAX_MEMORY_SIZE = 65536
+FEMAKTIV_AI_MODE = os.environ.get("FEMAKTIV_AI_MODE", "placeholder")
+if FEMAKTIV_AI_MODE not in {"placeholder", "live"}:
+    raise ImproperlyConfigured("FEMAKTIV_AI_MODE must be placeholder or live.")
+ANYMIZE_API_KEY = os.environ.get("ANYMIZE_API_KEY", "")
+ANYMIZE_MODEL = os.environ.get("ANYMIZE_MODEL", "")
+BRAVE_SEARCH_API_KEY = os.environ.get("BRAVE_SEARCH_API_KEY", "")
+# Account-level setting, never a fabricated per-request ZDR parameter.
+ANYMIZE_ZDR_CONFIRMED = os.environ.get("ANYMIZE_ZDR_CONFIRMED", "0") == "1"
 CSRF_FAILURE_VIEW = "config.views.csrf_failure"
 # HTTP is allowed only for a loopback-bound local production preview.
 if os.environ.get("DJANGO_LOCAL_HTTP", "0") == "1":

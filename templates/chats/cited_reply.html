@@ -1,0 +1,15 @@
+{% load i18n %}
+<div class="message-content cited-reply">
+{% for paragraph in entry.display_paragraphs %}
+  <div class="answer-paragraph"><p>{{ paragraph.text }}</p>{% if paragraph.citations %}<div class="paragraph-citations">{% for source in paragraph.citations %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.title }}</a>{% endfor %}</div>{% endif %}</div>
+{% endfor %}
+{% for source in entry.citations %}
+  <details class="source-card" {% if source.kind == 'contact' %}open{% endif %}>
+    <summary>{{ source.title }}</summary>
+    <a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{% translate 'Open source page' %}</a>
+    {% if source.kind == 'contact' %}<p>{{ source.locality }}</p>{% for phone in source.phones %}<p>{{ phone }}</p>{% endfor %}{% for email in source.emails %}<p>{{ email }}</p>{% endfor %}<p>{% translate 'Availability, language support and eligibility are unknown. Please confirm directly.' %}</p>{% else %}<p>{{ source.section }}</p>{% endif %}
+    <p class="source-checked">{% translate 'Page checked' %}: {{ source.checked_date }}</p>
+    {% if source.updated_date or source.publication_date %}<p>{% translate 'Source date' %}: {{ source.updated_date|default:source.publication_date }}</p>{% endif %}
+  </details>
+{% endfor %}
+</div>

@@ -2,7 +2,7 @@
 
 ## Read the applicable contracts
 
-Start with [the specification index](specs/intro.md) and [specification authoring requirements](specs/meta/general.md). Read the relevant specifications before changing files. For product work, read [the bilingual platform specification](specs/behavior/platform.md), which owns the current Django implementation. [The initial nutrition build specification](00_initial/FEMAKTIV_BUILD_SPEC.md) is preserved as a historical and future nutrition reference; its superseded architecture and acceptance gates do not govern the platform. The unstructured overview remains background.
+Start with [the specification index](specs/intro.md) and [specification authoring requirements](specs/meta/general.md). Read the relevant specifications before changing files. For product work, read [the bilingual platform specification](specs/behavior/platform.md), which owns the current Django implementation, and [the live-chat extension](specs/behavior/live_chat.md) for live assistance, context, evidence and provider changes. [The initial nutrition build specification](00_initial/FEMAKTIV_BUILD_SPEC.md) is preserved as a historical and future nutrition reference; its superseded architecture and acceptance gates do not govern the platform. The unstructured overview remains background.
 
 Explicit user instructions govern authorized requirement changes. Resolve conflicts using the ownership rules in the meta specification, and keep the affected documents consistent. Preserve unrelated work, including staged and untracked files.
 

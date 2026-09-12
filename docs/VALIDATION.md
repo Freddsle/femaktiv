@@ -1,6 +1,6 @@
 # femaktiv validation
 
-Implementation review on 12 September 2026. This report records the local Django prototype governed by [the platform specification](../specs/behavior/platform.md). Startup and extension instructions are in [README](../README.md).
+Implementation review on 12 September 2026. This report records the local Django prototype governed by [the platform specification](../specs/behavior/platform.md) and [live-chat extension](../specs/behavior/live_chat.md). Startup and extension instructions are in [README](../README.md). The latest results are in [Live chat implementation](#live-chat-implementation); earlier sections preserve the history of the platform checks.
 
 ## Environment
 
@@ -64,7 +64,7 @@ A separate `./bin/check` run during concurrent homepage/translation edits passed
 
 ## Prototype boundaries
 
-Chat persistence and account ownership are real. Replies are deterministic, visibly labelled placeholders; no LLM or anymize requests or provider credits are used. Q&A and the two public conversations contain authored examples. Public posting, moderation, file uploads, clinical review and live AI remain future work.
+Chat persistence and account ownership are real. Placeholder replies remain the default. Optional live chat is implemented as described below; live provider evaluation has not been performed. Q&A and the two public conversations contain authored examples. Public posting, moderation, file uploads and clinical review remain future work.
 
 The application is accessible through the user's temporary ngrok preview while both processes are running; no hosting-provider deployment was performed. HTTPS forwarding was exercised by the live tunnel check above. PostgreSQL, external SMTP delivery and a hosting provider remain untested. Password recovery uses the local console email backend. The browser suite uses fictional data and a disposable test database.
 
@@ -123,3 +123,40 @@ On 12 September 2026, the shared account-page heading changed to “More clarity
 `./bin/check` passed: 260 translations, Ruff lint/format, Django system/migration checks, static collection, 63 backend tests and four browser journeys. The initial browser run encountered sandbox socket restrictions; the rerun with local socket/browser access passed. Depmesh verification, Donna validation and `git diff --check` also passed. After restoring the original footer, translation compilation passed again.
 
 Production-browser checks verified the final login heading, emphasis, original footer, correct language and absence of horizontal overflow or browser errors at 390px and 1440px in both languages. All four `.local/screenshots/login-copy-{en,de}-{desktop,mobile}.png` screenshots were visually reviewed. The temporary production server was stopped, and the existing preview worker was gracefully reloaded. Local requests then confirmed the final English and German copy on the existing preview. No accounts, private data, external tunnels or provider requests were created by these copy checks. The separate example-content review remains pending in Donna.
+
+
+## Live chat implementation
+
+On 12 September 2026, implemented the user-approved nutrition and family-care chat plan under the scoped live-chat specification and `workflows/implement-live-chat.donna.md`. Approved public examples and their wording remain unchanged. The existing local database received the additive chat migration, and the identified preview workers were gracefully reloaded. English/German login pages and private no-store responses passed through loopback; the preview remains in placeholder mode. Enabling live mode requires restarting with the documented environment settings and updated launcher.
+
+The implementation adds Anymize anonymous structured intake/composition, active note copies and context boundaries, durable turn reservations, a versioned evidence library, constrained Brave queries, public-destination page fetching and saved paragraph/source citations. The first locality entry preserves the question being clarified; replacing an established locality resets the AI segment. Removing or refreshing a note excludes both its copy and all earlier derived chat text from later requests. Cancellation is checked before external stages as well as before saving a reply. Already transmitted requests cannot be recalled.
+
+The final Donna verification completed successfully:
+
+| Check | Observed result |
+| --- | --- |
+| German translations | 303 entries validated and compiled |
+| Ruff lint/format | Passed |
+| Django system and missing-migration checks | Passed; no missing migrations |
+| Static asset collection | Passed |
+| Backend tests | 109 passed, including 62 chat tests |
+| Browser journeys | 12 passed, including eight live-chat journeys with mocked services |
+| Depmesh | Six specifications, 146 files, 442 directed edges; all 16 isolated source/test fixture pairs passed |
+| Donna validation | All artifacts valid |
+| Whitespace | `git diff --check` passed |
+
+Backend checks exercise anonymous-route metadata and schema failures, source-id tampering, unsafe destinations and redirects, DNS pinning, response limits, safe search payloads, source applicability, owner/staff isolation, CSRF, atomic rollback, duplicate and concurrent submissions, expired reservations, chat deletion, and cancellation between intake, lookup and composition. Context tests verify persistent copies, explicit refresh/removal, original-note deletion, no cross-chat carry-over and exclusion of historical placeholder messages. The original 16 chat tests continue to pass.
+
+Browser checks cover both scenarios in English and German, keyboard controls, 390px/1440px layouts, saved citations, note removal, locality entry, German call preparation, status polling, terminal failures and explicit retries, retained drafts/recovery ids, navigation during a pending reply, the 75-second browser deadline, and uncertain context writes. Routine checks force `FEMAKTIV_OFFLINE_CHECKS=1`; every model/search boundary is mocked. A stale-static-assets failure in the first focused browser run was resolved by collecting the updated JavaScript. The stalled-connection test was changed to a deterministic fetch fixture to avoid an intercepted-route cleanup warning. The final full run has neither failure.
+
+Reviewed `.local/screenshots/live-chat-{en,de}-{desktop,mobile}.png` and the local-care mobile view. German UI and German newly generated fixture replies display correctly; saved English messages retain their original language. Contact cards show page-check dates and explicitly unconfirmed availability, language support and eligibility.
+
+An isolated Gunicorn/WhiteNoise smoke check used a temporary SQLite database and generated signing key with `DEBUG=False`. Migrations, registration, a note containing escaped HTML, an attached placeholder turn, no-store headers and collected assets passed. Restarting preserved the session, messages and historical labels. The live UI was checked in both languages at both widths. Missing live configuration returned an explicit error and retained the draft, with no fallback. The temporary server and database were removed; no real account or private content was used. Production screenshots are `.local/screenshots/live-production-{en,de}-{390,1440}.png`.
+
+### Source and live-service readiness
+
+The ten records in `content/evidence.json` contain original paraphrases, organisations, exact URLs/sections, checked dates, available update dates, applicability and limitations. Primary pages were read on 12 September 2026: DGE food guidance, NHLBI DASH, federal German discharge/care advice, ZQP's care-advice directory, and targeted NIH/EFSA nutrient material. NIH/EFSA entries are retrieved only for the covered nutrient questions. Cohort bulk ingestion is deferred. These source reads are neither human editorial approval nor clinical validation.
+
+**Actual Anymize inference and Brave API integration remain untested. No provider credits were consumed.** The operator must configure `ANYMIZE_API_KEY`, an account-accessible `ANYMIZE_MODEL`, `BRAVE_SEARCH_API_KEY`, `FEMAKTIV_AI_MODE=live` and `ANYMIZE_ZDR_CONFIRMED=1` after enabling account-level ZDR. The updated local launcher allows 90 seconds, accommodating the 60-second application deadline. `.env.example` is documentation and is not automatically loaded.
+
+The separately invoked `manage.py evaluate_live_chat --allow-provider-calls` checks model availability and four fictional English/German cases, including structured output, anonymization metadata, essential intake terms, citations and current contact lookup. It stops on failure without automatic paid retries and saves an ignored report for human review. Its guard and failure behavior were tested with mocks. Metadata and keyword checks do not establish anonymization accuracy, preservation of every nuance, clinical correctness or answer quality. Real model/schema compatibility, latency and contact-extraction success must be evaluated after configuration. Conservative page extraction can miss valid services; source citations alone do not establish that a generated claim is supported.
