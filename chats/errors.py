@@ -17,6 +17,12 @@ MESSAGES = {
         "The chat context changed. The old reply was discarded; review your draft and send again."
     ),
     "chat_busy": _("Another reply is being prepared in this chat. Please wait for it to finish."),
+    "account_busy": _(
+        "Another reply is being prepared for your account. Please wait for it to finish."
+    ),
+    "live_access_denied": _(
+        "Live chat is available only to approved testers. Ask the prototype operator for access."
+    ),
     "rate_limited": _("This prototype's request limit has been reached. Please try again later."),
     "invalid_locality": _(
         "Enter a German city or a five-digit postcode, without a street address."

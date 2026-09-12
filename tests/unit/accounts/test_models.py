@@ -13,6 +13,7 @@ class UserTests(TestCase):
         self.assertTrue(user.check_password("Start-quietly-314!"))
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
+        self.assertFalse(user.live_chat_enabled)
         self.assertEqual(User.objects.get_by_natural_key("HANA@EXAMPLE.COM"), user)
 
     def test_email_is_required(self):
@@ -37,6 +38,7 @@ class UserTests(TestCase):
         )
         self.assertTrue(user.is_staff)
         self.assertTrue(user.is_superuser)
+        self.assertFalse(user.live_chat_enabled)
         with self.assertRaises(ValueError):
             User.objects.create_superuser("invalid@example.com", is_staff=False)
         with self.assertRaises(ValueError):

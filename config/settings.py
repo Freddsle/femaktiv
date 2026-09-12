@@ -126,6 +126,7 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_REFERRER_POLICY = "same-origin"
 DATA_UPLOAD_MAX_MEMORY_SIZE = 65536
 FEMAKTIV_AI_MODE = os.environ.get("FEMAKTIV_AI_MODE", "placeholder")
+FEMAKTIV_SIGNUP_ENABLED = os.environ.get("FEMAKTIV_SIGNUP_ENABLED", "0") == "1"
 if FEMAKTIV_AI_MODE not in {"placeholder", "live"}:
     raise ImproperlyConfigured("FEMAKTIV_AI_MODE must be placeholder or live.")
 ANYMIZE_API_KEY = os.environ.get("ANYMIZE_API_KEY", "")
@@ -133,6 +134,23 @@ ANYMIZE_MODEL = os.environ.get("ANYMIZE_MODEL", "")
 BRAVE_SEARCH_API_KEY = os.environ.get("BRAVE_SEARCH_API_KEY", "")
 # Account-level setting, never a fabricated per-request ZDR parameter.
 ANYMIZE_ZDR_CONFIRMED = os.environ.get("ANYMIZE_ZDR_CONFIRMED", "0") == "1"
+ANYMIZE_FALLBACKS_DISABLED_CONFIRMED = (
+    os.environ.get("ANYMIZE_FALLBACKS_DISABLED_CONFIRMED", "0") == "1"
+)
+
+
+def _positive_limit(name, default):
+    try:
+        value = int(os.environ.get(name, str(default)))
+    except ValueError:
+        raise ImproperlyConfigured(f"{name} must be a positive integer.") from None
+    if value < 1:
+        raise ImproperlyConfigured(f"{name} must be a positive integer.")
+    return value
+
+
+FEMAKTIV_LIVE_USER_HOURLY_LIMIT = _positive_limit("FEMAKTIV_LIVE_USER_HOURLY_LIMIT", 30)
+FEMAKTIV_LIVE_DAILY_LIMIT = _positive_limit("FEMAKTIV_LIVE_DAILY_LIMIT", 100)
 CSRF_FAILURE_VIEW = "config.views.csrf_failure"
 # HTTP is allowed only for a loopback-bound local production preview.
 if os.environ.get("DJANGO_LOCAL_HTTP", "0") == "1":

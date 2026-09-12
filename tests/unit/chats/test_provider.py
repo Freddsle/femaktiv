@@ -100,3 +100,15 @@ class ProviderTests(SimpleTestCase):
         ) as request:
             self.assertEqual(provider.available_models(Budget()), {"account-specific-model"})
             self.assertEqual(request.call_args.args[0], provider.BASE_URL + "/models")
+
+    def test_account_privacy_acknowledgements_are_required_before_network(self):
+        for setting in ("ANYMIZE_ZDR_CONFIRMED", "ANYMIZE_FALLBACKS_DISABLED_CONFIRMED"):
+            with (
+                self.subTest(setting=setting),
+                override_settings(**{setting: False}),
+                patch("chats.provider.transport.request_json") as request,
+                self.assertRaises(ChatError) as error,
+            ):
+                self.call()
+            self.assertEqual(error.exception.code, "not_configured")
+            request.assert_not_called()

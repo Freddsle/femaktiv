@@ -6,6 +6,7 @@ LIVE_SETTINGS = {
     "ANYMIZE_MODEL": "fictional-model",
     "BRAVE_SEARCH_API_KEY": "fictional-brave-key",
     "ANYMIZE_ZDR_CONFIRMED": True,
+    "ANYMIZE_FALLBACKS_DISABLED_CONFIRMED": True,
 }
 
 

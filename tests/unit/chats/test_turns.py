@@ -24,6 +24,7 @@ class LiveTurnTests(TransactionTestCase):
             email="owner@example.test",
             password="test-pass-419!",
             display_name="Never send this identity",
+            live_chat_enabled=True,
         )
         self.other = get_user_model().objects.create_user(
             email="other@example.test", password="test-pass-419!", display_name="Other"

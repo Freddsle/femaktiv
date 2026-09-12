@@ -189,7 +189,7 @@ def check_fixtures():
         for name in ["src/no-test.ts", "package.json", "vitest.config.ts", "src/data/example.json"]:
             graph.expect("@/" + name, "governed_by", {HISTORICAL})
         for name in ["README.md", "manage.py", "pyproject.toml", "uv.lock", ".python-version", "Makefile", "bin/check", "accounts/models.py", "chats/services.py", "notes/forms.py", "config/settings.py", "content/examples.json", "templates/base.html", "static/js/chat.js", "locale/de/LC_MESSAGES/django.po", "docs/VALIDATION.md", "tests/e2e/test_platform.py"]:
-            graph.expect("@/" + name, "governed_by", {PRODUCT, LIVE} if name in {"chats/services.py", "config/settings.py", "static/js/chat.js"} else {PRODUCT})
+            graph.expect("@/" + name, "governed_by", {PRODUCT, LIVE} if name in {"accounts/models.py", "chats/services.py", "config/settings.py", "static/js/chat.js"} else {PRODUCT})
         browser_sources = {"@/" + name for name in ["accounts/views.py", "notes/views.py", "chats/views.py", "pages/views.py", "static/js/chat.js", "templates/base.html"]}
         for name in ["content/evidence.json", "templates/chats/live_context.html", "templates/chats/cited_reply.html", "static/css/site.css", "chats/management/commands/evaluate_live_chat.py", "tests/e2e/test_live_chat.py"]:
             graph.expect("@/" + name, "governed_by", {PRODUCT, LIVE})

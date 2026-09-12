@@ -2,13 +2,13 @@
 
 import hashlib
 import json
-from datetime import timedelta
 
+from django.contrib.auth import get_user_model
 from django.db import IntegrityError, OperationalError, transaction
 from django.http import JsonResponse
 from django.utils import timezone
 
-from . import context, provider, service
+from . import context, provider, service, usage
 from .errors import ChatError
 from .models import Chat, ChatTurn, Message, MessageContextSnapshot
 from .transport import Budget
@@ -115,6 +115,10 @@ def fingerprint(content, note_ids):
 
 def reserve(*, owner, pk, request_id, content, note_ids, language):
     with transaction.atomic():
+        usage.lock_gate()
+        account = get_user_model().objects.select_for_update().filter(pk=owner.pk).first()
+        if account is None or not account.is_active:
+            raise ChatError("not_found", 404)
         chat = Chat.objects.select_for_update().filter(pk=pk, owner=owner).first()
         if chat is None:
             raise ChatError("not_found", 404)
@@ -129,24 +133,21 @@ def reserve(*, owner, pk, request_id, content, note_ids, language):
             raise ChatError("request_conflict", 409)
         if chat.turns.filter(status=ChatTurn.Status.PROCESSING).exists():
             raise ChatError("chat_busy", 409)
+        if not account.live_chat_enabled:
+            raise ChatError("live_access_denied", 403)
         provider.require_configuration()
-        if (
-            ChatTurn.objects.filter(
-                chat__owner=owner, created_at__gte=timezone.now() - timedelta(hours=1)
-            ).count()
-            >= 30
-        ):
-            raise ChatError("rate_limited", 429)
+        allowance = usage.reserve(account)
         history, copies = context.prepare(chat, content=content, note_ids=note_ids)
         turn = ChatTurn.objects.create(
             chat=chat,
+            usage=allowance,
             client_request_id=request_id,
             fingerprint=digest,
             content=content,
             note_copies=copies,
             context_version=chat.context_version,
             language=language,
-            expires_at=timezone.now() + timedelta(seconds=60),
+            expires_at=allowance.expires_at,
         )
         return chat, turn, history
 
@@ -256,11 +257,15 @@ def ensure_active(turn_id):
             "expires_at",
             "error_code",
             "error_status",
+            "chat__owner__live_chat_enabled",
+            "chat__owner__is_active",
         )
         .first()
     )
     if state is None:
         raise ChatError("not_found", 404)
+    if not state["chat__owner__live_chat_enabled"] or not state["chat__owner__is_active"]:
+        raise ChatError("live_access_denied", 403)
     if state["status"] == ChatTurn.Status.FAILED:
         raise ChatError(state["error_code"], state["error_status"])
     if (
@@ -313,3 +318,6 @@ def submit(*, owner, pk, request_id, content, note_ids, language):
         if turn:
             return failed_result(turn, ChatError("provider_unavailable", 503))
         return error_response(ChatError("provider_unavailable", 503))
+    finally:
+        if turn is not None:
+            usage.finish(turn.usage_id)

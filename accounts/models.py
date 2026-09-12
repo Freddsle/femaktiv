@@ -41,6 +41,7 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(_("Email address"), unique=True)
     display_name = models.CharField(_("Display name"), max_length=80)
+    live_chat_enabled = models.BooleanField(_("Live chat approved"), default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["display_name"]

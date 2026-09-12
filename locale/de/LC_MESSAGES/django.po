@@ -1518,3 +1518,45 @@ msgid ""
 msgstr ""
 "Die Kontextänderung konnte nicht bestätigt werden. Lade die Seite neu, bevor"
 " du eine weitere Nachricht sendest."
+
+msgid "Live chat approved"
+msgstr "Für Live-Chat freigeschaltet"
+
+msgid "Prototype access"
+msgstr "Zugang zum Prototyp"
+
+msgid "I understand that this cannot be undone."
+msgstr "Ich verstehe, dass dies nicht rückgängig gemacht werden kann."
+
+msgid "Your chats, attached copies, and notes have been deleted."
+msgstr "Deine Chats, angehängten Kopien und Notizen wurden gelöscht."
+
+msgid "Registration is closed"
+msgstr "Registrierung geschlossen"
+
+msgid "This prototype is available to invited testers. Ask the person who invited you to create your account."
+msgstr "Dieser Prototyp ist für eingeladene Testpersonen verfügbar. Bitte die Person, die dich eingeladen hat, dein Konto anzulegen."
+
+msgid "Delete my chats and notes"
+msgstr "Meine Chats und Notizen löschen"
+
+msgid "Delete all your chats and notes?"
+msgstr "Alle deine Chats und Notizen löschen?"
+
+msgid "This permanently removes all your chats, messages, attached note copies, and notes from this app. Pending replies cannot restore deleted chats."
+msgstr "Damit werden alle deine Chats, Nachrichten, angehängten Notizkopien und Notizen dauerhaft aus dieser App gelöscht. Noch ausstehende Antworten können gelöschte Chats nicht wiederherstellen."
+
+msgid "Your account and content-free usage counters are kept. Deletion does not immediately erase existing hosting backups or recall information already sent to a provider."
+msgstr "Dein Konto und die Nutzungszähler ohne Gesprächsinhalte bleiben erhalten. Bestehende Sicherungskopien beim Hosting-Anbieter werden dadurch nicht sofort gelöscht. Bereits an einen Anbieter übermittelte Informationen können nicht zurückgerufen werden."
+
+msgid "Your saved chats and notes"
+msgstr "Deine gespeicherten Chats und Notizen"
+
+msgid "Remove your conversations and every saved note copy together."
+msgstr "Lösche deine Gespräche und alle gespeicherten Notizkopien zusammen."
+
+msgid "Another reply is being prepared for your account. Please wait for it to finish."
+msgstr "Für dein Konto wird bereits eine Antwort vorbereitet. Bitte warte, bis sie fertig ist."
+
+msgid "Live chat is available only to approved testers. Ask the prototype operator for access."
+msgstr "Der Live-Chat ist nur für freigeschaltete Testpersonen verfügbar. Bitte den Betreiber des Prototyps um Zugang."

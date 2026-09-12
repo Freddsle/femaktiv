@@ -1,0 +1,21 @@
+{% extends 'base.html' %}{% load i18n %}
+{% block title %}{% translate 'Delete my chats and notes' %}{% endblock %}
+{% block content %}
+<section class="form-page compact-page">
+  <a class="back-link" href="{% url 'accounts:settings' %}">{% include 'components/icon.html' with name='back' %}{% translate 'Account settings' %}</a>
+  <div class="surface-card">
+    <span class="card-icon">{% include 'components/icon.html' with name='trash' %}</span>
+    <h1>{% translate 'Delete all your chats and notes?' %}</h1>
+    <p>{% translate 'This permanently removes all your chats, messages, attached note copies, and notes from this app. Pending replies cannot restore deleted chats.' %}</p>
+    <p>{% translate 'Your account and content-free usage counters are kept. Deletion does not immediately erase existing hosting backups or recall information already sent to a provider.' %}</p>
+    <form method="post">
+      {% csrf_token %}
+      {% include 'components/form.html' %}
+      <div class="form-actions">
+        <button class="button button-danger" type="submit">{% translate 'Delete my chats and notes' %}</button>
+        <a class="button button-secondary" href="{% url 'accounts:settings' %}">{% translate 'Cancel' %}</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

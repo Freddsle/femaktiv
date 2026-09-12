@@ -11,11 +11,13 @@ class AccountAdmin(UserAdmin):
     add_form = SignupForm
     form = AdminUserChangeForm
     ordering = ("email",)
-    list_display = ("email", "display_name", "is_active", "is_staff")
+    list_display = ("email", "display_name", "is_active", "is_staff", "live_chat_enabled")
+    list_filter = (*UserAdmin.list_filter, "live_chat_enabled")
     search_fields = ("email", "display_name")
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         (_("Profile"), {"fields": ("display_name",)}),
+        (_("Prototype access"), {"fields": ("live_chat_enabled",)}),
         (
             _("Permissions"),
             {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")},

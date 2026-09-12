@@ -1,0 +1,7 @@
+{% extends 'accounts/layout.html' %}{% load i18n %}
+{% block title %}{% translate 'Registration is closed' %}{% endblock %}
+{% block auth_content %}
+<h2>{% translate 'Registration is closed' %}</h2>
+<p class="form-intro">{% translate 'This prototype is available to invited testers. Ask the person who invited you to create your account.' %}</p>
+<a class="button button-full" href="{% url 'accounts:login' %}">{% translate 'Log in' %}</a>
+{% endblock %}

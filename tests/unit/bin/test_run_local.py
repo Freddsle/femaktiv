@@ -103,7 +103,11 @@ class LocalLauncherTests(SimpleTestCase):
             "LANGUAGE_COOKIE_SECURE",
             "SECURE_SSL_REDIRECT",
         )
-        with self.settings(**{key: configured[key] for key in keys}, SECURE_PROXY_SSL_HEADER=None):
+        with self.settings(
+            **{key: configured[key] for key in keys},
+            SECURE_PROXY_SSL_HEADER=None,
+            FEMAKTIV_SIGNUP_ENABLED=True,
+        ):
             client = Client(enforce_csrf_checks=True, HTTP_HOST=host)
             secure = request.scheme == "https"
             for path in ("/en/", "/de/", "/en/accounts/signup/"):

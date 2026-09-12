@@ -47,3 +47,7 @@ class AdminUserChangeForm(UserChangeForm):
     class Meta(UserChangeForm.Meta):
         model = User
         fields = "__all__"
+
+
+class DeletePrivateDataForm(forms.Form):
+    confirm = forms.BooleanField(label=_("I understand that this cannot be undone."))

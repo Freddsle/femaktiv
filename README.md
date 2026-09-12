@@ -11,7 +11,7 @@ Python 3.14 and [uv](https://docs.astral.sh/uv/getting-started/installation/) ar
 ./bin/serve
 ```
 
-Open **http://127.0.0.1:8000/** for English or **http://127.0.0.1:8000/de/** for German. Create an account through the website; there are no shared default credentials. Stop the foreground server with Ctrl+C. To use another local port, run `FEMAKTIV_PORT=8001 ./bin/serve`.
+Open **http://127.0.0.1:8000/** for English or **http://127.0.0.1:8000/de/** for German. Registration is closed by default; create tester accounts through Django admin as described below. There are no shared default credentials. Stop the foreground server with Ctrl+C. To use another local port, run `FEMAKTIV_PORT=8001 ./bin/serve`.
 
 `bin/setup` installs the locked dependencies, compiles translations, applies migrations and collects static assets. `bin/serve` runs Gunicorn with WhiteNoise, `DEBUG=False`, and a stable signing key stored privately in `.local/secret_key`. It binds only to `127.0.0.1` and explicitly permits local HTTP. `./bin/dev` runs Django's development server with reload support.
 
@@ -37,7 +37,7 @@ If the public URL returns **Bad Request (400)** while `http://127.0.0.1:8000/` w
 
 ## What works
 
-- Real email/password registration, login/logout, account settings and password change/recovery.
+- Real email/password accounts, login/logout, account settings and password change/recovery; optional public registration.
 - Private notes and preferences, with create/edit/delete controls.
 - Persistent chats, history, renaming, deletion and explicit note attachments.
 - Immutable copies of attached notes: changing a note does not rewrite a previous conversation.
@@ -48,7 +48,9 @@ Chat defaults to visibly labelled **placeholder replies**, with no provider call
 
 ## Accounts and data
 
-Accounts, chats, notes and sessions are stored in `.local/db.sqlite3`; they survive refreshes and server restarts. Logout does not delete stored data. Users can delete their notes and chats. Deleting a source note leaves saved copies in chats; remove an active copy using its chat’s context controls to stop sending it. Deleting a chat removes its messages, copies, citations and request records. Both `.local/` and secrets are ignored by Git.
+Accounts, chats, notes and sessions are stored in `.local/db.sqlite3`; they survive refreshes and server restarts. Logout does not delete stored data. Users can delete their notes and chats. Deleting a source note leaves saved copies in chats; remove an active copy using its chat’s context controls to stop sending it. Deleting a chat removes its messages, copies, citations and turn records. Independent content-free usage records remain, so deletion cannot reset an allowance or free a running request. Both `.local/` and secrets are ignored by Git.
+
+Account settings offers **Delete my chats and notes** with a confirmation screen. It removes all of that owner's chats, notes, active copies, historical snapshots and pending turns atomically, preserving the account and usage counts. Late AI replies cannot recreate deleted chats. Deletion is from the application database; hosting backup retention and already-transmitted provider requests are separate. There is no custom field encryption or automatic content-expiry job. Saved text is accessible to authorised server/database operators. Use encrypted hosting storage/backups where available and document their retention before real-data use.
 
 Password recovery prints an email and reset URL in the local server terminal. This console backend is for local development only; configure SMTP for a hosted site. Create an administrator when needed with:
 
@@ -57,6 +59,8 @@ Password recovery prints an email and reset URL in the local server terminal. Th
 ```
 
 The admin URL is `/en/admin/` or `/de/admin/`. Private notes, chat messages and attachments are deliberately not registered in the admin interface.
+
+Create each tester under **Users → Add**, then edit the account and explicitly enable **Live chat approved**. This flag defaults off for all new and existing accounts, including staff; public signup/profile forms cannot grant it. Keep `FEMAKTIV_SIGNUP_ENABLED=0` for an invited pilot. Setting it to `1` intentionally opens registration but still does not grant live access. Approvals can be revoked in admin; further external stages stop when revocation is observed, although a request already transmitted cannot be recalled.
 
 ## Verification
 
@@ -91,16 +95,21 @@ Keep secrets in your server environment or secret manager. `.env.example` docume
 - `ANYMIZE_API_KEY` and `ANYMIZE_MODEL`, using a model identifier accessible to your account.
 - `BRAVE_SEARCH_API_KEY` for current local contacts.
 - `ANYMIZE_ZDR_CONFIRMED=1`, **after enabling account-level Zero Data Retention in Anymize**. This records your confirmation; the app cannot remotely attest to the account setting.
+- `ANYMIZE_FALLBACKS_DISABLED_CONFIRMED=1`, **after disabling provider-side fallback models in Anymize**. This is also your confirmation, not remote attestation.
 
 Install dependencies/apply migrations with `./bin/setup`, then restart `./bin/serve` with these variables in its environment. Missing settings, rejected anonymization metadata and malformed replies produce errors; they never switch providers or return a placeholder as a live answer. Leave `FEMAKTIV_AI_MODE=placeholder` to use the default offline mode.
 
-Anymize receives the submitted message, current chat context and attached copies, then masks identifiers before the downstream model. Health details remain sensitive. No names are restored. The city/postcode field is separately editable; only it and a fixed service category go to Brave. Anymize's ZDR setting does not describe Brave's retention. No credentials or private payloads are written to application logs.
+Anymize receives the submitted message, current chat context and attached copies, then masks identifiers before the downstream model. The app uses Anymize's combined endpoint and consumes its returned LLM answer directly; it does not forward masked text to another model provider itself. Each of the two conversational model steps uses this same endpoint. The separate masking inspection below is a quality check, not another step in normal chats.
+
+Masking should cover names, street addresses, exact birth dates, emails/phones, financial and identity numbers, and legal case/contract identifiers. Preserve roles, conditions, allergies versus preferences, practical/care needs and meaningful deadlines. Replies use roles and do not request restoration or guess masked identifiers. These are the intended policy and evaluation targets; provider metadata does not establish that every span was masked. Health and legal details remain sensitive. The city/postcode field is separately editable; only it and a fixed service category go to Brave. Anymize's ZDR setting does not describe Brave's retention. No credentials or private payloads are written to application logs.
 
 Notes stay active within their chat until removed. Source edits/deletion do not change a copy; refresh explicitly to replace it. Removing or refreshing a copy, replacing a saved locality or resetting message context starts a new AI segment. Earlier messages stay visible but are no longer sent, including answers derived from removed notes. Resetting message context keeps active note copies; remove those individually if needed. Setting the first locality preserves the current conversation so you can answer a location clarification without repeating the original question. Nothing carries into another chat automatically. An existing placeholder conversation starts a fresh context on its first live turn.
 
 The message endpoint remains `POST /<language>/api/chats/<chat UUID>/messages/` with exactly `content`, `note_ids` and `client_request_id`. Session authentication and CSRF are required. Complete replies return both stored messages, actual mode, answer/clarification kind, paragraph citations, source snapshots, lookup status and active context. A duplicate reuses the saved reservation/result; a different payload with the same id conflicts. `GET .../turns/<request UUID>/` returns processing (202), a result or a terminal error. `POST .../context/` accepts `remove`/`refresh` with `note_id`, `locality` with `locality`, or `reset` alone.
 
-Each turn permits at most two model calls, two searches and three public-page requests including redirects, within 60 seconds. Gunicorn's local timeout is 90 seconds; hosting proxies should allow at least that long. There is no streaming or automatic paid retry. The prototype allows 30 new reservations per account per hour. Context is limited to 60,000 characters; exceeding this asks for a reset or smaller note selection rather than dropping earlier restrictions. A timed-out reservation cannot resume or charge again on a duplicate; a deliberate new send uses a new request id. The browser stops waiting after 75 seconds while retaining the original id for recovery. If a context update cannot be confirmed, refresh before sending again.
+Each turn permits at most two model calls, two searches and three public-page requests including redirects, within 60 seconds. Gunicorn's local timeout is 90 seconds; hosting proxies should allow at least that long. There is no streaming or automatic paid retry. Default allowances are 30 new reservations per user over the preceding hour and 100 across the whole app per UTC day. Configure positive integers with `FEMAKTIV_LIVE_USER_HOURLY_LIMIT` and `FEMAKTIV_LIVE_DAILY_LIMIT`. These limit requests, not euros. Admission is atomic across chats/accounts and permits one running request per account. Failed accepted requests count; duplicates reuse their allowance. Deleting chats/data retains the counts and any running lease until its worker finishes or its deadline expires. Existing turn usage is preserved by migration.
+
+Context is limited to 60,000 characters; exceeding this asks for a reset or smaller note selection rather than dropping earlier restrictions. A timed-out reservation cannot resume or charge again on a duplicate; a deliberate new send uses a new request id. The browser stops waiting after 75 seconds while retaining the original id for recovery. If a context update cannot be confirmed, refresh before sending again.
 
 ### Evaluate the configured provider explicitly
 
@@ -113,6 +122,22 @@ After configuring live mode, run this separately when you intend to make paid ca
 This uses four predefined fictional English/German cases, checks account model access, structured output, anonymization metadata, essential intake facts, citations and local-contact lookup. Maximum cost exposure is eight model calls and four searches; it stops on a failed case without retrying. The report is saved to ignored `.local/live-chat-evaluation.json` and includes fictional answers for human review. Metadata and keyword checks **do not prove anonymization accuracy, clinical correctness or answer quality**.
 
 `./bin/check` forces `FEMAKTIV_OFFLINE_CHECKS=1` and uses mocked live integrations even if real credentials are inherited. The opt-in evaluation refuses to run with this switch enabled. No live provider/search evaluation was performed as part of routine implementation checks.
+
+Optional developer masking inspection is separate from normal chat and setup. Export fixed fictional inputs without any external calls:
+
+```bash
+.venv/bin/python manage.py evaluate_live_chat --export-masking-cases .local/masking-inputs.json
+```
+
+If you have actual anonymizer exports for those inputs, check them locally:
+
+```bash
+.venv/bin/python manage.py evaluate_live_chat --masking-only --masking-output .local/masking-export.json --output .local/masking-review.json
+```
+
+The artifact is JSON with `schema_version: 1`, `provenance: "operator-supplied-anymize-anonymizer-export"` and a `cases` array. Include one entry each for `privacy-en` and `privacy-de`, shaped as `{"case": "privacy-en", "anonymizer_export": {"status": "completed", "original_text": "EXACT fictional input from masking-inputs.json", "anonymized_text_raw": "ACTUAL anonymizer output"}}`. Actual job responses may include other fields; mappings and extra fields are never copied into the review report. Obtain the output through a provider-supported inspection/export method, not a generated chat echo. The [public API documentation](https://app.anymize.ai/api-docs/anonymization) and [status reference](https://developers.anymize.ai/) do not document inspection of the combined chat's masked input under ZDR. Keep production ZDR enabled; if no compatible export is available, leave this optional check unperformed.
+
+Adding `--masking-output` to the live evaluation includes these checks in its result. Without it, integration checks can pass and the report explicitly says `masking.status: "not_evaluated"`. Export provenance is operator-supplied, not independently attested; a passing sample does not prove complete masking or clinical/legal correctness. The exported-text checks never add a step to the application's Anymize chat requests.
 
 ### Maintain evidence
 

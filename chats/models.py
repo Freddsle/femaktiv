@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class Chat(models.Model):
@@ -87,6 +88,25 @@ class ActiveNote(models.Model):
         ]
 
 
+class LiveUsageGate(models.Model):
+    """One database row serializes quota admission across all application workers."""
+
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    revision = models.PositiveBigIntegerField(default=0)
+
+
+class LiveUsage(models.Model):
+    """Content-free paid reservation accounting; chat deletion never removes it."""
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    expires_at = models.DateTimeField()
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["owner", "created_at"])]
+
+
 class ChatTurn(models.Model):
     class Status(models.TextChoices):
         PROCESSING = "processing"
@@ -94,6 +114,7 @@ class ChatTurn(models.Model):
         FAILED = "failed"
 
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="turns")
+    usage = models.OneToOneField(LiveUsage, on_delete=models.SET_NULL, null=True, editable=False)
     client_request_id = models.UUIDField()
     fingerprint = models.CharField(max_length=64)
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.PROCESSING)

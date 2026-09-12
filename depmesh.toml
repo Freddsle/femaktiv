@@ -128,14 +128,24 @@ output = { type = "filter", source = { type = "command", command = "python3 bin/
 # Live-chat extension and explicit browser coverage.
 
 [[rules]]
+relation = "tested_by"
+input = { type = "one_of", artifacts = ["@/accounts/views.py", "@/accounts/forms.py", "@/accounts/models.py", "@/chats/turns.py", "@/chats/usage.py", "@/static/js/chat.js", "@/templates/accounts/settings.html", "@/templates/accounts/confirm_delete_data.html", "@/templates/accounts/signup_closed.html"] }
+output = { type = "files", pattern = "@/tests/e2e/test_privacy.py" }
+
+[[rules]]
+relation = "tests"
+input = { type = "one_of", artifacts = ["@/tests/e2e/test_privacy.py"] }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py accounts chats static/js templates/accounts" }, predicate = { type = "one_of", artifacts = ["@/accounts/views.py", "@/accounts/forms.py", "@/accounts/models.py", "@/chats/turns.py", "@/chats/usage.py", "@/static/js/chat.js", "@/templates/accounts/settings.html", "@/templates/accounts/confirm_delete_data.html", "@/templates/accounts/signup_closed.html"] } }
+
+[[rules]]
 relation = "governed_by"
-input = { type = "all", items = [{ type = "regex", pattern = "^@/(?:(?:chats|tests/unit/chats|templates/chats)/.+|content/evidence\\.json|tests/e2e/test_live_chat\\.py|static/js/chat\\.js|static/css/site\\.css|config/settings\\.py|bin/run_local\\.py)$" }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
+input = { type = "all", items = [{ type = "regex", pattern = "^@/(?:(?:accounts|chats|tests/unit/accounts|tests/unit/chats|templates/accounts|templates/chats)/.+|content/evidence\\.json|tests/e2e/(?:test_live_chat|test_privacy)\\.py|static/js/chat\\.js|static/css/site\\.css|config/settings\\.py|bin/run_local\\.py)$" }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] }
 output = { type = "files", pattern = "@/specs/behavior/live_chat.md" }
 
 [[rules]]
 relation = "governs"
 input = { type = "one_of", artifacts = ["@/specs/behavior/live_chat.md"] }
-output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py chats tests/unit/chats templates/chats content tests/e2e static config bin" }, predicate = { type = "all", items = [{ type = "regex", pattern = "^@/(?:(?:chats|tests/unit/chats|templates/chats)/.+|content/evidence\\.json|tests/e2e/test_live_chat\\.py|static/js/chat\\.js|static/css/site\\.css|config/settings\\.py|bin/run_local\\.py)$" }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
+output = { type = "filter", source = { type = "command", command = "python3 bin/depemesh/files.py accounts chats tests/unit/accounts tests/unit/chats templates/accounts templates/chats content tests/e2e static config bin" }, predicate = { type = "all", items = [{ type = "regex", pattern = "^@/(?:(?:accounts|chats|tests/unit/accounts|tests/unit/chats|templates/accounts|templates/chats)/.+|content/evidence\\.json|tests/e2e/(?:test_live_chat|test_privacy)\\.py|static/js/chat\\.js|static/css/site\\.css|config/settings\\.py|bin/run_local\\.py)$" }, { type = "not", item = { type = "regex", pattern = "^@/(?:.*/)?(?:\\.git|\\.session|\\.agents|\\.codex|node_modules|\\.next|dist|build|coverage|playwright-report|test-results|\\.venv|__pycache__|\\.cache|\\.local|\\.ruff_cache|\\.pytest_cache|staticfiles)(?:/|$)|^@/(?:.*/)?(?:\\.env(?:\\..*)?|.*\\.(?:pyc|pem|key|mo|sqlite|sqlite3|db)(?:-wal|-shm|-journal)?)$" } }] } }
 
 [[rules]]
 relation = "tested_by"

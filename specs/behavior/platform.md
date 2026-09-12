@@ -20,11 +20,13 @@ English and German MUST be fully supported. Use `/en/` and `/de/` URL prefixes a
 
 ## Accounts and private data
 
-Use Django email/password registration and a public display name, with a custom user model in the initial migration. Include login, POST logout, password change and token-based password recovery; local email is console-backed and hosting email is configurable. Chats and notes persist after logout and restart.
+Use Django email/password accounts and a public display name, with a custom user model in the initial migration. Following the user-approved prototype privacy changes, public registration MUST be disabled by default; `FEMAKTIV_SIGNUP_ENABLED=1` explicitly restores it. Operators provision tester accounts through Django admin. Live access requires separate operator approval as defined in the [live-chat contract](live_chat.md). Signup and account settings MUST NOT allow users to approve themselves. Include login, POST logout, password change and token-based password recovery; local email is console-backed and hosting email is configurable. Chats and notes persist after logout and restart.
 
 Notes MUST have an owner, UUID identifier, title and text body. Owners can create, edit and delete notes. Chats MUST have an owner and UUID identifier, support creation, reopening, renaming and deletion, and store ordered user/assistant messages. Every private lookup or mutation MUST enforce ownership; an inaccessible object returns 404. Staff moderation privileges MUST NOT confer private data access.
 
 On each message the owner explicitly selects up to five notes. Save immutable title/body snapshots with the user message. Editing or deleting a source note does not alter prior snapshots; explain this at deletion. Deleting a chat removes its messages/snapshots. Inputs are plain text, validated and escaped; request bodies and private content MUST NOT appear in operational logs or public previews. All mutations use CSRF protection and private responses use no-store cache controls.
+
+Account settings MUST offer an authenticated, owner-scoped action to delete all chats and notes, including active copies, archived snapshots, citations and pending turns. A GET presents the scope for confirmation; only an explicitly confirmed CSRF-protected POST deletes data, atomically. The action MUST retain the account and content-free usage accounting. Late replies MUST NOT recreate deleted data. The interface MUST distinguish deletion from the application database from expiry of hosting backups. Custom field encryption and automatic retention schedules remain outside this small prototype change; hosting encryption and backup retention require operator configuration.
 
 ## Chat interface contract
 

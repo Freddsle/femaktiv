@@ -29,6 +29,7 @@ class AccountAdminTests(TestCase):
         self.assertEqual(user.email, "lena@example.com")
         self.assertTrue(user.check_password("Start-quietly-314!"))
         self.assertFalse(user.is_staff)
+        self.assertFalse(user.live_chat_enabled)
 
     def test_admin_change_form_uses_custom_user_model(self):
         form_class = self.admin.get_form(self.request, obj=self.request.user)
@@ -36,3 +37,25 @@ class AccountAdminTests(TestCase):
         self.assertEqual(form._meta.model, User)
         self.assertNotIn("username", form.fields)
         self.assertIn("display_name", form.fields)
+        self.assertIn("live_chat_enabled", form.fields)
+
+    def test_operator_can_approve_live_access_in_admin(self):
+        self.client.force_login(self.request.user)
+        tester = User.objects.create_user(
+            "tester@example.com", "Start-quietly-314!", display_name="Tester"
+        )
+        response = self.client.post(
+            f"/en/admin/accounts/user/{tester.pk}/change/",
+            {
+                "email": tester.email,
+                "display_name": tester.display_name,
+                "is_active": "on",
+                "live_chat_enabled": "on",
+                "date_joined_0": tester.date_joined.strftime("%Y-%m-%d"),
+                "date_joined_1": tester.date_joined.strftime("%H:%M:%S"),
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        tester.refresh_from_db()
+        self.assertTrue(tester.live_chat_enabled)
+        self.assertFalse(tester.is_staff)

@@ -36,6 +36,10 @@ If that field is empty, set needs_local_services true but do not extract a locat
 Choose a service_category from the provided enum; the application constructs searches.
 No tools, URLs, phone numbers, personal names or masked identifier tokens in prose.
 Facts must contain only relevant information provided by the user, without identifiers.
+Use relationships such as 'my mother' or 'her lawyer' instead of personal names.
+Never infer or restore masked names, street addresses, exact birth dates, identity or
+financial numbers, or legal case/contract IDs. Keep the relevant issue, role and
+meaningful deadline; ask for a relative deadline if masking removed a necessary date.
 Use decision urgent only for a clear immediate danger needing urgent human help;
 otherwise choose clarification if questions are necessary, or answer.
 Choose evidence_topics relevant to this request; specific nutrient topics only when asked.
@@ -65,6 +69,9 @@ remains unknown and provide a useful next step using the evidence available.
 When evidence does not cover a factual question, acknowledge the gap rather than
 inventing a supported answer. Use cautious practical suggestions without false certainty.
 Never emit URLs, email addresses, phone numbers, or masked identifier tokens in prose.
+Refer to private people by their relationships or roles. Never guess or restore their
+names, street addresses, birth dates, financial/identity numbers or case/contract IDs.
+Keep relevant constraints and relative deadlines; clarify necessary dates if masked.
 Return only the answer JSON schema. No Markdown links or raw HTML is needed."""
 
 

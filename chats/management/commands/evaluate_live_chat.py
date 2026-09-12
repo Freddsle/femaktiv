@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from chats import provider, service
+from chats import masking_evaluation, provider, service
 from chats.errors import ChatError
 from chats.transport import Budget
 
@@ -56,7 +56,10 @@ CASES = [
 
 
 class Command(BaseCommand):
-    help = "Opt-in live evaluation of fictional chat cases (up to 8 model calls and 4 searches)."
+    help = (
+        "Fictional masking-export checks and opt-in live chat evaluation "
+        "(up to 8 model calls and 4 searches)."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -67,8 +70,71 @@ class Command(BaseCommand):
         parser.add_argument(
             "--output", default=str(settings.BASE_DIR / ".local" / "live-chat-evaluation.json")
         )
+        parser.add_argument(
+            "--export-masking-cases",
+            metavar="PATH",
+            help="Write the fixed fictional EN/DE inputs and exit without external calls.",
+        )
+        parser.add_argument(
+            "--masking-output",
+            metavar="PATH",
+            help="Read actual anonymizer exports for the fixed fictional inputs (see README).",
+        )
+        parser.add_argument(
+            "--masking-only",
+            action="store_true",
+            help="Check --masking-output locally without any provider or search calls.",
+        )
+
+    def write_report(self, document, path):
+        output = Path(path)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n")
+        self.stdout.write(f"Fictional evaluation report: {output}")
+
+    def read_masking_output(self, path):
+        if not path:
+            return {
+                "status": "not_evaluated",
+                "passed": False,
+                "limitations": masking_evaluation.LIMITATIONS,
+            }
+        try:
+            with Path(path).open("rb") as stream:
+                data = stream.read(masking_evaluation.MAX_EXPORT_BYTES + 1)
+            if len(data) > masking_evaluation.MAX_EXPORT_BYTES:
+                raise masking_evaluation.MaskingExportError("invalid_masking_export")
+            return masking_evaluation.evaluate_export(json.loads(data))
+        except OSError, ValueError, UnicodeError:
+            # A supplied artifact may contain private text or provider errors.
+            # Never interpolate that content or raw exceptions into output.
+            raise CommandError(
+                "No calls made. Invalid or unreadable fictional masking export."
+            ) from None
 
     def handle(self, *args, **options):
+        if options["export_masking_cases"]:
+            if (
+                options["allow_provider_calls"]
+                or options["masking_output"]
+                or options["masking_only"]
+            ):
+                raise CommandError("Export fictional inputs separately from evaluation.")
+            self.write_report(masking_evaluation.export_inputs(), options["export_masking_cases"])
+            self.stdout.write("No external calls made. These are inputs, not evaluation results.")
+            return
+        if options["masking_only"]:
+            if not options["masking_output"]:
+                raise CommandError("No calls made. --masking-only requires --masking-output.")
+            masking = self.read_masking_output(options["masking_output"])
+            self.write_report(
+                {"checked_at": timezone.now().isoformat(), "masking": masking}, options["output"]
+            )
+            self.stdout.write(masking["limitations"])
+            if not masking["passed"]:
+                raise CommandError("Fictional masking checks failed. No external calls made.")
+            self.stdout.write(self.style.SUCCESS("Fictional masking export checks passed."))
+            return
         if not options["allow_provider_calls"]:
             raise CommandError(
                 "No calls made. Supply --allow-provider-calls to run the fictional live evaluation."
@@ -79,11 +145,17 @@ class Command(BaseCommand):
             )
         if settings.FEMAKTIV_AI_MODE != "live":
             raise CommandError("No calls made. Configure FEMAKTIV_AI_MODE=live first.")
+        masking = self.read_masking_output(options["masking_output"])
         report = {
             "checked_at": timezone.now().isoformat(),
             "model": settings.ANYMIZE_MODEL,
             "cases": [],
-            "limitations": "Metadata and structured fact checks do not establish anonymization accuracy or clinical correctness. Review final answer usefulness separately.",
+            "masking": masking,
+            "limitations": (
+                "Metadata and structured fact checks do not establish anonymization accuracy "
+                "or clinical correctness. Review final answer usefulness separately. "
+                + masking_evaluation.LIMITATIONS
+            ),
         }
         try:
             if settings.ANYMIZE_MODEL not in provider.available_models(Budget()):
@@ -127,20 +199,24 @@ class Command(BaseCommand):
                     break
         except ChatError as error:
             report["error_code"] = error.code
-        report["passed"] = len(report["cases"]) == len(CASES) and all(
+        report["integration_passed"] = len(report["cases"]) == len(CASES) and all(
             item.get("passed") for item in report["cases"]
         )
-        output = Path(options["output"])
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
-        self.stdout.write(f"Fictional evaluation report: {output}")
+        # Masking inspection is optional developer work, never a chat/setup gate.
+        # A successful integration check must still label missing masking evidence.
+        report["passed"] = report["integration_passed"] and (
+            not options["masking_output"] or masking["passed"]
+        )
+        self.write_report(report, options["output"])
         self.stdout.write(report["limitations"])
         if not report["passed"]:
             raise CommandError(
-                "Live evaluation did not pass. See the safe report; no automatic retry was made."
+                "Requested evaluation checks failed. See integration_passed and masking in the "
+                "safe report; no automatic retry was made."
             )
         self.stdout.write(
             self.style.SUCCESS(
-                "Model, structured output, metadata, essential facts, citations and contact lookup checks passed."
+                "Model, structured output, metadata, essential facts, citations, contact lookup "
+                "checks passed. Masking inspection status: " + masking["status"] + "."
             )
         )

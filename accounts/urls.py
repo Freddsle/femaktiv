@@ -19,6 +19,7 @@ urlpatterns = [
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("settings/", views.settings, name="settings"),
+    path("settings/delete-data/", views.delete_private_data, name="delete_private_data"),
     path(
         "password/change/",
         auth_views.PasswordChangeView.as_view(

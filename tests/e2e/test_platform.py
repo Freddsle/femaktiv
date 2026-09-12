@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import LiveServerTestCase
+from django.test import LiveServerTestCase, override_settings
 from playwright.sync_api import expect, sync_playwright
 
 from chats.models import Chat, Message
@@ -13,7 +13,10 @@ from chats.models import Chat, Message
 class PlatformBrowserTests(LiveServerTestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            email="browser@example.test", password="Browser-tests-419!", display_name="Alex"
+            email="browser@example.test",
+            password="Browser-tests-419!",
+            display_name="Alex",
+            live_chat_enabled=True,
         )
         self.playwright = sync_playwright().start()
         executable = (
@@ -75,6 +78,7 @@ class PlatformBrowserTests(LiveServerTestCase):
             self.page.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
         )
 
+    @override_settings(FEMAKTIV_SIGNUP_ENABLED=True)
     def test_account_notes_chat_and_language_journey(self):
         self.goto("/en/accounts/signup/")
         self.page.locator("#id_display_name").fill("Alex")

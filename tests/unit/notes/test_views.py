@@ -1,7 +1,10 @@
+from unittest.mock import patch
+
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from accounts.models import User
+from notes.forms import PersonalNoteForm
 from notes.models import PersonalNote
 
 
@@ -76,6 +79,26 @@ class NoteViewsTests(TestCase):
             )
         self.other_note.refresh_from_db()
         self.assertEqual(self.other_note.title, "Other person's")
+
+    def test_edit_cannot_restore_a_note_deleted_after_form_validation(self):
+        original_validation = PersonalNoteForm.is_valid
+
+        def delete_after_validation(form):
+            valid = original_validation(form)
+            PersonalNote.objects.filter(owner=self.owner).delete()
+            return valid
+
+        with patch.object(
+            PersonalNoteForm, "is_valid", autospec=True, side_effect=delete_after_validation
+        ):
+            response = self.client.post(
+                reverse("notes:edit", args=[self.note.pk]),
+                {"title": "Updated private title", "body": "Text that must stay deleted."},
+            )
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(PersonalNote.objects.filter(owner=self.owner).exists())
+        self.other_note.refresh_from_db()
+        self.assertEqual(self.other_note.body, "Never include me.")
 
     def test_staff_privileges_do_not_allow_foreign_notes(self):
         self.client.force_login(self.other)
