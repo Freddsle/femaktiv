@@ -68,7 +68,12 @@
     article.dataset.messageId = message.id;
     const meta = element('div', 'message-meta');
     if (message.role === 'assistant') {
-      meta.append(element('span', 'avatar assistant-avatar', '✳'));
+      const avatar = element('img', 'brand-logo avatar assistant-avatar');
+      avatar.src = form.dataset.logoUrl;
+      avatar.alt = '';
+      avatar.width = 2048;
+      avatar.height = 2048;
+      meta.append(avatar);
       meta.append(element('strong', '', 'femaktiv'));
       meta.append(element('span', 'example-label', form.dataset.placeholder));
     } else meta.append(element('strong', '', form.dataset.you));

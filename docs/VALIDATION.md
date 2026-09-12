@@ -40,8 +40,58 @@ A separate production-mode browser smoke check used an isolated temporary SQLite
 
 `manage.py check --deploy` passed with a generated secret, explicit host/CSRF origin, `DEBUG=False` and the local-HTTP override disabled. The local helper rejects additional bind arguments and ignores `GUNICORN_CMD_ARGS`; its intended listener is loopback only.
 
+## ngrok preview follow-up
+
+On 12 September 2026, `bin/serve` gained the opt-in `FEMAKTIV_PUBLIC_URL` HTTPS preview mode described in [README](../README.md#share-a-preview-through-ngrok). The full `./bin/check` run passed: 260 German translations, Ruff lint and formatting for 62 Python files, Django system/migration checks, static collection, 63 backend tests and four browser scenarios. Depmesh specification/link/graph checks, all 15 isolated relation fixtures, Donna validation and `git diff --check` also passed.
+
+The five new launcher tests cover the default loopback HTTP mode and stable private key, exact public host and CSRF origin, secure cookies, HTTPS forwarding, rejection of foreign hosts/origins, URL normalization, and invalid URL/port/bind inputs. Depmesh resolves `bin/run_local.py` and `tests/unit/bin/test_run_local.py` in both directions through the existing Python convention.
+
+A separate smoke check started the actual `./bin/serve` process on temporary loopback ports in both modes. Local HTTP, English/German pages, collected CSS and logo assets, HTTPS redirects, exact host validation, secure CSRF cookies and same-origin/foreign-origin form handling passed. The check simulated ngrok's `Host` and `X-Forwarded-Proto` headers; it created no accounts and stopped both test servers. No external tunnel or provider request was made.
+
+The ngrok CLI was not installed in the inspected environment. A public ngrok endpoint, account authentication and ngrok's actual TLS termination remain untested; the user must install/authenticate ngrok and supply its URL to start the preview.
+
 ## Prototype boundaries
 
 Chat persistence and account ownership are real. Replies are deterministic, visibly labelled placeholders; no LLM or anymize requests or provider credits are used. Q&A and the two public conversations contain authored examples. Public posting, moderation, file uploads, clinical review and live AI remain future work.
 
 This delivery has not been published on the internet. PostgreSQL, external SMTP delivery, reverse-proxy HTTPS and a hosting provider are configurable but not exercised locally. Password recovery uses the local console email backend. The browser suite uses fictional data and a disposable test database.
+
+## Rounded logo refinement
+
+On 12 September 2026, the user authorized retaining only the soft central cross, preserving its central artwork, and improving resolution. The website uses [the rounded PNG](../static/img/femaktiv-logo-rounded.png); [the original image](../static/img/femaktiv-logo.png) remains unchanged.
+
+The built-in image_gen tool produced the higher-resolution artwork. Its two outputs contained an opaque checkerboard, so the user explicitly authorized programmatic background removal. Pillow removed only the connected neutral exterior, refined the silhouette edge, and exported a 2048×2048 RGBA PNG. The generated artwork's central RGB pixels and full opacity were checked before final resampling. The exported corner pixels have alpha zero, with a full alpha range of 0–255. This is an actual transparent asset.
+
+All logo consumers use the new asset, including the favicon, standalone error page, and new assistant messages. Intrinsic dimensions are square, and the former rectangular shadow and corner clipping have been removed.
+
+The existing four browser journeys passed after the update. Desktop/mobile chat screenshots showed clean cutouts. Additional production-browser checks verified the 2048px image, transparent corner pixels, English/German pages and no horizontal overflow at 1440px and 390px.
+
+### Image generation prompts
+
+Built-in image_gen was used; the CLI/API fallback was not used. The following prompts record the generation inputs. Final transparency was completed with the separately authorized local processing described above.
+
+First edit, using the original supplied logo:
+
+```text
+Use case: background-extraction / precise-object-edit.
+Asset type: the existing femaktiv brand logo, cleaned up for use as a transparent website logo.
+Image 1 is the EDIT TARGET and the only authority for the design. This is a careful restoration of this existing logo, not a redesign.
+
+Primary request: extract just the central soft four-lobed rounded cross/clover emblem from the pink square screenshot. Remove all pale-pink rectangular background outside that four-lobed silhouette, the thin black screenshot edges, and any exterior artifacts. The resulting PNG must have a genuinely transparent alpha background, NOT a white or pink square and NOT a checkerboard drawn into the image.
+
+Keep the center design exactly recognizable and unchanged: lowercase white serif word "femaktiv" across the middle; the small exact white tagline "- lifecycle essentials -" below it; the delicate white radial sun above the word; the group of white horizontal waves below. Preserve their relative placement, sizes, original letterforms, proportions, and spacing. Preserve the emblem's existing left-purple, middle-mauve/rose, right-coral/orange smooth gradient, with no invented colors. Do not change the central artwork, do not simplify it, do not remove the tagline or symbols.
+
+Improve only edge quality and source resolution: smooth, clean, slightly rounder balanced lobes, softly curved joins, faithful to the supplied rounded cross. It should remain a four-lobed cross, not become a circle or a many-petaled flower. Crisp typography and graceful thin sun/wave lines, polished high-resolution rendering, preferably 2048x2048 PNG. Flat graphic, no bevel, no 3D, no lighting, no added shadow, no outline.
+Composition: one emblem, centered, upright, occupying about 90% of a square canvas, equal minimal transparent padding. No alternate versions, no presentation board, no added words or decorative elements.
+```
+
+Background-only follow-up, using the first generated image:
+
+```text
+Use case: background-extraction.
+Image 1 is the EDIT TARGET: an already finished femaktiv logo. Perform ONLY precise background removal. Preserve the colored four-lobed cross and ALL pixels, typography, sun, waves and gradient inside its outer silhouette as closely as possible. Do not redesign, recolor, retype, regenerate or reshape the emblem.
+
+The existing gray checkerboard OUTSIDE the colored cross is an unwanted opaque background, not transparency. Remove every pixel of that checkerboard and its scratches and lines. Replace the outside with actual alpha=0 transparency in the saved PNG. The required output is an RGBA PNG file with a real transparency channel, not an RGB image showing a transparency grid. No painted grid, no white/gray/black/pink backdrop, no halo, no square panel, no shadow. Clean antialiased edge around the single existing rounded cross. Center it with the same canvas and orientation, retaining the existing high resolution.
+
+Keep the exact center text "femaktiv" and "- lifecycle essentials -", the white sun above, the white waves below, and the purple-to-mauve-to-coral gradient unchanged. Only the exterior background changes. Deliver one genuinely transparent PNG cutout.
+```

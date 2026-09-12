@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f7f0ed">
   <meta name="description" content="{% translate 'A little more clarity. A little more room for you. Discover femaktiv, your personal space for everyday questions.' %}">
   <title>{% block title %}{% translate 'A little more room for you' %}{% endblock %} · femaktiv</title>
-  <link rel="icon" href="{% static 'img/femaktiv-logo.png' %}" type="image/png">
+  <link rel="icon" href="{% static 'img/femaktiv-logo-rounded.png' %}" type="image/png">
   <link rel="stylesheet" href="{% static 'css/site.css' %}">
   <script src="{% static 'js/site.js' %}" defer></script>
   {% block head %}{% endblock %}
@@ -32,7 +32,7 @@
 <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7"/></symbol>
 </defs></svg>
 <header class="site-header">
-  <a href="{% url 'pages:home' %}" class="brand" aria-label="femaktiv — {% translate 'Home' %}"><span class="brand-mark" aria-hidden="true">✳</span><span>femaktiv<span class="brand-dot">.</span></span></a>
+  <a href="{% url 'pages:home' %}" class="brand" aria-label="femaktiv — {% translate 'Home' %}"><img class="brand-logo navigation-logo" src="{% static 'img/femaktiv-logo-rounded.png' %}" alt="femaktiv" width="2048" height="2048"></a>
   <button class="icon-button mobile-menu" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="{% translate 'Open navigation' %}">{% include 'components/icon.html' with name='menu' %}</button>
   <nav class="main-nav" id="main-nav" aria-label="{% translate 'Main navigation' %}">
     <a href="{% url 'chats:list' %}" {% if request.resolver_match.app_name == 'chats' %}aria-current="page"{% endif %}>{% translate 'My chats' %}</a>
@@ -46,6 +46,6 @@
 </header>
 {% if messages %}<div class="flash-wrap" role="status">{% for message in messages %}<div class="flash-message {{ message.tags }}">{% include 'components/icon.html' with name='check' %}{{ message }}</div>{% endfor %}</div>{% endif %}
 <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
-{% block footer %}<footer class="site-footer"><a class="brand brand-footer" href="{% url 'pages:home' %}">femaktiv<span class="brand-dot">.</span></a><p>{% translate 'A little more room for you.' %}</p><div><span class="status-dot"></span>{% translate 'Prototype · AI connection coming later' %}</div></footer>{% endblock %}
+{% block footer %}<footer class="site-footer"><a class="brand brand-footer" href="{% url 'pages:home' %}"><img class="brand-logo footer-logo" src="{% static 'img/femaktiv-logo-rounded.png' %}" alt="femaktiv" width="2048" height="2048"></a><p>{% translate 'A little more room for you.' %}</p><div><span class="status-dot"></span>{% translate 'Prototype · AI connection coming later' %}</div></footer>{% endblock %}
 {% block scripts %}{% endblock %}
 </body></html>

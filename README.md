@@ -15,6 +15,24 @@ Open **http://127.0.0.1:8000/** for English or **http://127.0.0.1:8000/de/** for
 
 `bin/setup` installs the locked dependencies, compiles translations, applies migrations and collects static assets. `bin/serve` runs Gunicorn with WhiteNoise, `DEBUG=False`, and a stable signing key stored privately in `.local/secret_key`. It binds only to `127.0.0.1` and explicitly permits local HTTP. `./bin/dev` runs Django's development server with reload support.
 
+## Share a preview through ngrok
+
+Install [ngrok and configure your account's authtoken](https://ngrok.com/download/linux) once. After `./bin/setup`, open a terminal and start the tunnel:
+
+```bash
+ngrok http http://127.0.0.1:8000 --inspect=false
+```
+
+Copy the HTTPS URL from ngrok's `Forwarding` line. Stop any existing femaktiv server on port 8000, then run this in a second terminal from the repository, replacing the example URL with yours:
+
+```bash
+FEMAKTIV_PUBLIC_URL=https://your-domain.ngrok-free.app ./bin/serve
+```
+
+Open that public URL for English or append `/de/` for German. The launcher configures Django's exact allowed host and CSRF origin, keeps `DEBUG=False`, enables secure cookies and HTTPS redirects, and uses the existing private signing key and database. Gunicorn recognizes HTTPS forwarded by the loopback ngrok agent. HTTP traffic inspection is disabled by the [ngrok CLI flag](https://ngrok.com/docs/gateway/agent/cli#ngrok-http).
+
+Keep both processes running while showing the site. If the ngrok URL changes, restart `bin/serve` with the new URL. The public URL must be an HTTPS origin without a path, credentials or wildcard. To return to local HTTP, stop the server and run `./bin/serve` without `FEMAKTIV_PUBLIC_URL`. The helper never starts ngrok itself. Password recovery still prints emails in the server terminal with the default console backend.
+
 ## What works
 
 - Real email/password registration, login/logout, account settings and password change/recovery.
