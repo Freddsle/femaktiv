@@ -141,12 +141,17 @@ def _live_reply(history, context, language, budget, intake_observer=None):
     )
     validate(intake, INTAKE_SCHEMA)
     budget.ensure_active()
-    if intake_observer is not None:
-        intake_observer(intake)
     if intake["intro"]:
         validate_prose(intake["intro"])
     for question in intake["questions"]:
         validate_prose(question)
+    questions = list(intake["questions"])
+    if (intake["decision"] == "clarification" and not questions) or (
+        intake["decision"] == "answer" and questions
+    ):
+        raise ChatError("invalid_reply")
+    if intake_observer is not None:
+        intake_observer(intake)
     if intake["decision"] == "urgent":
         # Human escalation is deliberately not a generated diagnosis or phone number.
         return _reply(
@@ -160,10 +165,7 @@ def _live_reply(history, context, language, budget, intake_observer=None):
                 }
             ]
         )
-    questions = list(intake["questions"])
     if intake["decision"] == "clarification":
-        if not questions:
-            raise ChatError("invalid_reply")
         paragraphs = []
         if intake["intro"]:
             paragraphs.append({"text": intake["intro"], "kind": "suggestion", "source_ids": []})
@@ -171,8 +173,6 @@ def _live_reply(history, context, language, budget, intake_observer=None):
             {"text": question, "kind": "question", "source_ids": []} for question in questions
         )
         return _reply(paragraphs, kind="clarification")
-    if questions:
-        raise ChatError("invalid_reply")
     records = evidence.retrieve(intake["topic"], intake["evidence_topics"])
     sources = {record["id"]: record for record in records}
     schema = answer_schema(list(sources))

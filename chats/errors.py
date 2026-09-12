@@ -34,11 +34,34 @@ MESSAGES = {
     "unsafe_url": _("This source could not be opened safely."),
 }
 
+FAILURE_REASONS = frozenset(
+    {
+        "http_error",
+        "connection_error",
+        "dns_error",
+        "invalid_json",
+        "unsupported_encoding",
+        "response_too_large",
+        "timeout",
+    }
+)
+
 
 class ChatError(Exception):
-    def __init__(self, code, status=502):
+    def __init__(self, code, status=502, *, provider_http_status=None, failure_reason=None):
         self.code = code if code in MESSAGES else "provider_unavailable"
         self.status = status
+        # Only content-free, application-defined diagnostics may reach evaluation reports.
+        self.provider_http_status = (
+            provider_http_status
+            if type(provider_http_status) is int and 100 <= provider_http_status <= 599
+            else None
+        )
+        self.failure_reason = (
+            failure_reason
+            if type(failure_reason) is str and failure_reason in FAILURE_REASONS
+            else None
+        )
         super().__init__(self.code)
 
     @property

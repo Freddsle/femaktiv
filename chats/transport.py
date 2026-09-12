@@ -30,7 +30,7 @@ class Budget:
     def remaining(self, cap=None):
         left = self.deadline - time.monotonic()
         if left <= 0:
-            raise ChatError("deadline_exceeded", 504)
+            raise ChatError("deadline_exceeded", 504, failure_reason="timeout")
         return min(left, cap) if cap else left
 
     def consume(self, kind):
@@ -94,9 +94,9 @@ def public_addresses(host, port, timeout):
         return sorted(addresses, key=lambda item: item[0] != socket.AF_INET)
     except TimeoutError:
         future.cancel()
-        raise ChatError("deadline_exceeded", 504) from None
+        raise ChatError("deadline_exceeded", 504, failure_reason="timeout") from None
     except OSError, ValueError:
-        raise ChatError("provider_unavailable") from None
+        raise ChatError("provider_unavailable", failure_reason="dns_error") from None
 
 
 def request(url, *, budget, method="GET", headers=None, body=None, max_bytes=1_000_000, timeout=25):
@@ -107,11 +107,17 @@ def request(url, *, budget, method="GET", headers=None, body=None, max_bytes=1_0
     parts = urlsplit(url)
     host, port = parts.hostname, 443 if parts.scheme == "https" else 80
     operation_deadline = min(budget.deadline, time.monotonic() + timeout)
+    response_status = None
 
     def remaining():
         left = operation_deadline - time.monotonic()
         if left <= 0:
-            raise ChatError("deadline_exceeded", 504)
+            raise ChatError(
+                "deadline_exceeded",
+                504,
+                provider_http_status=response_status,
+                failure_reason="timeout",
+            )
         return left
 
     addresses = public_addresses(host, port, remaining())
@@ -149,9 +155,14 @@ def request(url, *, budget, method="GET", headers=None, body=None, max_bytes=1_0
         connection.request(method, target, body=body, headers=request_headers)
         sock.settimeout(remaining())
         response = connection.getresponse()
+        response_status = response.status
         response_headers = {key.lower(): value for key, value in response.getheaders()}
         if response_headers.get("content-encoding", "identity").lower() not in {"", "identity"}:
-            raise ChatError("provider_unavailable")
+            raise ChatError(
+                "provider_unavailable",
+                provider_http_status=response_status,
+                failure_reason="unsupported_encoding",
+            )
         data = bytearray()
         while not response.isclosed():
             sock.settimeout(remaining())
@@ -160,14 +171,27 @@ def request(url, *, budget, method="GET", headers=None, body=None, max_bytes=1_0
                 break
             data.extend(chunk)
             if len(data) > max_bytes:
-                raise ChatError("provider_unavailable")
+                raise ChatError(
+                    "provider_unavailable",
+                    provider_http_status=response_status,
+                    failure_reason="response_too_large",
+                )
         remaining()
         return response.status, response_headers, bytes(data)
     except TimeoutError, socket.timeout:
-        raise ChatError("deadline_exceeded", 504) from None
+        raise ChatError(
+            "deadline_exceeded",
+            504,
+            provider_http_status=response_status,
+            failure_reason="timeout",
+        ) from None
     except OSError, ValueError, http.client.HTTPException:
         remaining()
-        raise ChatError("provider_unavailable") from None
+        raise ChatError(
+            "provider_unavailable",
+            provider_http_status=response_status,
+            failure_reason="connection_error",
+        ) from None
     finally:
         if watchdog is not None:
             watchdog.cancel()
@@ -186,10 +210,16 @@ def request_json(url, *, budget, headers, payload=None):
         body=body,
     )
     if status == 429:
-        raise ChatError("rate_limited", 429)
+        raise ChatError(
+            "rate_limited", 429, provider_http_status=status, failure_reason="http_error"
+        )
     if status != 200:
-        raise ChatError("provider_unavailable", 503)
+        raise ChatError(
+            "provider_unavailable", 503, provider_http_status=status, failure_reason="http_error"
+        )
     try:
         return json.loads(data)
     except ValueError, UnicodeError:
-        raise ChatError("invalid_reply") from None
+        raise ChatError(
+            "invalid_reply", provider_http_status=status, failure_reason="invalid_json"
+        ) from None

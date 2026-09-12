@@ -17,7 +17,6 @@ CASES = [
     (
         "nutrition-en",
         "en",
-        "",
         "Fictional example: I am a woman in Germany with hypertension and an allergy to milk protein. I have fifteen minutes to make lunch and want more protein and fibre with less salt. Please suggest practical food combinations.",
         [
             r"hypertension|blood pressure|blutdruck",
@@ -29,7 +28,6 @@ CASES = [
     (
         "nutrition-de",
         "de",
-        "",
         "Fiktives Beispiel: Ich bin eine Frau in Deutschland mit Bluthochdruck und einer Milcheiweißallergie. Ich habe fünfzehn Minuten fürs Mittagessen und möchte mehr Protein und Ballaststoffe bei weniger Salz. Bitte schlage praktische Lebensmittelkombinationen vor.",
         [
             r"hypertension|blood pressure|blutdruck",
@@ -41,31 +39,26 @@ CASES = [
     (
         "care-en",
         "en",
-        "Berlin",
-        "Fictional example: My older mother is still in hospital with a broken leg. She lives alone, cannot manage stairs and is expected home next week. I need local care advice and help preparing a call in German; I prefer English. The separate locality is Berlin.",
+        "Fictional example: My older mother is still in hospital with a broken leg. She lives alone, cannot manage stairs and is expected home next week. I need care advice and help preparing a call in German; I prefer English.",
         [r"mother|mutter", r"broken|fractur|bruch|gebroch", r"alone|allein", r"stairs|trepp"],
     ),
     (
         "care-de",
         "de",
-        "Berlin",
-        "Fiktives Beispiel: Meine ältere Mutter liegt mit einem gebrochenen Bein noch im Krankenhaus. Sie lebt allein, schafft keine Treppen und soll nächste Woche nach Hause. Ich suche eine örtliche Pflegeberatung und Formulierungen für ein Gespräch auf Deutsch. Der separate Ort ist Berlin.",
+        "Fiktives Beispiel: Meine ältere Mutter liegt mit einem gebrochenen Bein noch im Krankenhaus. Sie lebt allein, schafft keine Treppen und soll nächste Woche nach Hause. Ich brauche Rat zur Organisation der Pflege und Formulierungen für ein Gespräch auf Deutsch.",
         [r"mother|mutter", r"broken|fractur|bruch|gebroch", r"alone|allein", r"stairs|trepp"],
     ),
 ]
 
 
 class Command(BaseCommand):
-    help = (
-        "Fictional masking-export checks and opt-in live chat evaluation "
-        "(up to 8 model calls and 4 searches)."
-    )
+    help = "Fictional masking-export checks and opt-in live chat evaluation (up to 8 model calls)."
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--allow-provider-calls",
             action="store_true",
-            help="Explicitly allow paid Anymize and Brave calls.",
+            help="Explicitly allow paid Anymize calls.",
         )
         parser.add_argument(
             "--output", default=str(settings.BASE_DIR / ".local" / "live-chat-evaluation.json")
@@ -83,7 +76,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--masking-only",
             action="store_true",
-            help="Check --masking-output locally without any provider or search calls.",
+            help="Check --masking-output locally without any provider calls.",
         )
 
     def write_report(self, document, path):
@@ -91,6 +84,47 @@ class Command(BaseCommand):
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n")
         self.stdout.write(f"Fictional evaluation report: {output}")
+
+    def failure_details(self, error, stage):
+        details = {"error_code": error.code, "failure_stage": stage}
+        if error.provider_http_status is not None:
+            details["provider_http_status"] = error.provider_http_status
+        if error.failure_reason is not None:
+            details["failure_reason"] = error.failure_reason
+        return details
+
+    def failure_summary(self, report):
+        failed = next((case for case in report["cases"] if not case.get("passed")), report)
+        location = failed.get("case", "configuration/model access")
+        stage = failed.get("failure_stage", "scenario validation")
+        code = failed.get("error_code", "scenario_checks_failed")
+        status = failed.get("provider_http_status")
+        reason = failed.get("failure_reason")
+        summary = f"Evaluation failed: {location}, {stage}, {code}"
+        if status is not None:
+            summary += f", provider HTTP {status}"
+        if reason:
+            summary += f", {reason}"
+        summary += ". "
+        if code == "not_configured":
+            summary += "Check Anymize settings in this terminal and model access. "
+        elif status in (400, 422):
+            summary += "Check model support for the request parameters and JSON-schema output. "
+        elif status in (401, 403):
+            summary += "Check API-key permissions and access to the anonymous endpoint. "
+        elif status == 402:
+            summary += "Check the Anymize account's credits and billing. "
+        elif status == 404:
+            summary += "Check the Anymize endpoint and selected model. "
+        elif status == 429:
+            summary += "Check Anymize rate and quota limits. "
+        elif status is not None and status >= 500:
+            summary += "Anymize returned a server error; check its service status. "
+        elif reason in ("connection_error", "dns_error"):
+            summary += "Check network access to Anymize. "
+        elif report.get("integration_passed"):
+            summary = "Model integration passed, but the supplied masking export failed checks. "
+        return summary + "See the safe report for details. No automatic retry was made."
 
     def read_masking_output(self, path):
         if not path:
@@ -161,7 +195,7 @@ class Command(BaseCommand):
             if settings.ANYMIZE_MODEL not in provider.available_models(Budget()):
                 raise ChatError("not_configured", 503)
             report["model_available"] = True
-            for name, language, locality, content, facts in CASES:
+            for name, language, content, facts in CASES:
                 item = {"case": name}
                 report["cases"].append(item)
                 captured = []
@@ -170,7 +204,6 @@ class Command(BaseCommand):
                         history=[{"role": "user", "content": content}],
                         context=[],
                         language=language,
-                        locality=locality,
                         intake_observer=captured.append,
                     )
                     combined = " ".join(captured[0]["facts"]).casefold()
@@ -183,22 +216,25 @@ class Command(BaseCommand):
                             ),
                             "kind": reply.kind,
                             "has_citations": bool(reply.citations),
-                            "lookup_status": reply.lookup_status,
                             "reply_for_human_review": reply.content,
                         }
                     )
                     item["passed"] = (
                         item["essential_facts"] and item["has_citations"] and reply.kind == "answer"
                     )
-                    if locality:
-                        item["passed"] = item["passed"] and reply.lookup_status == "verified"
                     if not item["passed"]:
+                        item["failure_stage"] = "scenario_checks"
                         break  # No automatic paid retries, including evaluation failures.
                 except ChatError as error:
-                    item.update({"passed": False, "error_code": error.code})
+                    item.update(
+                        {
+                            "passed": False,
+                            **self.failure_details(error, "composition" if captured else "intake"),
+                        }
+                    )
                     break
         except ChatError as error:
-            report["error_code"] = error.code
+            report.update(self.failure_details(error, "model_access"))
         report["integration_passed"] = len(report["cases"]) == len(CASES) and all(
             item.get("passed") for item in report["cases"]
         )
@@ -210,13 +246,10 @@ class Command(BaseCommand):
         self.write_report(report, options["output"])
         self.stdout.write(report["limitations"])
         if not report["passed"]:
-            raise CommandError(
-                "Requested evaluation checks failed. See integration_passed and masking in the "
-                "safe report; no automatic retry was made."
-            )
+            raise CommandError(self.failure_summary(report))
         self.stdout.write(
             self.style.SUCCESS(
-                "Model, structured output, metadata, essential facts, citations, contact lookup "
+                "Model, structured output, metadata, essential facts and citation "
                 "checks passed. Masking inspection status: " + masking["status"] + "."
             )
         )

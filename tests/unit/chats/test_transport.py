@@ -10,6 +10,103 @@ from chats.errors import ChatError
 
 
 class TransportTests(SimpleTestCase):
+    def test_diagnostics_accept_only_bounded_status_and_fixed_reason(self):
+        for status in (100, 200, 429, 599):
+            with self.subTest(status=status):
+                error = ChatError(
+                    "provider_unavailable", provider_http_status=status, failure_reason="http_error"
+                )
+                self.assertEqual(error.provider_http_status, status)
+                self.assertEqual(error.failure_reason, "http_error")
+        for status in (None, True, False, 99, 600, 200.0, "401", [], {}):
+            with self.subTest(status=status):
+                error = ChatError("provider_unavailable", provider_http_status=status)
+                self.assertIsNone(error.provider_http_status)
+        for reason in (None, True, 1, [], {}, "FICTIONAL_PRIVATE_PROVIDER_TEXT"):
+            with self.subTest(reason=reason):
+                error = ChatError("provider_unavailable", failure_reason=reason)
+                self.assertIsNone(error.failure_reason)
+                self.assertEqual(error.args, ("provider_unavailable",))
+
+    def test_http_errors_report_status_without_provider_content_or_retry(self):
+        private_text = "FICTIONAL_PRIVATE_PROVIDER_TEXT"
+        for status in (400, 401, 402, 403, 404, 429, 500):
+            with (
+                self.subTest(status=status),
+                patch(
+                    "chats.transport.request",
+                    return_value=(
+                        status,
+                        {"x-request-id": private_text},
+                        ('{"message":"' + private_text + '"}').encode(),
+                    ),
+                ) as request,
+                self.assertRaises(ChatError) as caught,
+            ):
+                transport.request_json(
+                    "https://example.test/",
+                    budget=transport.Budget(),
+                    headers={"Authorization": "Bearer " + private_text},
+                    payload={},
+                )
+            error = caught.exception
+            self.assertEqual(error.provider_http_status, status)
+            self.assertEqual(error.failure_reason, "http_error")
+            self.assertEqual(
+                error.code, "rate_limited" if status == 429 else "provider_unavailable"
+            )
+            self.assertEqual(error.status, 429 if status == 429 else 503)
+            self.assertNotIn(
+                private_text, str(error) + repr(error) + error.message + repr(vars(error))
+            )
+            request.assert_called_once()
+
+    def test_malformed_json_reports_only_safe_diagnostics(self):
+        for body in (b"FICTIONAL_PRIVATE_PROVIDER_TEXT", b"\xff\xfe\x00"):
+            with (
+                self.subTest(body=body),
+                patch("chats.transport.request", return_value=(200, {}, body)) as request,
+                self.assertRaises(ChatError) as caught,
+            ):
+                transport.request_json(
+                    "https://example.test/", budget=transport.Budget(), headers={}
+                )
+            self.assertEqual(caught.exception.code, "invalid_reply")
+            self.assertEqual(caught.exception.provider_http_status, 200)
+            self.assertEqual(caught.exception.failure_reason, "invalid_json")
+            self.assertNotIn("FICTIONAL_PRIVATE", repr(vars(caught.exception)))
+            request.assert_called_once()
+
+    def test_dns_and_connection_errors_are_distinguishable_and_safe(self):
+        with (
+            patch("socket.getaddrinfo", side_effect=OSError("FICTIONAL_PRIVATE_DNS_TEXT")),
+            self.assertRaises(ChatError) as caught,
+        ):
+            transport.public_addresses("example.test", 443, 2)
+        self.assertEqual(caught.exception.failure_reason, "dns_error")
+        self.assertIsNone(caught.exception.provider_http_status)
+        self.assertNotIn("FICTIONAL_PRIVATE", repr(vars(caught.exception)))
+
+        addresses = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 80))]
+        for failure, reason in (
+            (OSError("FICTIONAL_PRIVATE_CONNECTION_TEXT"), "connection_error"),
+            (TimeoutError("FICTIONAL_PRIVATE_TIMEOUT_TEXT"), "timeout"),
+        ):
+            sock = Mock()
+            sock.connect.side_effect = failure
+            with (
+                self.subTest(reason=reason),
+                patch.dict(os.environ, {"FEMAKTIV_OFFLINE_CHECKS": "0"}),
+                patch("chats.transport.public_addresses", return_value=addresses),
+                patch("chats.transport.socket.socket", return_value=sock),
+                self.assertRaises(ChatError) as caught,
+            ):
+                transport.request("http://example.test/", budget=transport.Budget())
+            self.assertEqual(caught.exception.failure_reason, reason)
+            self.assertIsNone(caught.exception.provider_http_status)
+            self.assertNotIn("FICTIONAL_PRIVATE", repr(vars(caught.exception)))
+            sock.connect.assert_called_once()
+
     def test_unsafe_schemes_hosts_ports_and_credentials_are_rejected(self):
         for url in (
             "file:///etc/passwd",
@@ -102,9 +199,9 @@ class TransportTests(SimpleTestCase):
 
     def test_oversized_or_compressed_responses_are_rejected(self):
         addresses = [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 80))]
-        for headers, body in (
-            (b"Content-Length: 5\r\n", b"12345"),
-            (b"Content-Encoding: gzip\r\nContent-Length: 2\r\n", b"{}"),
+        for headers, body, reason in (
+            (b"Content-Length: 5\r\n", b"12345", "response_too_large"),
+            (b"Content-Encoding: gzip\r\nContent-Length: 2\r\n", b"{}", "unsupported_encoding"),
         ):
             sock = Mock()
             sock.makefile.return_value = io.BytesIO(
@@ -114,6 +211,8 @@ class TransportTests(SimpleTestCase):
                 patch.dict(os.environ, {"FEMAKTIV_OFFLINE_CHECKS": "0"}),
                 patch("chats.transport.public_addresses", return_value=addresses),
                 patch("chats.transport.socket.socket", return_value=sock),
-                self.assertRaises(ChatError),
+                self.assertRaises(ChatError) as caught,
             ):
                 transport.request("http://example.test/", budget=transport.Budget(), max_bytes=3)
+            self.assertEqual(caught.exception.provider_http_status, 200)
+            self.assertEqual(caught.exception.failure_reason, reason)

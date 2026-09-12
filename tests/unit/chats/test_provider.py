@@ -3,27 +3,33 @@ from copy import deepcopy
 from unittest.mock import patch
 
 from django.test import SimpleTestCase, override_settings
+from jsonschema import Draft202012Validator
 
 from chats import provider
-from chats.contracts import INTAKE_SCHEMA
+from chats.contracts import INTAKE_SCHEMA, answer_schema
 from chats.errors import ChatError
 from chats.transport import Budget
 
-from .fixtures import LIVE_SETTINGS, intake
+from .fixtures import LIVE_SETTINGS, answer, intake
 
 
 @override_settings(**LIVE_SETTINGS)
 class ProviderTests(SimpleTestCase):
-    def result(self):
+    def result(self, output=None):
         return {
             "_anymize": {"anonymized": True},
-            "choices": [{"finish_reason": "stop", "message": {"content": json.dumps(intake())}}],
+            "choices": [
+                {
+                    "finish_reason": "stop",
+                    "message": {"content": json.dumps(intake() if output is None else output)},
+                }
+            ],
         }
 
-    def call(self, budget=None):
+    def call(self, budget=None, schema=INTAKE_SCHEMA):
         return provider.complete(
             messages=[{"role": "user", "content": "Fictional data"}],
-            schema=INTAKE_SCHEMA,
+            schema=schema,
             name="intake",
             language="de",
             budget=budget or Budget(),
@@ -38,6 +44,86 @@ class ProviderTests(SimpleTestCase):
         self.assertEqual(payload["model"], "fictional-model")
         self.assertEqual(payload["response_format"]["type"], "json_schema")
         self.assertNotIn("tools", payload)
+
+    def test_intake_and_answer_wire_schemas_preserve_structure_and_original_constraints(self):
+        expected_intake = deepcopy(INTAKE_SCHEMA)
+        del expected_intake["properties"]["intro"]["minLength"]
+        del expected_intake["properties"]["intro"]["maxLength"]
+        for field in ("facts", "questions"):
+            del expected_intake["properties"][field]["items"]["minLength"]
+            del expected_intake["properties"][field]["items"]["maxLength"]
+        del expected_intake["properties"]["evidence_topics"]["uniqueItems"]
+        cases = [(INTAKE_SCHEMA, intake(), expected_intake)]
+        for source_ids in (["dge-food", "bund-discharge"], []):
+            schema = answer_schema(source_ids)
+            expected = deepcopy(schema)
+            paragraph = expected["properties"]["paragraphs"]["items"]["properties"]
+            del paragraph["text"]["minLength"]
+            del paragraph["text"]["maxLength"]
+            del paragraph["source_ids"]["uniqueItems"]
+            output = (
+                answer()
+                if source_ids
+                else {
+                    "paragraphs": [
+                        {"text": "What would help?", "kind": "question", "source_ids": []}
+                    ]
+                }
+            )
+            cases.append((schema, output, expected))
+
+        for schema, output, expected in cases:
+            original = deepcopy(schema)
+            with (
+                self.subTest(schema=schema),
+                patch(
+                    "chats.provider.transport.request_json", return_value=self.result(output)
+                ) as request,
+            ):
+                self.assertEqual(self.call(schema=schema), output)
+            request.assert_called_once()
+            supplied = request.call_args.kwargs["payload"]["response_format"]["json_schema"]
+            self.assertTrue(supplied["strict"])
+            self.assertEqual(supplied["schema"], expected)
+            self.assertEqual(schema, original)
+
+    def test_local_validation_still_rejects_wire_valid_lengths_and_duplicates(self):
+        cases = [
+            (INTAKE_SCHEMA, intake(facts=[""])),
+            (INTAKE_SCHEMA, intake(intro="x" * 601)),
+            (INTAKE_SCHEMA, intake(evidence_topics=["protein", "protein"])),
+        ]
+        for text, source_ids in (
+            ("", ["dge-food"]),
+            ("x" * 1801, ["dge-food"]),
+            ("Claim", ["dge-food", "dge-food"]),
+        ):
+            cases.append(
+                (
+                    answer_schema(["dge-food"]),
+                    {
+                        "paragraphs": [
+                            {"text": text, "kind": "explanation", "source_ids": source_ids}
+                        ]
+                    },
+                )
+            )
+        for schema, output in cases:
+            with (
+                self.subTest(output=output),
+                patch(
+                    "chats.provider.transport.request_json", return_value=self.result(output)
+                ) as request,
+                self.assertRaises(ChatError) as rejected,
+            ):
+                self.call(schema=schema)
+            self.assertEqual(rejected.exception.code, "invalid_reply")
+            request.assert_called_once()
+            sent_schema = request.call_args.kwargs["payload"]["response_format"]["json_schema"][
+                "schema"
+            ]
+            self.assertTrue(Draft202012Validator(sent_schema).is_valid(output))
+            self.assertFalse(Draft202012Validator(schema).is_valid(output))
 
     def test_metadata_must_confirm_anonymization_as_boolean(self):
         for metadata in (None, {}, {"anonymized": False}, {"anonymized": "true"}):

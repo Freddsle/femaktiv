@@ -1,6 +1,7 @@
 """The only model adapter. Private text always uses the anonymous route."""
 
 import json
+from copy import deepcopy
 
 from django.conf import settings
 
@@ -10,6 +11,25 @@ from .errors import ChatError
 
 BASE_URL = "https://app.anymize.ai/api/v1/llm"
 ANONYMOUS_URL = "https://app.anymize.ai/api/v1/llm-anonymous/chat/completions"
+
+
+def wire_schema(schema):
+    """Send supported structural constraints; enforce the full schema locally."""
+    # OpenAI Structured Outputs documents a subset of JSON Schema. String length
+    # and uniqueness checks remain in our validator, never removed from acceptance.
+    result = {
+        key: deepcopy(value)
+        for key, value in schema.items()
+        if key not in {"minLength", "maxLength", "uniqueItems"}
+    }
+    for key in ("properties", "$defs"):
+        if key in result:
+            result[key] = {name: wire_schema(child) for name, child in result[key].items()}
+    if "items" in result:
+        result["items"] = wire_schema(result["items"])
+    if "anyOf" in result:
+        result["anyOf"] = [wire_schema(child) for child in result["anyOf"]]
+    return result
 
 
 def require_configuration():
@@ -55,7 +75,7 @@ def complete(*, messages, schema, name, language, budget):
             "max_tokens": 3000,
             "response_format": {
                 "type": "json_schema",
-                "json_schema": {"name": name, "strict": True, "schema": schema},
+                "json_schema": {"name": name, "strict": True, "schema": wire_schema(schema)},
             },
         },
     )
