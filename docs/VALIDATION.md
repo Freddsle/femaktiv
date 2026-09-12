@@ -115,3 +115,11 @@ The existing gray checkerboard OUTSIDE the colored cross is an unwanted opaque b
 
 Keep the exact center text "femaktiv" and "- lifecycle essentials -", the white sun above, the white waves below, and the purple-to-mauve-to-coral gradient unchanged. Only the exterior background changes. Deliver one genuinely transparent PNG cutout.
 ```
+
+## Login heading update
+
+On 12 September 2026, the shared account-page heading changed to “More clarity.” and emphasized “More time for you.” German uses “Mehr Klarheit.” and “Mehr Zeit für dich.” The footer retains “A little more room for you.” and its existing German translation, as requested in the user's follow-up.
+
+`./bin/check` passed: 260 translations, Ruff lint/format, Django system/migration checks, static collection, 63 backend tests and four browser journeys. The initial browser run encountered sandbox socket restrictions; the rerun with local socket/browser access passed. Depmesh verification, Donna validation and `git diff --check` also passed. After restoring the original footer, translation compilation passed again.
+
+Production-browser checks verified the final login heading, emphasis, original footer, correct language and absence of horizontal overflow or browser errors at 390px and 1440px in both languages. All four `.local/screenshots/login-copy-{en,de}-{desktop,mobile}.png` screenshots were visually reviewed. The temporary production server was stopped, and the existing preview worker was gracefully reloaded. Local requests then confirmed the final English and German copy on the existing preview. No accounts, private data, external tunnels or provider requests were created by these copy checks. The separate example-content review remains pending in Donna.

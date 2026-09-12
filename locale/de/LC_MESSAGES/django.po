@@ -281,12 +281,12 @@ msgid "YOUR SPACE TO TAKE A BREATH"
 msgstr "DEIN RAUM ZUM DURCHATMEN"
 
 #: templates/accounts/layout.html:3
-msgid "A little clarity."
-msgstr "Ein bisschen Klarheit."
+msgid "More clarity."
+msgstr "Mehr Klarheit."
 
 #: templates/accounts/layout.html:3
-msgid "A little more you."
-msgstr "Ein bisschen mehr du."
+msgid "More time for you."
+msgstr "Mehr Zeit für dich."
 
 #: templates/accounts/layout.html:3
 msgid ""
