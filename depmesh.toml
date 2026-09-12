@@ -1,0 +1,23 @@
+version = 1
+
+# The repository currently contains planning documents only.
+# Extend these rules when implementation and test directories are introduced.
+
+[[relations]]
+id = "governed_by"
+description = "Specifications that apply to the artifact."
+
+[[relations]]
+id = "governs"
+description = "Artifacts governed by the specification."
+
+# Keep the project description aligned with the prototype build specification.
+[[rules]]
+relation = "governed_by"
+input = { type = "one_of", artifacts = ["@/README.md"] }
+output = { type = "files", pattern = "@/00_initial/FEMAKTIV_BUILD_SPEC.md" }
+
+[[rules]]
+relation = "governs"
+input = { type = "one_of", artifacts = ["@/00_initial/FEMAKTIV_BUILD_SPEC.md"] }
+output = { type = "files", pattern = "@/README.md" }
