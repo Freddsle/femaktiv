@@ -1,6 +1,5 @@
 """Explicit, chat-scoped context. Caller holds the chat lock for mutations."""
 
-import unicodedata
 from uuid import UUID
 
 from django.utils import timezone
@@ -17,7 +16,6 @@ def public_context(chat):
     return {
         "version": chat.context_version,
         "started_at": chat.context_started_at.isoformat() if chat.context_started_at else None,
-        "locality": chat.locality,
         "notes": [
             {
                 "id": str(note.original_note_id),
@@ -33,7 +31,7 @@ def public_context(chat):
 def start_segment(chat):
     chat.context_version += 1
     chat.context_started_at = timezone.now()
-    chat.save(update_fields=["context_version", "context_started_at", "locality", "updated_at"])
+    chat.save(update_fields=["context_version", "context_started_at", "updated_at"])
     invalidate_pending(chat)
 
 
@@ -47,39 +45,11 @@ def invalidate_pending(chat):
     )
 
 
-def validate_locality(value):
-    if not isinstance(value, str):
-        raise ChatError("invalid_locality", 400)
-    value = " ".join(unicodedata.normalize("NFC", value).split())
-    if not value:
-        return ""
-    if len(value) > 80:
-        raise ChatError("invalid_locality", 400)
-    if value.isascii() and value.isdigit() and len(value) == 5:
-        return value
-    if not all(character.isalpha() or character in " -'’()." for character in value):
-        raise ChatError("invalid_locality", 400)
-    if not any(character.isalpha() for character in value):
-        raise ChatError("invalid_locality", 400)
-    return value
-
-
 def update(chat, payload):
     if not isinstance(payload, dict):
         raise ChatError("invalid_context", 400)
     action = payload.get("action")
-    if action == "locality" and set(payload) == {"action", "locality"}:
-        locality = validate_locality(payload["locality"])
-        if locality == chat.locality:
-            return False
-        first_locality = not chat.locality
-        chat.locality = locality
-        if first_locality:
-            # Filling a clarification must not erase the question it clarifies.
-            chat.save(update_fields=["locality", "updated_at"])
-            invalidate_pending(chat)
-            return False
-    elif action == "reset" and set(payload) == {"action"}:
+    if action == "reset" and set(payload) == {"action"}:
         pass
     elif action in {"remove", "refresh"} and set(payload) == {"action", "note_id"}:
         try:

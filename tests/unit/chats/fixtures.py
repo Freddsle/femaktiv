@@ -4,7 +4,6 @@ LIVE_SETTINGS = {
     "FEMAKTIV_AI_MODE": "live",
     "ANYMIZE_API_KEY": "fictional-anymize-key",
     "ANYMIZE_MODEL": "fictional-model",
-    "BRAVE_SEARCH_API_KEY": "fictional-brave-key",
     "ANYMIZE_ZDR_CONFIRMED": True,
     "ANYMIZE_FALLBACKS_DISABLED_CONFIRMED": True,
 }
@@ -18,8 +17,6 @@ def intake(**changes):
         "facts": ["The user has hypertension", "Milk allergy", "Fifteen minutes for cooking"],
         "questions": [],
         "evidence_topics": ["protein", "fibre", "dash", "salt"],
-        "needs_local_services": False,
-        "service_category": "care_advice",
         **changes,
     }
 

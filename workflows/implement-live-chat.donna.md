@@ -15,7 +15,7 @@ id = "contracts"
 kind = "donna.lib.request_action"
 ```
 
-Read the approved plan and governing specifications. Add the live-chat specification, align platform ownership, workflow guidance and Depmesh mappings, and record work packages under `.session/donna/live-chat/`. Preserve unrelated work. Once the contracts match the approved plan, {{ donna.lib.goto("implement") }}.
+Read the approved scope and governing specifications. Maintain the live-chat specification, platform ownership, workflow guidance and Depmesh mappings, and record work packages under `.session/donna/live-chat/`. Preserve unrelated work. Once the contracts match the approved scope, {{ donna.lib.goto("implement") }}.
 
 ## Implement and integrate
 
@@ -24,7 +24,7 @@ id = "implement"
 kind = "donna.lib.request_action"
 ```
 
-Implement durable requests, active note context, anonymous structured intake/composition, evidence and safe public lookup, bilingual live-state UI, migrations, mocked tests, and an opt-in fictional evaluation command. Use the live-chat specification. Preserve existing public example wording. When implementation and focused checks are ready, {{ donna.lib.goto("verify") }}.
+Implement the scoped change to durable requests, active note context, Anymize structured intake/composition, local evidence, bilingual live-state UI, migrations when needed, mocked tests, and the opt-in fictional evaluation command. Use the live-chat specification; the removed external search feature is not a prerequisite. Preserve existing public example wording. When implementation and focused checks are ready, {{ donna.lib.goto("verify") }}.
 
 ## Verify without provider credits
 

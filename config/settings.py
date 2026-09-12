@@ -131,7 +131,6 @@ if FEMAKTIV_AI_MODE not in {"placeholder", "live"}:
     raise ImproperlyConfigured("FEMAKTIV_AI_MODE must be placeholder or live.")
 ANYMIZE_API_KEY = os.environ.get("ANYMIZE_API_KEY", "")
 ANYMIZE_MODEL = os.environ.get("ANYMIZE_MODEL", "")
-BRAVE_SEARCH_API_KEY = os.environ.get("BRAVE_SEARCH_API_KEY", "")
 # Account-level setting, never a fabricated per-request ZDR parameter.
 ANYMIZE_ZDR_CONFIRMED = os.environ.get("ANYMIZE_ZDR_CONFIRMED", "0") == "1"
 ANYMIZE_FALLBACKS_DISABLED_CONFIRMED = (

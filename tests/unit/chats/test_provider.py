@@ -29,7 +29,7 @@ class ProviderTests(SimpleTestCase):
             budget=budget or Budget(),
         )
 
-    def test_anonymous_route_schema_and_no_fallback(self):
+    def test_anymize_only_configuration_uses_anonymous_route_schema_and_no_fallback(self):
         with patch("chats.provider.transport.request_json", return_value=self.result()) as request:
             self.assertEqual(self.call(), intake())
         self.assertEqual(request.call_args.args[0], provider.ANONYMOUS_URL)

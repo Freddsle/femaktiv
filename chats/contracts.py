@@ -18,13 +18,6 @@ TOPICS = [
     "calcium",
     "vitamin_d",
 ]
-SERVICE_CATEGORIES = {
-    "care_advice": "Pflegeberatung Pflegestützpunkt",
-    "hospital_discharge": "Entlassmanagement Krankenhaus Sozialdienst",
-    "home_care": "ambulante Pflege Beratung",
-    "household_help": "Haushaltshilfe Pflegeberatung",
-    "rehabilitation": "Rehabilitation Beratung",
-}
 
 
 def object_schema(properties):
@@ -53,8 +46,6 @@ INTAKE_SCHEMA = object_schema(
             "uniqueItems": True,
             "maxItems": len(TOPICS),
         },
-        "needs_local_services": {"type": "boolean"},
-        "service_category": {"type": "string", "enum": list(SERVICE_CATEGORIES)},
     }
 )
 

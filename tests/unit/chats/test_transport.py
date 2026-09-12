@@ -69,12 +69,11 @@ class TransportTests(SimpleTestCase):
         self.assertIn(b"Host: example.test", sock.sendall.call_args.args[0])
 
     def test_limits_and_offline_guard_prevent_external_work(self):
-        for kind, limit in (("model", 2), ("search", 2), ("page", 3)):
-            budget = transport.Budget()
-            for _ in range(limit):
-                budget.consume(kind)
-            with self.assertRaises(ChatError):
-                budget.consume(kind)
+        budget = transport.Budget()
+        budget.consume("model")
+        budget.consume("model")
+        with self.assertRaises(ChatError):
+            budget.consume("model")
         with self.assertRaises(ChatError):
             transport.Budget(seconds=-1).remaining()
         with (

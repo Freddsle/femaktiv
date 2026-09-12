@@ -17,7 +17,6 @@ def require_configuration():
         (
             settings.ANYMIZE_API_KEY,
             settings.ANYMIZE_MODEL,
-            settings.BRAVE_SEARCH_API_KEY,
             settings.ANYMIZE_ZDR_CONFIRMED,
             settings.ANYMIZE_FALLBACKS_DISABLED_CONFIRMED,
         )

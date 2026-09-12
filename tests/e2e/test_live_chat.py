@@ -6,7 +6,6 @@ from playwright.sync_api import expect
 
 from chats.errors import ChatError
 from chats.models import ActiveNote, Chat, Message
-from chats.search import contact_record
 from notes.models import PersonalNote
 from tests.unit.chats.fixtures import LIVE_SETTINGS, answer, intake
 
@@ -97,52 +96,30 @@ class LiveChatBrowserTests(LiveServerTestCase):
                 "rel", "noopener noreferrer"
             )
 
-    def test_care_locality_clarification_verified_cards_and_call_preparation(self):
-        record = contact_record(
-            "https://care.example.test/berlin",
-            "Pflegestützpunkt Example",
-            "Berlin Pflegeberatung Kontakt 030 12345678",
-            [],
-            "Berlin",
-            1,
-        )
-
+    def test_care_cited_guidance_and_call_preparation_without_local_lookup(self):
         def model(**kwargs):
             return (
-                intake(topic="care", needs_local_services=True, evidence_topics=["discharge"])
+                intake(topic="care", evidence_topics=["discharge"])
                 if kwargs["name"] == "femaktiv_intake"
                 else answer(kwargs["language"], care=True)
             )
 
-        with (
-            patch("chats.provider.complete", side_effect=model),
-            patch("chats.search.lookup", return_value=([record], "verified")) as lookup,
-        ):
+        with patch("chats.provider.complete", side_effect=model):
             self.login()
             self.new_chat()
+            expect(self.page.locator("#chat-locality")).to_have_count(0)
+            expect(self.page.locator("[data-live-context]")).not_to_contain_text("Brave")
             self.send(
                 "My older mother is in hospital after a broken leg. Help arrange care and a German call."
             )
-            expect(self.page.locator(".message-assistant")).to_contain_text(
-                "city or German postcode"
-            )
-            lookup.assert_not_called()
-            expect(self.page.locator("#chat-locality")).to_be_visible()
-            self.page.locator("#chat-locality").fill("Berlin")
-            self.page.get_by_role("button", name="Save locality", exact=True).click()
-            expect(self.page.locator("#chat-status")).to_contain_text("Locality saved")
-            self.send(
-                "My older mother will leave hospital after a broken leg. Find care advice and prepare a German call."
-            )
-            expect(self.page.locator(".message")).to_have_count(4)
+            expect(self.page.locator(".message")).to_have_count(2)
             expect(self.page.locator(".message-assistant").last).to_contain_text(
                 "Welche Unterstützung"
             )
-            expect(self.page.locator(".source-card[open]")).to_contain_text("030 12345678")
-            expect(self.page.locator(".source-card[open]")).to_contain_text("unknown")
-            expect(self.page.locator(".source-card[open] a")).to_have_attribute(
-                "href", "https://care.example.test/berlin"
+            expect(self.page.locator(".paragraph-citations a")).to_have_attribute(
+                "href", "https://gesund.bund.de/en/entlassung-aus-dem-krankenhaus"
             )
+            expect(self.page.locator(".source-card[open]")).to_have_count(0)
             self.page.set_viewport_size({"width": 390, "height": 844})
             self.no_overflow()
             self.page.locator("#chat-thread").evaluate(
@@ -158,7 +135,10 @@ class LiveChatBrowserTests(LiveServerTestCase):
                 "Frage den Sozialdienst"
             )
             self.page.reload()
-            expect(self.page.locator(".source-card[open]").last).to_contain_text("nicht geklärt")
+            expect(self.page.locator(".paragraph-citations a").last).to_have_attribute(
+                "href", "https://gesund.bund.de/en/entlassung-aus-dem-krankenhaus"
+            )
+            expect(self.page.locator(".source-card[open]")).to_have_count(0)
             self.no_overflow()
 
     def test_pending_status_recovers_result_without_second_paid_request(self):
@@ -303,8 +283,7 @@ class LiveChatBrowserTests(LiveServerTestCase):
         self.new_chat()
         self.page.locator("[data-live-context] > summary").click()
         self.page.route("**/api/chats/*/context/", lambda route: route.abort("failed"))
-        self.page.locator("#chat-locality").fill("Berlin")
-        self.page.get_by_role("button", name="Save locality", exact=True).click()
+        self.page.get_by_role("button", name="Reset message context", exact=True).click()
         expect(self.page.locator("#chat-status")).to_contain_text("could not be confirmed")
         with patch("chats.provider.complete") as model:
             self.send("Do not send with uncertain context.")

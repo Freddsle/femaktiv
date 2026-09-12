@@ -83,7 +83,6 @@
     if (!contextPanel || !value) return;
     activeContext = value;
     contextPanel.querySelector('[data-active-count]').textContent = String(value.notes.length);
-    contextPanel.querySelector('#chat-locality').value = value.locality;
     const list = contextPanel.querySelector('[data-active-notes]');
     list.replaceChildren();
     if (!value.notes.length) list.append(element('p', '', contextPanel.dataset.empty));
@@ -128,8 +127,7 @@
         noteInputs.forEach((note) => { if (note.value === payload.note_id) note.checked = false; });
         updateNotes();
       }
-      status.textContent = result.history_reset ? contextPanel.dataset.updated : contextPanel.dataset.localitySaved;
-      if (payload.action === 'locality') contextPanel.open = false;
+      status.textContent = contextPanel.dataset.updated;
     } catch (error) {
       if (present() && error.name !== 'AbortError') {
         status.classList.add('is-error');
@@ -142,10 +140,6 @@
       contextPanel.removeAttribute('aria-busy');
     }
   };
-  contextPanel?.querySelector('[data-locality-form]').addEventListener('submit', (event) => {
-    event.preventDefault();
-    changeContext({ action: 'locality', locality: contextPanel.querySelector('#chat-locality').value });
-  });
   contextPanel?.querySelector('[data-context-reset]').addEventListener('click', () => changeContext({ action: 'reset' }));
   renderContext(activeContext);
   const appendMessage = (message) => {
@@ -253,7 +247,6 @@
       appendMessage(result.user_message);
       appendMessage(result.assistant_message);
       renderContext(result.active_context);
-      if (result.assistant_message.lookup_status === 'needs_locality' && contextPanel) contextPanel.open = true;
       document.querySelector('[data-chat-title]').textContent = result.chat.title;
       const historyTitle = document.querySelector(`[data-chat-link="${chatId}"] span`);
       if (historyTitle) historyTitle.textContent = result.chat.title;

@@ -195,28 +195,37 @@ class LiveTurnTests(TransactionTestCase):
         def model(**kwargs):
             self.assertEqual(kwargs["name"], "femaktiv_intake")
             self.context(action="remove", note_id=str(self.note.pk))
-            return intake(topic="care", needs_local_services=True)
+            return intake(topic="care")
 
         self.mock.side_effect = model
-        with patch("chats.search.lookup") as lookup:
-            response = self.send()
+        response = self.send()
         self.assertEqual(response.status_code, 409)
         self.assertEqual(response.json()["error"]["code"], "context_changed")
         self.assertEqual(self.mock.call_count, 1)
-        lookup.assert_not_called()
         self.assertFalse(Message.objects.exists())
 
-    def test_deletion_during_lookup_stops_answer_composition(self):
-        self.context(action="locality", locality="Berlin")
-        self.mock.side_effect = None
-        self.mock.return_value = intake(topic="care", needs_local_services=True)
+    def test_reset_during_intake_discards_reply_and_keeps_active_note_copies(self):
+        def model(**kwargs):
+            self.assertEqual(kwargs["name"], "femaktiv_intake")
+            self.assertEqual(self.context(action="reset").status_code, 200)
+            return intake()
 
-        def lookup(*args):
+        self.mock.side_effect = model
+        response = self.send()
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"]["code"], "context_changed")
+        self.assertEqual(self.mock.call_count, 1)
+        self.assertFalse(Message.objects.exists())
+        self.assertEqual(ActiveNote.objects.get().body, self.note.body)
+
+    def test_deletion_during_intake_stops_answer_composition(self):
+        def model(**kwargs):
+            self.assertEqual(kwargs["name"], "femaktiv_intake")
             self.chat.delete()
-            return [], "no_results"
+            return intake(topic="care")
 
-        with patch("chats.search.lookup", side_effect=lookup):
-            response = self.send()
+        self.mock.side_effect = model
+        response = self.send()
         self.assertEqual(response.status_code, 404)
         self.assertEqual(self.mock.call_count, 1)
         self.assertFalse(Message.objects.exists())
@@ -259,22 +268,31 @@ class LiveTurnTests(TransactionTestCase):
         self.assertNotIn("Old private history", raw)
         self.assertEqual(Message.objects.filter(mode="placeholder").count(), 1)
 
-    def test_first_locality_keeps_clarified_request_but_replacement_resets(self):
+    def test_reset_excludes_old_messages_from_future_inference(self):
         self.send(
             self.payload(content="Mother needs support after hospital discharge", note_ids=[])
         )
-        first = self.context(action="locality", locality="Berlin")
-        self.assertFalse(first.json()["history_reset"])
-        self.send(self.payload(content="Find local support now", note_ids=[]))
-        self.assertIn(
-            "Mother needs support", self.mock.call_args_list[-2].kwargs["messages"][1]["content"]
-        )
-        replaced = self.context(action="locality", locality="Hamburg")
-        self.assertTrue(replaced.json()["history_reset"])
+        reset = self.context(action="reset")
+        self.assertTrue(reset.json()["history_reset"])
         self.send(self.payload(content="New request", note_ids=[]))
         self.assertNotIn(
             "Mother needs support", self.mock.call_args_list[-2].kwargs["messages"][1]["content"]
         )
+        self.assertEqual(Message.objects.count(), 4)
+
+    def test_retired_locality_action_is_rejected_and_legacy_value_is_not_sent(self):
+        self.chat.locality = "Berlin"
+        self.chat.save(update_fields=["locality"])
+        response = self.context(action="locality", locality="Hamburg")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"]["code"], "invalid_context")
+        result = self.send(self.payload(note_ids=[]))
+        self.assertEqual(result.status_code, 201)
+        self.assertNotIn("locality", result.json()["active_context"])
+        for call in self.mock.call_args_list:
+            self.assertNotIn("Berlin", call.kwargs["messages"][1]["content"])
+        self.chat.refresh_from_db()
+        self.assertEqual(self.chat.locality, "Berlin")
 
     def test_error_keeps_active_copies_visible_for_removal(self):
         with patch("chats.turns.service.generate_reply", side_effect=ChatError("privacy_failed")):

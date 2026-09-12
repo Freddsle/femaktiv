@@ -24,9 +24,6 @@ MESSAGES = {
         "Live chat is available only to approved testers. Ask the prototype operator for access."
     ),
     "rate_limited": _("This prototype's request limit has been reached. Please try again later."),
-    "invalid_locality": _(
-        "Enter a German city or a five-digit postcode, without a street address."
-    ),
     "note_limit": _("A chat can use up to five active notes. Remove one before attaching another."),
     "not_found": _("This chat or note is not available."),
     "request_conflict": _(
@@ -35,7 +32,6 @@ MESSAGES = {
     "invalid_context": _("The context update is invalid. Refresh the page and try again."),
     "network_disabled": _("External services are disabled during automated checks."),
     "unsafe_url": _("This source could not be opened safely."),
-    "search_unavailable": _("Local services could not be checked right now."),
 }
 
 

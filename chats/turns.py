@@ -299,7 +299,6 @@ def submit(*, owner, pk, request_id, content, note_ids, language):
             history=history,
             context=[service.ContextNote(note["title"], note["body"]) for note in turn.note_copies],
             language=language,
-            locality=chat.locality,
             budget=budget,
         )
         budget.remaining()

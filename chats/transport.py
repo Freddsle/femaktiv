@@ -37,7 +37,7 @@ class Budget:
         self.remaining()
         self.ensure_active()
         self.counts[kind] = self.counts.get(kind, 0) + 1
-        if self.counts[kind] > {"model": 2, "search": 2, "page": 3}[kind]:
+        if self.counts[kind] > {"model": 2}[kind]:
             raise ChatError("deadline_exceeded", 504)
 
     def ensure_active(self):
@@ -100,7 +100,7 @@ def public_addresses(host, port, timeout):
 
 
 def request(url, *, budget, method="GET", headers=None, body=None, max_bytes=1_000_000, timeout=25):
-    """One request only. Caller decides whether a public redirect may be followed."""
+    """One bounded request only; redirects are never followed."""
     if os.environ.get("FEMAKTIV_OFFLINE_CHECKS") == "1":
         raise ChatError("network_disabled", 503)
     url = safe_url(url)

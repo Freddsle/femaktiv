@@ -1304,30 +1304,9 @@ msgstr ""
 "Verfügbarkeit, Sprachunterstützung und Anspruch sind nicht geklärt. Frage "
 "bitte direkt nach."
 
-#: templates/chats/live_context.html:13
-msgid "City or German postcode for local support"
-msgstr "Stadt oder deutsche Postleitzahl für Hilfe vor Ort"
-
-#: chats/errors.py:22
-msgid ""
-"Enter a German city or a five-digit postcode, without a street address."
-msgstr ""
-"Gib eine deutsche Stadt oder eine fünfstellige Postleitzahl ohne "
-"Straßenadresse ein."
-
 #: chats/errors.py:30
 msgid "External services are disabled during automated checks."
 msgstr "Externe Dienste sind während automatisierter Prüfungen deaktiviert."
-
-#: chats/service.py:228
-msgid ""
-"I could not verify a local contact on a current page. Use the care-advice "
-"directory or ask the hospital social service or insurer for a local contact."
-msgstr ""
-"Ich konnte keinen örtlichen Kontakt auf einer aktuellen Seite überprüfen. "
-"Nutze das Verzeichnis für Pflegeberatung oder frage beim "
-"Krankenhaussozialdienst oder bei der Versicherung nach einem Kontakt vor "
-"Ort."
 
 #: chats/service.py:151
 msgid ""
@@ -1357,10 +1336,6 @@ msgstr ""
 msgid "Live AI · prototype"
 msgstr "Live-KI · Prototyp"
 
-#: chats/errors.py:32
-msgid "Local services could not be checked right now."
-msgstr "Örtliche Angebote konnten gerade nicht überprüft werden."
-
 #: templates/chats/live_context.html:5
 msgid "No active notes. Attach a note to keep its copy in this chat."
 msgstr ""
@@ -1376,16 +1351,6 @@ msgstr ""
 "Nur Nachrichten im aktuellen KI-Kontext und diese gespeicherten Notizkopien "
 "werden einbezogen. Wenn du eine Kopie entfernst oder aktualisierst, beginnt "
 "ein neuer Kontext. Frühere Nachrichten bleiben im Verlauf."
-
-#: templates/chats/live_context.html:16
-msgid ""
-"Only this locality and the type of service go to Brave Search. Replacing a "
-"saved locality starts a new AI context; include any details still needed in "
-"your next message."
-msgstr ""
-"Nur dieser Ort und die Art des Angebots werden an Brave Search übermittelt. "
-"Wenn du einen gespeicherten Ort ersetzt, beginnt ein neuer KI-Kontext. Nenne"
-" weiterhin benötigte Angaben in deiner nächsten Nachricht erneut."
 
 #: templates/chats/cited_reply.html:9 templates/chats/workspace.html:4
 msgid "Open source page"
@@ -1414,10 +1379,6 @@ msgstr "Antwort gespeichert."
 #: templates/chats/live_context.html:17
 msgid "Reset message context"
 msgstr "Nachrichtenkontext zurücksetzen"
-
-#: templates/chats/live_context.html:14
-msgid "Save locality"
-msgstr "Ort speichern"
 
 #: templates/chats/workspace.html:4
 msgid ""
@@ -1497,19 +1458,6 @@ msgstr ""
 "Verwende erfundene Angaben. Anymize erhält deine Nachricht und den aktiven "
 "Kontext und maskiert dann Identifikatoren für das Modell. Gesundheitsangaben"
 " bleiben sensibel."
-
-#: chats/service.py:163
-msgid ""
-"Which city or German postcode needs support? Enter it in the locality field "
-"so I can look for local services."
-msgstr ""
-"In welcher Stadt oder deutschen Postleitzahl wird Unterstützung gebraucht? "
-"Trage den Ort in das Ortsfeld ein, damit ich nach Angeboten vor Ort suchen "
-"kann."
-
-#: templates/chats/live_context.html:6
-msgid "Locality saved. Your current conversation remains in the AI context."
-msgstr "Ort gespeichert. Das aktuelle Gespräch bleibt im KI-Kontext."
 
 #: templates/chats/live_context.html:7
 msgid ""

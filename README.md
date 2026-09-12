@@ -44,7 +44,7 @@ If the public URL returns **Bad Request (400)** while `http://127.0.0.1:8000/` w
 - English and German navigation, forms, errors, account emails and example content. English is the first-visit default; an explicit language choice is remembered.
 - Two read-only conversation examples and six public Q&A previews in three topics.
 
-Chat defaults to visibly labelled **placeholder replies**, with no provider calls. Optional live mode adds Anymize intake and answers, a small evidence library, and Brave lookup for local care contacts. This is a private prototype for fictional information. Example answers are illustrative authored content, not personalised recommendations or reviewed medical guidance. Q&A posting and moderation are not implemented.
+Chat defaults to visibly labelled **placeholder replies**, with no provider calls. Optional live mode adds Anymize intake and answers with a small local evidence library. Brave Search and local-contact lookup have been removed; there is no replacement search provider or simulated search. This is a private prototype for fictional information. Example answers are illustrative authored content, not personalised recommendations or reviewed medical guidance. Q&A posting and moderation are not implemented.
 
 ## Accounts and data
 
@@ -79,7 +79,7 @@ Screenshots from the browser suite are saved under `.local/screenshots/`. See [v
 
 - `accounts/`: custom email user, forms and standard Django authentication views.
 - `notes/`: owner-restricted saved context.
-- `chats/`: durable conversations, active context, request reservations, Anymize, evidence and safe search adapters.
+- `chats/`: durable conversations, active context, request reservations, Anymize and cited evidence.
 - `content/evidence.json`: versioned paraphrases, source dates, applicability and limitations.
 - `pages/` and `content/examples.json`: public pages and bilingual static examples.
 - `templates/`, `static/` and `locale/`: shared presentation, small JavaScript modules and translations.
@@ -93,21 +93,45 @@ Keep secrets in your server environment or secret manager. `.env.example` docume
 
 - `FEMAKTIV_AI_MODE=live`
 - `ANYMIZE_API_KEY` and `ANYMIZE_MODEL`, using a model identifier accessible to your account.
-- `BRAVE_SEARCH_API_KEY` for current local contacts.
 - `ANYMIZE_ZDR_CONFIRMED=1`, **after enabling account-level Zero Data Retention in Anymize**. This records your confirmation; the app cannot remotely attest to the account setting.
 - `ANYMIZE_FALLBACKS_DISABLED_CONFIRMED=1`, **after disabling provider-side fallback models in Anymize**. This is also your confirmation, not remote attestation.
 
 Install dependencies/apply migrations with `./bin/setup`, then restart `./bin/serve` with these variables in its environment. Missing settings, rejected anonymization metadata and malformed replies produce errors; they never switch providers or return a placeholder as a live answer. Leave `FEMAKTIV_AI_MODE=placeholder` to use the default offline mode.
 
+For an ngrok preview, create a minimal `.env.local` in the project folder with the following settings and your actual key. This file is ignored by Git. Do not copy the hosting settings from `.env.example` into it.
+
+```dotenv
+FEMAKTIV_AI_MODE=live
+ANYMIZE_API_KEY='YOUR_ANYMIZE_KEY'
+ANYMIZE_MODEL='openai/gpt-5.6-sol'
+ANYMIZE_ZDR_CONFIRMED=1
+ANYMIZE_FALLBACKS_DISABLED_CONFIRMED=1
+FEMAKTIV_SIGNUP_ENABLED=0
+```
+
+The model identifier above is the operator's selected model; actual account access and structured-output compatibility still require the explicit evaluation below. Set the confirmation flags only after applying the corresponding account settings.
+
+Keep ngrok running in its terminal using `ngrok http http://127.0.0.1:8000 --inspect=false`. Stop the existing femaktiv server. In the terminal used to run femaktiv, load the file and restart with your current ngrok HTTPS URL:
+
+```bash
+chmod 600 .env.local
+set -a
+source .env.local
+set +a
+FEMAKTIV_PUBLIC_URL=https://YOUR-NGROK-HOST ./bin/serve
+```
+
+Run these commands from the project folder. Restart the server whenever the environment or ngrok URL changes. Visit `https://YOUR-NGROK-HOST/en/admin/` to enable **Live chat approved** on the intended tester account, then use the chat at your public URL. If needed, create an administrator with `.venv/bin/python manage.py createsuperuser` before starting the server. No Brave account or key is needed.
+
 Anymize receives the submitted message, current chat context and attached copies, then masks identifiers before the downstream model. The app uses Anymize's combined endpoint and consumes its returned LLM answer directly; it does not forward masked text to another model provider itself. Each of the two conversational model steps uses this same endpoint. The separate masking inspection below is a quality check, not another step in normal chats.
 
-Masking should cover names, street addresses, exact birth dates, emails/phones, financial and identity numbers, and legal case/contract identifiers. Preserve roles, conditions, allergies versus preferences, practical/care needs and meaningful deadlines. Replies use roles and do not request restoration or guess masked identifiers. These are the intended policy and evaluation targets; provider metadata does not establish that every span was masked. Health and legal details remain sensitive. The city/postcode field is separately editable; only it and a fixed service category go to Brave. Anymize's ZDR setting does not describe Brave's retention. No credentials or private payloads are written to application logs.
+Masking should cover names, street addresses, exact birth dates, emails/phones, financial and identity numbers, and legal case/contract identifiers. Preserve roles, conditions, allergies versus preferences, practical/care needs and meaningful deadlines. Replies use roles and do not request restoration or guess masked identifiers. These are the intended policy and evaluation targets; provider metadata does not establish that every span was masked. Health and legal details remain sensitive. Anymize is the only runtime external service. No credentials or private payloads are written to application logs.
 
-Notes stay active within their chat until removed. Source edits/deletion do not change a copy; refresh explicitly to replace it. Removing or refreshing a copy, replacing a saved locality or resetting message context starts a new AI segment. Earlier messages stay visible but are no longer sent, including answers derived from removed notes. Resetting message context keeps active note copies; remove those individually if needed. Setting the first locality preserves the current conversation so you can answer a location clarification without repeating the original question. Nothing carries into another chat automatically. An existing placeholder conversation starts a fresh context on its first live turn.
+Notes stay active within their chat until removed. Source edits/deletion do not change a copy; refresh explicitly to replace it. Removing or refreshing a copy or resetting message context starts a new AI segment. Earlier messages stay visible but are no longer sent, including answers derived from removed notes. Resetting message context keeps active note copies; remove those individually if needed. Nothing carries into another chat automatically. An existing placeholder conversation starts a fresh context on its first live turn. The removed locality field is no longer sent to the model; legacy saved fields and citations remain for historical compatibility.
 
-The message endpoint remains `POST /<language>/api/chats/<chat UUID>/messages/` with exactly `content`, `note_ids` and `client_request_id`. Session authentication and CSRF are required. Complete replies return both stored messages, actual mode, answer/clarification kind, paragraph citations, source snapshots, lookup status and active context. A duplicate reuses the saved reservation/result; a different payload with the same id conflicts. `GET .../turns/<request UUID>/` returns processing (202), a result or a terminal error. `POST .../context/` accepts `remove`/`refresh` with `note_id`, `locality` with `locality`, or `reset` alone.
+The message endpoint remains `POST /<language>/api/chats/<chat UUID>/messages/` with exactly `content`, `note_ids` and `client_request_id`. Session authentication and CSRF are required. Complete replies return both stored messages, actual mode, answer/clarification kind, paragraph citations, source snapshots and active context. The legacy `lookup_status` response field is `not_requested` for new replies. A duplicate reuses the saved reservation/result; a different payload with the same id conflicts. `GET .../turns/<request UUID>/` returns processing (202), a result or a terminal error. `POST .../context/` accepts `remove`/`refresh` with `note_id` or `reset` alone; the retired `locality` action is rejected.
 
-Each turn permits at most two model calls, two searches and three public-page requests including redirects, within 60 seconds. Gunicorn's local timeout is 90 seconds; hosting proxies should allow at least that long. There is no streaming or automatic paid retry. Default allowances are 30 new reservations per user over the preceding hour and 100 across the whole app per UTC day. Configure positive integers with `FEMAKTIV_LIVE_USER_HOURLY_LIMIT` and `FEMAKTIV_LIVE_DAILY_LIMIT`. These limit requests, not euros. Admission is atomic across chats/accounts and permits one running request per account. Failed accepted requests count; duplicates reuse their allowance. Deleting chats/data retains the counts and any running lease until its worker finishes or its deadline expires. Existing turn usage is preserved by migration.
+Each turn permits at most two model calls within 60 seconds. It makes no search or public-page requests. Gunicorn's local timeout is 90 seconds; hosting proxies should allow at least that long. There is no streaming or automatic paid retry. Default allowances are 30 new reservations per user over the preceding hour and 100 across the whole app per UTC day. Configure positive integers with `FEMAKTIV_LIVE_USER_HOURLY_LIMIT` and `FEMAKTIV_LIVE_DAILY_LIMIT`. These limit requests, not euros. Admission is atomic across chats/accounts and permits one running request per account. Failed accepted requests count; duplicates reuse their allowance. Deleting chats/data retains the counts and any running lease until its worker finishes or its deadline expires. Existing turn usage is preserved by migration.
 
 Context is limited to 60,000 characters; exceeding this asks for a reset or smaller note selection rather than dropping earlier restrictions. A timed-out reservation cannot resume or charge again on a duplicate; a deliberate new send uses a new request id. The browser stops waiting after 75 seconds while retaining the original id for recovery. If a context update cannot be confirmed, refresh before sending again.
 
@@ -119,9 +143,9 @@ After configuring live mode, run this separately when you intend to make paid ca
 .venv/bin/python manage.py evaluate_live_chat --allow-provider-calls
 ```
 
-This uses four predefined fictional English/German cases, checks account model access, structured output, anonymization metadata, essential intake facts, citations and local-contact lookup. Maximum cost exposure is eight model calls and four searches; it stops on a failed case without retrying. The report is saved to ignored `.local/live-chat-evaluation.json` and includes fictional answers for human review. Metadata and keyword checks **do not prove anonymization accuracy, clinical correctness or answer quality**.
+Run the command in a terminal with the same Anymize settings loaded; it does not use the ngrok tunnel and can run before starting the server. It uses four predefined fictional English/German cases and checks account model access, structured output, anonymization metadata, essential intake facts and citations. Maximum cost exposure is eight model calls; it stops on a failed case without retrying. The report is saved to ignored `.local/live-chat-evaluation.json` and includes fictional answers for human review. Metadata and keyword checks **do not prove anonymization accuracy, clinical correctness or answer quality**.
 
-`./bin/check` forces `FEMAKTIV_OFFLINE_CHECKS=1` and uses mocked live integrations even if real credentials are inherited. The opt-in evaluation refuses to run with this switch enabled. No live provider/search evaluation was performed as part of routine implementation checks.
+`./bin/check` forces `FEMAKTIV_OFFLINE_CHECKS=1` and uses mocked live integrations even if real credentials are inherited. The opt-in evaluation refuses to run with this switch enabled. No live provider evaluation was performed as part of routine implementation checks.
 
 Optional developer masking inspection is separate from normal chat and setup. Export fixed fictional inputs without any external calls:
 
@@ -141,9 +165,9 @@ Adding `--masking-output` to the live evaluation includes these checks in its re
 
 ### Maintain evidence
 
-The initial library covers ordinary DGE food choices, NHLBI DASH context, federal discharge/care advice and ZQP's directory. NIH/EFSA entries are retrieved only for the covered specific nutrient questions. Population limits and German versus US applicability travel with each passage. Unknown publication dates remain null; checked dates record an actual source read, not human clinical approval. Review changes against the linked page and increment the library version. Saved replies retain their original citation snapshots.
+The initial library covers ordinary DGE food choices, NHLBI DASH context, federal discharge/care advice and ZQP's directory. NIH/EFSA entries are selected from the local library only for the covered specific nutrient questions. Population limits and German versus US applicability travel with each passage. Unknown publication dates remain null; checked dates record an actual source read, not human clinical approval. Review changes against the linked page and increment the library version. Saved replies retain their original citation snapshots.
 
-Local contacts require fetched-page evidence for locality, service identity and contact details; search snippets are insufficient. Fetching is bounded, validates public DNS destinations and redirects, pins the connection address, and does not forward credentials. Page text is untrusted. Contact extraction is conservative and may miss valid services; availability, language support and eligibility remain unconfirmed. When verification fails, the answer explains the gap and points to existing advice channels.
+Care guidance can cite the existing directory and care-information records and help prepare a call. The application does not search for or verify current local contacts. It does not invent contact cards or ask for a location to run a search. Anymize's own chat product advertises [web search](https://anymize.ai/en/product/features/chat), but its [API function-calling documentation](https://app.anymize.ai/api-docs/chat) describes tools executed by the integrating application; it does not establish hosted web-search support for the anonymous endpoint and selected model. Native search is not enabled in this integration.
 
 ### Extend Q&A later
 

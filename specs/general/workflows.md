@@ -48,7 +48,7 @@ The [platform specification](../behavior/platform.md) owns current product behav
 
 ## Implement live chat
 
-The [live-chat contract](../behavior/live_chat.md) owns the authorised fictional prototype and its scoped privacy fixes: approved tester access, durable request limits, private-data deletion and identifier-masking evaluation. Its workflow establishes scoped requirements, implements the feature, runs offline quality checks, repairs failures, and reviews bilingual browser/production behavior. Source checks are recorded honestly without invented human or clinical approval. Provider account settings and actual masked-output checks require honest separate reporting; the opt-in live evaluation is not an ordinary quality gate. The historical catalogue review and nutrition-demonstration processes below do not govern this extension.
+The [live-chat contract](../behavior/live_chat.md) owns the authorised fictional prototype and its scoped changes: approved tester access, durable request limits, private-data deletion, identifier-masking evaluation and removal of external search. Live chat now uses Anymize and the local evidence library; no search credential or simulated contact lookup is required. Its workflow establishes scoped requirements, implements the feature, runs offline quality checks, repairs failures, and reviews bilingual browser/production behavior. Source checks are recorded honestly without invented human or clinical approval. Provider account settings and actual masked-output checks require honest separate reporting; the opt-in live evaluation is not an ordinary quality gate. The historical catalogue review and nutrition-demonstration processes below do not govern this extension.
 
 ## Establish specifications
 
