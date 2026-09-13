@@ -45,3 +45,18 @@
 .cited-reply{white-space:normal}.answer-paragraph{margin-bottom:16px}.answer-paragraph>p{white-space:pre-wrap;margin:0}.paragraph-citations{display:flex;flex-wrap:wrap;gap:5px 12px;font-size:11px;line-height:1.5;margin-top:6px}.paragraph-citations a,.source-card>a{text-decoration:underline;text-underline-offset:3px}
 .source-card{padding:10px 12px;margin:10px 0;border:1px solid var(--line);border-radius:9px;font-size:12px;line-height:1.6;background:#f6f0f7}.source-card summary{cursor:pointer;font-weight:600}.source-card p{margin:6px 0}.source-card>a{display:inline-block;margin-top:6px}.source-checked{font-size:11px}
 @media(max-width:720px){.live-context{margin:0 15px;font-size:11px}.live-context-body .button{font-size:11px;padding:9px;min-height:38px}.chat-mode-notice{font-size:10px;line-height:1.5}.composer-caption{font-size:9px;line-height:1.5}.message-assistant>.cited-reply{padding-left:0}}
+
+/* Keep chat deletion visible beside each conversation, including on touch screens. */
+.chat-history-item{display:flex;align-items:center;gap:2px;margin-bottom:4px}
+.chat-history-item>a{margin-bottom:0}
+.chat-history-item>[data-chat-link]{flex:1;min-width:0}
+.chat-history-item>.chat-delete{flex:none;width:40px;height:40px;padding:0}
+.chat-history-item>.chat-delete:hover{color:#a53d50;background:#f9e9ee}
+.chat-history-item>a:focus-visible{outline-offset:-3px}
+
+/* Make the existing submission status visible for the whole reply wait. */
+.chat-composer[aria-busy="true"] + .composer-status{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border:1px solid #dcccdf;border-radius:10px;background:var(--lavender);color:var(--plum);font-size:13px;font-weight:600}
+.chat-composer[aria-busy="true"] + .composer-status::before,.chat-composer[aria-busy="true"] .send-button::after{content:"";display:block;flex:none;width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:chat-wait-spin .8s linear infinite}
+.chat-composer[aria-busy="true"] .send-button{opacity:1;cursor:wait}
+.chat-composer[aria-busy="true"] .send-button .icon{display:none}
+@keyframes chat-wait-spin{to{transform:rotate(360deg)}}

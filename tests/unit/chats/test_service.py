@@ -18,6 +18,44 @@ class LiveServiceTests(SimpleTestCase):
             language=language,
         )
 
+    def test_provider_identifiers_and_placeholders_are_accepted_without_local_masking(self):
+        for language, returned in (
+            (
+                "en",
+                "Alex Example, passport AB1234567, Example Ring 9, alex@example.invalid, 030 123456789.",
+            ),
+            ("de", "[[Person-ABC123]], Ausweis [[ID-XYZ456]], Adresse [[Address-DEF789]]."),
+        ):
+            outputs = [
+                intake(topic="general", intro=returned, facts=[returned], evidence_topics=[]),
+                {"paragraphs": [{"text": returned, "kind": "suggestion", "source_ids": []}]},
+            ]
+            with (
+                self.subTest(language=language),
+                patch(
+                    "chats.provider.transport.request_json",
+                    side_effect=[
+                        {
+                            "_anymize": {"anonymized": True},
+                            "choices": [
+                                {
+                                    "finish_reason": "stop",
+                                    "message": {"content": json.dumps(output)},
+                                }
+                            ],
+                        }
+                        for output in outputs
+                    ],
+                ) as request,
+            ):
+                reply = self.call(language)
+            self.assertEqual(reply.content, returned)
+            self.assertEqual(reply.mode, "live")
+            self.assertEqual(request.call_count, 2)
+            self.assertTrue(
+                all(call.args[0] == provider.ANONYMOUS_URL for call in request.call_args_list)
+            )
+
     def test_selective_clarification_finishes_after_intake(self):
         for language, question in (
             ("en", "Is avoiding milk an allergy or a preference?"),
@@ -102,8 +140,6 @@ class LiveServiceTests(SimpleTestCase):
                 "kind": "suggestion",
                 "source_ids": [],
             },
-            {"text": "Phone 030 123456789", "kind": "suggestion", "source_ids": []},
-            {"text": "Ask [PERSON_1]", "kind": "suggestion", "source_ids": []},
         ]
         for paragraph in cases:
             with (

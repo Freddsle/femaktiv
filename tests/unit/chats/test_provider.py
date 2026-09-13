@@ -190,7 +190,7 @@ class ProviderTests(SimpleTestCase):
     def test_prose_rejection_reports_only_empty_or_forbidden_reason(self):
         for prose, reason in (
             (" \n", "empty_prose"),
-            ("FICTIONAL_PRIVATE@example.test", "invalid_prose"),
+            ("https://FICTIONAL_PRIVATE.example.test", "invalid_prose"),
         ):
             with self.subTest(reason=reason), self.assertRaises(ChatError) as error:
                 validate_prose(prose)

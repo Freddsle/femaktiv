@@ -90,10 +90,8 @@ def validate(value, schema):
 def validate_prose(text):
     if not text.strip():
         raise ChatError("invalid_reply", failure_reason="empty_prose")
-    if re.search(
-        r"\[\[|\[(?:PERSON|NAME|LOCATION|ADDRESS|EMAIL|PHONE|ORG)[_ :\d][^\]]*\]|https?://|www\.|\b\S+@\S+|(?:\d[ ()+./-]*){9,}",
-        text,
-        re.I,
-    ):
+    # Source URLs come from application-owned citation records. Identifier
+    # masking and any restoration belong to Anymize, not this validator.
+    if re.search(r"https?://|www\.", text, re.I):
         raise ChatError("invalid_reply", failure_reason="invalid_prose")
     return text
