@@ -208,6 +208,7 @@ def request_json(url, *, budget, headers, payload=None):
         method="POST" if body is not None else "GET",
         headers={"Accept": "application/json", "Content-Type": "application/json", **headers},
         body=body,
+        timeout=budget.remaining(),
     )
     if status == 429:
         raise ChatError(

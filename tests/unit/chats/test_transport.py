@@ -10,6 +10,27 @@ from chats.errors import ChatError
 
 
 class TransportTests(SimpleTestCase):
+    def test_json_request_uses_the_remaining_shared_turn_deadline(self):
+        for elapsed in (0, 22, 50):
+            with (
+                self.subTest(elapsed=elapsed),
+                patch("chats.transport.time.monotonic", return_value=100) as monotonic,
+                patch("chats.transport.request", return_value=(200, {}, b"{}")) as request,
+            ):
+                budget = transport.Budget()
+                monotonic.return_value = 100 + elapsed
+                self.assertEqual(
+                    transport.request_json("https://example.test/", budget=budget, headers={}),
+                    {},
+                )
+                self.assertEqual(request.call_args.kwargs["timeout"], 60 - elapsed)
+                self.assertIs(request.call_args.kwargs["budget"], budget)
+                monotonic.return_value = 161
+                with self.assertRaises(ChatError) as caught:
+                    transport.request_json("https://example.test/", budget=budget, headers={})
+                self.assertEqual(caught.exception.code, "deadline_exceeded")
+                request.assert_called_once()
+
     def test_diagnostics_accept_only_bounded_status_and_fixed_reason(self):
         for status in (100, 200, 429, 599):
             with self.subTest(status=status):
