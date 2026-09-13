@@ -94,8 +94,11 @@ add("""<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/19
 context and a curated library of public sources. They use separate panels and arrows;
 personal notes do not become evidence-library records. Intake and answer drafting pass
 through Anymize, which handles identifier
-masking before the AI model. femaktiv checks source references and returns practical guidance
-in English or German. The selected library includes DGE, NIH and NHLBI, EFSA, gesund.bund.de and ZQP.</desc>
+masking before the AI model. femaktiv checks source references and returns structured guidance
+in English or German. Explicit requests can save information to My notes; urgent referral flags
+add application-owned German help numbers. Each turn uses at most two Anymize calls, with
+clarification, standalone saves and immediate-danger responses finishing after intake.
+The selected library includes DGE, NIH and NHLBI, EFSA, gesund.bund.de and ZQP.</desc>
 <defs>
   <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
     <stop stop-color="#39273e"/><stop offset="1" stop-color="#654674"/>
@@ -149,7 +152,7 @@ rect(80, 375, 500, 254, "#f1eaf5", "#dfd2e6", extra='filter="url(#shadow)"')
 rect(80, 680, 500, 284, "url(#evidence)", "#e8ccc0", extra='filter="url(#shadow)"')
 rect(660, 455, 360, 412, "url(#core)", extra='filter="url(#shadow)"')
 rect(1100, 455, 340, 412, "url(#privacy)", "#dfd2e6")
-rect(1520, 455, 320, 412, WHITE, "#ddcbdc", extra='filter="url(#shadow)"')
+rect(1520, 455, 320, 509, WHITE, "#ddcbdc", extra='filter="url(#shadow)"')
 
 text(112, 414, "HER INFORMATION", 16, PURPLE, 700, 'letter-spacing="2"')
 chip(450, 395, 99, "PRIVATE", "#e4d8ed", PURPLE)
@@ -221,18 +224,25 @@ for start, end in [(1032, 1088), (1452, 1508)]:
 rect(1552, 489, 50, 50, "#ede5f2", radius=15)
 icon("check", 1564, 501, PURPLE, 26)
 text(1552, 589, "Clear next steps.", 34, PLUM, extra='class="serif"')
-text(1552, 635, "Practical guidance", 23, MUTED)
+text(1552, 635, "Structured guidance", 23, MUTED)
 text(1552, 669, "with source references.", 23, MUTED)
 rect(1552, 703, 256, 65, "#f5eae8", radius=13)
 icon("link", 1568, 723, "#9d758a", 24)
 text(1606, 729, "References checked", 19, PLUM)
 text(1606, 753, "by femaktiv", 19, MUTED)
-chip(1552, 792, 118, "ENGLISH")
-chip(1682, 792, 117, "DEUTSCH")
+# These outcomes are persisted by femaktiv; they add no separate model call.
+icon("note", 1552, 782, PURPLE, 25)
+text(1590, 798, "Save to My notes", 19, PLUM, 600)
+text(1590, 823, "Only when she asks", 17, MUTED)
+icon("shield", 1552, 839, PURPLE, 25)
+text(1590, 855, "German help numbers", 19, PLUM, 600)
+text(1590, 880, "When urgent help is flagged", 16, MUTED)
+chip(1552, 901, 118, "ENGLISH")
+chip(1682, 901, 117, "DEUTSCH")
 
 text(
     660,
-    924,
+    991,
     "Her context brings relevance. Curated sources bring perspective.",
     30,
     PURPLE,
@@ -243,7 +253,7 @@ text(80, 1046, "LIVE PROTOTYPE ARCHITECTURE", 15, MUTED, 600, 'letter-spacing="1
 text(
     1840,
     1046,
-    "Intake + answer drafting both use Anymize · Selected evidence library",
+    "Up to two Anymize calls per turn · Selected evidence library",
     17,
     MUTED,
     extra='text-anchor="end"',

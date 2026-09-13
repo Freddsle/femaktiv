@@ -6,8 +6,11 @@
 context and a curated library of public sources. They use separate panels and arrows;
 personal notes do not become evidence-library records. Intake and answer drafting pass
 through Anymize, which handles identifier
-masking before the AI model. femaktiv checks source references and returns practical guidance
-in English or German. The selected library includes DGE, NIH and NHLBI, EFSA, gesund.bund.de and ZQP.</desc>
+masking before the AI model. femaktiv checks source references and returns structured guidance
+in English or German. Explicit requests can save information to My notes; urgent referral flags
+add application-owned German help numbers. Each turn uses at most two Anymize calls, with
+clarification, standalone saves and immediate-danger responses finishing after intake.
+The selected library includes DGE, NIH and NHLBI, EFSA, gesund.bund.de and ZQP.</desc>
 <defs>
   <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
     <stop stop-color="#39273e"/><stop offset="1" stop-color="#654674"/>
@@ -59,7 +62,7 @@ text{font-family:Arial,"Liberation Sans",sans-serif}
 <rect x="80" y="680" width="500" height="284" rx="24" fill="url(#evidence)" stroke="#e8ccc0" filter="url(#shadow)"/>
 <rect x="660" y="455" width="360" height="412" rx="24" fill="url(#core)" stroke="none" filter="url(#shadow)"/>
 <rect x="1100" y="455" width="340" height="412" rx="24" fill="url(#privacy)" stroke="#dfd2e6" />
-<rect x="1520" y="455" width="320" height="412" rx="24" fill="#fffdfb" stroke="#ddcbdc" filter="url(#shadow)"/>
+<rect x="1520" y="455" width="320" height="509" rx="24" fill="#fffdfb" stroke="#ddcbdc" filter="url(#shadow)"/>
 <text x="112" y="414" font-size="16" fill="#785098" font-weight="700" letter-spacing="2">HER INFORMATION</text>
 <rect x="450" y="395" width="99" height="39" rx="19.5" fill="#e4d8ed" stroke="none" />
 <text x="499.5" y="421" font-size="18" fill="#785098" font-weight="600" text-anchor="middle">PRIVATE</text>
@@ -129,7 +132,7 @@ text{font-family:Arial,"Liberation Sans",sans-serif}
 <path d="M6 16l7 7L27 8" fill="none" stroke="#785098" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
 </g>
 <text x="1552" y="589" font-size="34" fill="#39273e" font-weight="400" class="serif">Clear next steps.</text>
-<text x="1552" y="635" font-size="23" fill="#736675" font-weight="400" >Practical guidance</text>
+<text x="1552" y="635" font-size="23" fill="#736675" font-weight="400" >Structured guidance</text>
 <text x="1552" y="669" font-size="23" fill="#736675" font-weight="400" >with source references.</text>
 <rect x="1552" y="703" width="256" height="65" rx="13" fill="#f5eae8" stroke="none" />
 <g transform="translate(1568 723) scale(0.75)">
@@ -137,12 +140,22 @@ text{font-family:Arial,"Liberation Sans",sans-serif}
 </g>
 <text x="1606" y="729" font-size="19" fill="#39273e" font-weight="400" >References checked</text>
 <text x="1606" y="753" font-size="19" fill="#736675" font-weight="400" >by femaktiv</text>
-<rect x="1552" y="792" width="118" height="39" rx="19.5" fill="#ede5f2" stroke="none" />
-<text x="1611.0" y="818" font-size="18" fill="#785098" font-weight="600" text-anchor="middle">ENGLISH</text>
-<rect x="1682" y="792" width="117" height="39" rx="19.5" fill="#ede5f2" stroke="none" />
-<text x="1740.5" y="818" font-size="18" fill="#785098" font-weight="600" text-anchor="middle">DEUTSCH</text>
-<text x="660" y="924" font-size="30" fill="#785098" font-weight="400" class="serif" font-style="italic">Her context brings relevance. Curated sources bring perspective.</text>
+<g transform="translate(1552 782) scale(0.78125)">
+<path d="M8 3h13l6 6v20H8z M20 3v8h7 M12 16h11 M12 21h9" fill="none" stroke="#785098" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="1590" y="798" font-size="19" fill="#39273e" font-weight="600" >Save to My notes</text>
+<text x="1590" y="823" font-size="17" fill="#736675" font-weight="400" >Only when she asks</text>
+<g transform="translate(1552 839) scale(0.78125)">
+<path d="M16 2 28 7v10c0 7-12 13-12 13S4 24 4 17V7z M10 16l4 4 8-8" fill="none" stroke="#785098" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="1590" y="855" font-size="19" fill="#39273e" font-weight="600" >German help numbers</text>
+<text x="1590" y="880" font-size="16" fill="#736675" font-weight="400" >When urgent help is flagged</text>
+<rect x="1552" y="901" width="118" height="39" rx="19.5" fill="#ede5f2" stroke="none" />
+<text x="1611.0" y="927" font-size="18" fill="#785098" font-weight="600" text-anchor="middle">ENGLISH</text>
+<rect x="1682" y="901" width="117" height="39" rx="19.5" fill="#ede5f2" stroke="none" />
+<text x="1740.5" y="927" font-size="18" fill="#785098" font-weight="600" text-anchor="middle">DEUTSCH</text>
+<text x="660" y="991" font-size="30" fill="#785098" font-weight="400" class="serif" font-style="italic">Her context brings relevance. Curated sources bring perspective.</text>
 <path d="M80 1015H1840" fill="none" stroke="#e7dfe4" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
 <text x="80" y="1046" font-size="15" fill="#736675" font-weight="600" letter-spacing="1.8">LIVE PROTOTYPE ARCHITECTURE</text>
-<text x="1840" y="1046" font-size="17" fill="#736675" font-weight="400" text-anchor="end">Intake + answer drafting both use Anymize · Selected evidence library</text>
+<text x="1840" y="1046" font-size="17" fill="#736675" font-weight="400" text-anchor="end">Up to two Anymize calls per turn · Selected evidence library</text>
 </svg>
