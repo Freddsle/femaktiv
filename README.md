@@ -1,33 +1,83 @@
-# femaktiv
+<p align="center">
+  <img src="static/img/femaktiv-logo-rounded.png" alt="femaktiv — lifecycle essentials" width="144">
+</p>
 
-An English/German Django app for everyday questions, private notes and chat history, with public conversation examples.
+<h1 align="center">femaktiv</h1>
 
-Chat uses labelled **placeholder replies** by default and makes no AI calls. Optional live chat uses Anymize and a local evidence library. This is a prototype for fictional information; example answers are illustrative, not reviewed medical guidance.
+<p align="center"><strong>Personal context. Credible sources. Practical support.</strong></p>
 
-## Start locally
+A personal space for women navigating wellbeing, nutrition and family care, in **English and German**. Keep the details that matter and turn everyday questions into practical next steps.
+
+- **Bring your context.** Keep private notes and choose which ones to share in a conversation.
+- **Pick up where you left off.** Revisit saved chats and ask live chat to save useful information to My notes.
+- **See the sources.** In live mode, explore structured guidance with references from a curated nutrition and care library.
+
+> **Prototype:** use fictional information. Chat starts with offline placeholder replies; live AI requires approved tester access. Generated guidance is not clinically validated. Public conversations and community previews are illustrative.
+
+## A look inside
+
+Prototype screenshots; tap any image to view it full size.
+
+**Discover femaktiv**
+
+<table>
+  <tr>
+    <td align="center" valign="top"><a href="00_initial/screnshots/01.jpg"><img src="00_initial/screnshots/01.jpg" alt="Welcome page introducing femaktiv" width="260"></a><br><sub>A calmer starting point</sub></td>
+    <td align="center" valign="top"><a href="00_initial/screnshots/02.jpg"><img src="00_initial/screnshots/02.jpg" alt="Example conversations about wellbeing and family care" width="260"></a><br><sub>Wellbeing &amp; family care</sub></td>
+    <td align="center" valign="top"><a href="00_initial/screnshots/03.jpg"><img src="00_initial/screnshots/03.jpg" alt="Personal workspace introduction and illustrative community preview" width="260"></a><br><sub>A space for your story</sub></td>
+  </tr>
+</table>
+
+**Your private space**
+
+<table>
+  <tr>
+    <td align="center" valign="top"><a href="00_initial/screnshots/04.jpg"><img src="00_initial/screnshots/04.jpg" alt="Sign-in screen for a private femaktiv account" width="260"></a><br><sub>Sign in</sub></td>
+    <td align="center" valign="top"><a href="00_initial/screnshots/05.jpg"><img src="00_initial/screnshots/05.jpg" alt="My notes with a fictional health report" width="260"></a><br><sub>Keep personal notes</sub></td>
+  </tr>
+</table>
+
+**Conversations with context**
+
+<table>
+  <tr>
+    <td align="center" valign="top"><a href="00_initial/screnshots/06.jpg"><img src="00_initial/screnshots/06.jpg" alt="Selecting a fictional note to include in live chat context" width="260"></a><br><sub>Choose what to share</sub></td>
+    <td align="center" valign="top"><a href="00_initial/screnshots/07.jpg"><img src="00_initial/screnshots/07.jpg" alt="A structured prototype reply with source references" width="260"></a><br><sub>Explore replies with sources</sub></td>
+    <td align="center" valign="top"><a href="00_initial/screnshots/08.jpg"><img src="00_initial/screnshots/08.jpg" alt="Prototype urgent response with German help numbers" width="260"></a><br><sub>Find urgent-help information</sub></td>
+  </tr>
+</table>
+
+## Under the hood
+
+**Python 3.14 · Django 5.2 · SQLite · Django templates · CSS & JavaScript · uv**
+
+[![Backend overview: private context and curated sources feed Django, with model processing through Anymize and structured replies](docs/pitch/backend-schema/backend-overview.png)](docs/pitch/backend-schema/README.md)
+
+Private notes and chat history stay separate from the source library. Live turns use Anymize for intake and, when needed, answer composition, with at most two model calls. Django validates returned source IDs and saves replies, citation snapshots and explicitly requested notes. The diagram shows a configured live prototype; the default runs offline.
+
+## Run locally
 
 Requires Python 3.14 and [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
 ./bin/setup
+.venv/bin/python manage.py createsuperuser
 ./bin/serve
 ```
 
-Open [English](http://127.0.0.1:8000/) or [German](http://127.0.0.1:8000/de/). Stop with Ctrl+C. Use `./bin/dev` for automatic reloads during development.
+Open [English](http://127.0.0.1:8000/en/) or [German](http://127.0.0.1:8000/de/). Registration is closed by default; add testers through [Django admin](http://127.0.0.1:8000/en/admin/). Stop with Ctrl+C; use `./bin/dev` for automatic reloads.
 
-Registration is closed by default. Create an administrator:
+<details>
+<summary><strong>Local data and account recovery</strong></summary>
 
-```bash
-.venv/bin/python manage.py createsuperuser
-```
+Accounts, notes and chats persist in `.local/db.sqlite3`. Password-reset emails appear in the server terminal. Account settings can delete all chats and notes; deleting an individual source note leaves its saved chat copies intact.
 
-Sign in at [/en/admin/](http://127.0.0.1:8000/en/admin/) to add tester accounts. Password-reset emails appear in the server terminal locally.
+</details>
 
-Accounts, notes and chats persist in `.local/db.sqlite3`. Account settings lets users delete their chats and notes. Deleting a source note leaves its saved chat copies intact.
+<details>
+<summary><strong>Enable live chat</strong></summary>
 
-## Configure live chat locally
-
-Create a Git-ignored `.env.local` containing:
+Create a Git-ignored `.env.local`:
 
 ```dotenv
 FEMAKTIV_AI_MODE=live
@@ -37,9 +87,7 @@ ANYMIZE_ZDR_CONFIRMED=1
 ANYMIZE_FALLBACKS_DISABLED_CONFIRMED=1
 ```
 
-Set the confirmation flags only after enabling Zero Data Retention and disabling fallback models in your Anymize account. Keep keys server-side. Environment files are **not loaded automatically**.
-
-Stop the server, then load the settings and restart from the repository folder:
+Set the confirmation flags only after enabling Zero Data Retention and disabling fallback models in your Anymize account. Keys stay server-side; environment files are **not loaded automatically**. Stop the server, then load settings and restart:
 
 ```bash
 chmod 600 .env.local
@@ -49,11 +97,14 @@ set +a
 ./bin/serve
 ```
 
-In admin, enable **Live chat approved** for each intended tester. Anymize receives submitted messages and active chat context, including attached note copies, and handles identifier masking and response restoration. femaktiv does not verify masking or guarantee masked replies. Live chat has no web search.
+In admin, enable **Live chat approved** for each tester. Submitted messages and active context, including selected note copies, reach Anymize for identifier masking and response restoration. femaktiv does not independently verify masking or guarantee masked replies. Live chat has no web search.
 
-See the [live-chat specification](specs/behavior/live_chat.md) for context controls, request limits and optional paid evaluation.
+See the [live-chat specification](specs/behavior/live_chat.md) for context controls, usage limits and optional paid evaluation.
 
-## Share a preview through ngrok
+</details>
+
+<details>
+<summary><strong>Share an HTTPS preview with ngrok</strong></summary>
 
 With [ngrok installed and authenticated](https://ngrok.com/download/linux), run in a separate terminal:
 
@@ -61,15 +112,18 @@ With [ngrok installed and authenticated](https://ngrok.com/download/linux), run 
 ngrok http http://127.0.0.1:8000 --inspect=false
 ```
 
-Copy its HTTPS forwarding URL. Stop the femaktiv server and restart it in the same terminal with that URL:
+Copy its HTTPS forwarding URL. Stop femaktiv and restart it in its original terminal with that URL:
 
 ```bash
 FEMAKTIV_PUBLIC_URL=https://your-domain.ngrok-free.app ./bin/serve
 ```
 
-Keep both processes running. Restart femaktiv whenever the URL changes. To return to local HTTP, stop the server and run `./bin/serve` without `FEMAKTIV_PUBLIC_URL`.
+Keep both processes running; restart femaktiv whenever the URL changes. To return to local HTTP, stop femaktiv and run `./bin/serve` without `FEMAKTIV_PUBLIC_URL`.
 
-## Development
+</details>
+
+<details>
+<summary><strong>Development checks</strong></summary>
 
 ```bash
 ./bin/check
@@ -80,6 +134,8 @@ git diff --check
 
 `bin/check` runs lint, Django checks, backend tests and browser tests without provider calls. Browser tests need Chrome/Chromium; install it if needed with `.venv/bin/python -m playwright install chromium`.
 
-- [Specifications](specs/intro.md): product behavior and development workflows.
-- [Validation results](docs/VALIDATION.md): recorded checks and limitations.
-- [Hosting settings](.env.example): configuration reference; `bin/serve` is for local use and tunnel previews.
+</details>
+
+[Specifications](specs/intro.md) · [Validation results](docs/VALIDATION.md) · [Hosting settings](.env.example) · [Backend diagram & exports](docs/pitch/backend-schema/README.md)
+
+`bin/serve` is for local use and tunnel previews; external hosting needs its own configuration.
