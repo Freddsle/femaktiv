@@ -32,6 +32,8 @@ Account settings MUST offer an authenticated, owner-scoped action to delete all 
 
 The requirements below describe the default placeholder mode. [Live chat](live_chat.md) owns the explicitly authorised provider integration, durable reservations, active context and extended responses. Account, ownership, language and private-storage requirements continue to apply in both modes.
 
+At mobile widths up to 700px, the dialog title and mode notice MUST scroll out of view with the conversation and return when scrolling to the top. The message composer MUST remain available. Above this breakpoint, the title and notice MUST retain their existing fixed position above the scrolling messages. This layout behavior applies in both languages and chat modes and MUST preserve the approved wording.
+
 `POST /<language>/api/chats/<chat_id>/messages/` accepts exactly `content` (1–4000 non-whitespace characters), `note_ids` (up to five distinct UUIDs), and `client_request_id` (UUID). The authenticated owner and reply language come from the server session/URL. Reject inaccessible notes before saving any part of a turn.
 
 The response includes `mode: "placeholder"`, `user_message`, `assistant_message`, and `chat` metadata. Serialized messages have `id`, `role`, `content`, `created_at`, `mode`, and `context` (title/body snapshots). Errors use `error: {code, message}` with 400 validation, 401 unauthenticated, 403 CSRF and 404 inaccessible/not-found responses. A repeated client request identifier in the same chat MUST return the existing turn without duplication. Save the turn atomically.

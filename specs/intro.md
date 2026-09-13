@@ -23,7 +23,7 @@ Architecture and documentation categories MAY be introduced when a concrete spec
 | --- | --- |
 | [Specification index](intro.md) | Entry point and inventory of current specifications. |
 | [General specification requirements](meta/general.md) | Document structure, normative language, abstraction level, and maintenance rules. |
-| [Bilingual platform](behavior/platform.md) | Current Django website, private accounts/notes/chats, placeholder API, localization, public examples, website wording approval and optional HTTPS tunnel previews. |
+| [Bilingual platform](behavior/platform.md) | Current Django website, private accounts/notes/chats, responsive chat scrolling, placeholder API, localization, public examples, website wording approval and optional HTTPS tunnel previews. |
 | [Live chat](behavior/live_chat.md) | Anymize-only live assistance and provider-owned masking/restoration, approved tester access, durable usage limits, active context, requested saving to My notes, structured cited answers with selective follow-up, German urgent-help numbers and optional developer evaluation. |
 | [File relations](behavior/files_relations.md) | Artifact identity, specification ownership, source/test relationships, Depmesh behavior, and verification. |
 | [Project workflows](general/workflows.md) | Required Donna workflows, their execution contracts, prerequisites, and implementation status. |

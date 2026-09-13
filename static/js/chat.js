@@ -22,6 +22,11 @@
   const noteInputs = [...form.querySelectorAll('[name=note_ids]')];
   const status = document.querySelector('#chat-status');
   const thread = document.querySelector('#chat-thread');
+  const scrollArea = document.querySelector('.chat-scroll-area');
+  const scrollToLatest = () => {
+    const scroller = window.matchMedia('(max-width: 700px)').matches ? scrollArea : thread;
+    scroller.scrollTop = scroller.scrollHeight;
+  };
   const initialPath = window.location.pathname;
   const chatId = form.dataset.chatId;
   let pending = false;
@@ -317,7 +322,7 @@
       form.querySelector('.note-picker').open = false;
       lastAttempt = null;
       status.textContent = form.dataset.saved;
-      thread.scrollTop = thread.scrollHeight;
+      scrollToLatest();
     } catch (error) {
       if (present() && error.name !== 'AbortError') {
         status.classList.add('is-error');
@@ -335,5 +340,5 @@
       }
     }
   });
-  thread.scrollTop = thread.scrollHeight;
+  scrollToLatest();
 })();

@@ -47,6 +47,15 @@
 .urgent-help{margin:18px 0;padding:14px 16px;border:1px solid #d6a899;border-left:4px solid #a6533e;border-radius:10px;background:#fff2eb;color:var(--plum);line-height:1.6}.urgent-help h3{font-size:14px;margin:0 0 8px}.urgent-help-contacts{list-style:none;margin:0;padding:0}.urgent-help-contacts>li+li{border-top:1px solid #e5c6b9;margin-top:12px;padding-top:10px}.urgent-help-contact-title{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px}.urgent-help-number{display:inline-flex;align-items:center;min-height:44px;font-size:22px;font-weight:700;color:#8c3828;text-decoration:underline;text-underline-offset:4px}.urgent-help-contact-title strong{font-size:13px}.urgent-help-contacts p{font-size:12px;color:var(--plum);line-height:1.65;margin:2px 0 6px}.urgent-help-source{font-size:11px;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:720px){.live-context{margin:0 15px;font-size:11px}.live-context-body .button{font-size:11px;padding:9px;min-height:38px}.chat-mode-notice{font-size:10px;line-height:1.5}.composer-caption{font-size:9px;line-height:1.5}.message-assistant>.cited-reply{padding-left:0}}
 
+/* The title and notice scroll away with the conversation only on mobile. */
+.chat-scroll-area{display:contents}
+@media(max-width:700px){
+  .chat-scroll-area{display:block;flex:1;min-height:0;overflow-y:auto;scroll-behavior:smooth}
+  .chat-scroll-area .chat-thread{overflow:visible}
+  .chat-scroll-area .live-context{position:sticky;top:0;z-index:10;background:var(--paper)}
+}
+@media(prefers-reduced-motion:reduce){.chat-scroll-area{scroll-behavior:auto}}
+
 /* Keep chat deletion visible beside each conversation, including on touch screens. */
 .chat-history-item{display:flex;align-items:center;gap:2px;margin-bottom:4px}
 .chat-history-item>a{margin-bottom:0}

@@ -28,6 +28,14 @@ class LiveChatBrowserTests(LiveServerTestCase):
         self.page.locator("#chat-content").fill(content)
         self.page.locator("#chat-form [type=submit]").click()
 
+    def scroll_to_latest(self):
+        selector = (
+            ".chat-scroll-area" if self.page.viewport_size["width"] <= 700 else "#chat-thread"
+        )
+        self.page.locator(selector).evaluate(
+            "node => { node.style.scrollBehavior = 'auto'; node.scrollTop = node.scrollHeight; }"
+        )
+
     def test_live_nutrition_both_locales_sizes_notes_citations_and_keyboard(self):
         self.database_value(
             lambda: PersonalNote.objects.create(
@@ -74,9 +82,7 @@ class LiveChatBrowserTests(LiveServerTestCase):
                         {"width": width, "height": 1000 if width > 400 else 844}
                     )
                     self.no_overflow()
-                    self.page.locator("#chat-thread").evaluate(
-                        "node => { node.style.scrollBehavior = 'auto'; node.scrollTop = node.scrollHeight; }"
-                    )
+                    self.scroll_to_latest()
                     self.page.screenshot(
                         path=str(self.screenshot_dir / f"live-chat-{language}-{size}.png"),
                         full_page=True,
@@ -143,9 +149,7 @@ class LiveChatBrowserTests(LiveServerTestCase):
                         expect(source).to_have_attribute("rel", "noopener noreferrer")
                     saved_text = panel.inner_text()
                     self.no_overflow()
-                    self.page.locator("#chat-thread").evaluate(
-                        "node => { node.style.scrollBehavior = 'auto'; node.scrollTop = node.scrollHeight; }"
-                    )
+                    self.scroll_to_latest()
                     self.page.screenshot(
                         path=str(self.screenshot_dir / f"live-urgent-help-{language}-{size}.png"),
                         full_page=True,
@@ -247,9 +251,7 @@ class LiveChatBrowserTests(LiveServerTestCase):
                     expect(checkbox).not_to_be_checked()
                     self.page.locator(".note-picker > summary").click()
                     self.no_overflow()
-                    self.page.locator("#chat-thread").evaluate(
-                        "node => { node.style.scrollBehavior = 'auto'; node.scrollTop = node.scrollHeight; }"
-                    )
+                    self.scroll_to_latest()
                     self.page.screenshot(
                         path=str(self.screenshot_dir / f"live-saved-note-{language}-{size}.png"),
                         full_page=True,
@@ -299,9 +301,7 @@ class LiveChatBrowserTests(LiveServerTestCase):
             expect(self.page.locator(".source-card[open]")).to_have_count(0)
             self.page.set_viewport_size({"width": 390, "height": 844})
             self.no_overflow()
-            self.page.locator("#chat-thread").evaluate(
-                "node => { node.style.scrollBehavior = 'auto'; node.scrollTop = node.scrollHeight; }"
-            )
+            self.scroll_to_latest()
             self.page.screenshot(
                 path=str(self.screenshot_dir / "live-care-en-mobile.png"), full_page=True
             )
