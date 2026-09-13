@@ -56,7 +56,9 @@ class LiveChatBrowserTests(LiveServerTestCase):
                 "https://www.dge.de/gesunde-ernaehrung/gut-essen-und-trinken/dge-empfehlungen/",
             )
             expect(self.page.locator("[data-active-count]")).to_have_text("1")
-            expect(self.page.locator(".chat-mode-notice")).to_contain_text("Anymize receives")
+            expect(self.page.locator(".chat-mode-notice")).to_contain_text(
+                "This prototype uses AI."
+            )
             self.send("Another quick idea.")
             expect(self.page.locator(".message")).to_have_count(4)
             self.assertEqual(self.database_value(ActiveNote.objects.count), 1)

@@ -1452,12 +1452,13 @@ msgstr "Diese Quelle konnte nicht sicher geöffnet werden."
 
 #: templates/chats/workspace.html:3
 msgid ""
-"Use fictional information. Anymize receives your message and active context,"
-" then masks identifiers for the model. Health details remain sensitive."
+"This prototype uses AI. femaktiv sends your messages and active context to "
+"Anymize for identifier masking before model processing. Health information "
+"remains sensitive."
 msgstr ""
-"Verwende erfundene Angaben. Anymize erhält deine Nachricht und den aktiven "
-"Kontext und maskiert dann Identifikatoren für das Modell. Gesundheitsangaben"
-" bleiben sensibel."
+"Dieser Prototyp nutzt KI. femaktiv sendet deine Nachrichten und den aktiven "
+"Kontext an Anymize, um persönliche Identifikatoren vor der Verarbeitung durch "
+"das Modell zu maskieren. Gesundheitsangaben bleiben sensibel."
 
 #: templates/chats/live_context.html:7
 msgid ""
