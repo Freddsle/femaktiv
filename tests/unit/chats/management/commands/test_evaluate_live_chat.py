@@ -105,7 +105,7 @@ class LiveEvaluationTests(SimpleTestCase):
         for response in (
             intake(intro="Visit https://untrusted.example.test"),
             intake(decision="clarification", questions=[]),
-            intake(decision="answer", questions=["Which meal?"]),
+            intake(decision="answer", questions=["Which meal?"] * 4),
             intake(facts=[""]),
         ):
             with (

@@ -26,9 +26,11 @@ class LiveServiceTests(SimpleTestCase):
             with (
                 self.subTest(language=language),
                 patch("chats.provider.complete", return_value=intake(decision="urgent")) as model,
+                patch("chats.evidence.retrieve") as retrieve,
             ):
                 reply = self.call(language)
             self.assertEqual(model.call_count, 1)
+            retrieve.assert_not_called()
             self.assertEqual(reply.urgent_help["heading"], heading)
             self.assertEqual(
                 [contact["number"] for contact in reply.urgent_help["contacts"]], ["112", "116117"]
@@ -70,7 +72,10 @@ class LiveServiceTests(SimpleTestCase):
                 patch(
                     "chats.provider.complete",
                     side_effect=[
-                        intake(medical_referral=intake_flag),
+                        intake(
+                            medical_referral=intake_flag,
+                            questions=["Who can help you with the next step?"],
+                        ),
                         {**answer(), "medical_referral": answer_flag},
                     ],
                 ) as model,
@@ -196,11 +201,166 @@ class LiveServiceTests(SimpleTestCase):
                         questions=[question],
                     ),
                 ) as model,
+                patch("chats.evidence.retrieve") as retrieve,
             ):
                 reply = self.call(language)
                 self.assertEqual(reply.kind, "clarification")
                 self.assertIn(question, reply.content)
                 self.assertEqual(model.call_count, 1)
+                retrieve.assert_not_called()
+
+    def test_clarification_still_requires_a_question(self):
+        with (
+            patch(
+                "chats.provider.complete",
+                return_value=intake(decision="clarification", questions=[]),
+            ) as model,
+            patch("chats.evidence.retrieve") as retrieve,
+            self.assertRaises(ChatError) as raised,
+        ):
+            self.call()
+        self.assertEqual(raised.exception.failure_reason, "inconsistent_intake")
+        model.assert_called_once()
+        retrieve.assert_not_called()
+
+    def test_answer_can_use_three_optional_intake_questions_without_appending_them(self):
+        questions = ["What is your budget?", "What foods do you enjoy?", "Who are you cooking for?"]
+        with patch(
+            "chats.provider.complete",
+            side_effect=[intake(questions=questions), answer()],
+        ) as model:
+            reply = self.call()
+        self.assertEqual(model.call_count, 2)
+        composition = json.loads(model.call_args.kwargs["messages"][1]["content"])
+        self.assertEqual(composition["intake"]["questions"], questions)
+        self.assertEqual(reply.paragraphs, answer()["paragraphs"])
+
+    def test_question_limit_is_enforced_in_intake_and_composition(self):
+        questions = [f"Fictional question {number}?" for number in range(4)]
+        for stage in ("intake", "composition"):
+            responses = (
+                [intake(questions=questions)]
+                if stage == "intake"
+                else [
+                    intake(questions=questions[:3]),
+                    {
+                        "medical_referral": "none",
+                        "paragraphs": [
+                            {"text": question, "kind": "question", "source_ids": []}
+                            for question in questions
+                        ],
+                    },
+                ]
+            )
+            with (
+                self.subTest(stage=stage),
+                patch("chats.provider.complete", side_effect=responses) as model,
+                self.assertRaises(ChatError),
+            ):
+                self.call()
+            self.assertEqual(model.call_count, len(responses))
+
+    def test_two_turn_care_conversation_composes_a_cited_plan_with_an_optional_question(self):
+        # Fictional responses verify routing and context/citation preservation, not model quality.
+        scenarios = {
+            "en": {
+                "opening": "I need to take care of my parents. What should I do?",
+                "clarification": "What help do your parents need most right now?",
+                "followup": (
+                    "My mother broke her leg and was discharged from hospital. We are in Hamburg. "
+                    "I work and cannot care for her 24/7. What should I do?"
+                ),
+                "plan": [
+                    "Today: contact the hospital social service about her discharge plan.",
+                    "Discharge management coordinates follow-up support; the hospital and insurer "
+                    "must confirm which arrangements apply to your mother.",
+                    "For the call: Meine Mutter wurde entlassen. Ich arbeite und kann sie nicht "
+                    "rund um die Uhr versorgen. Welche Hilfe können wir organisieren? "
+                    "English: My mother was discharged. I work and cannot provide care around "
+                    "the clock. What help can we arrange?",
+                ],
+                "optional": "Which daily tasks can she currently manage without help?",
+            },
+            "de": {
+                "opening": "Ich muss mich um meine Eltern kümmern. Was soll ich tun?",
+                "clarification": "Wobei brauchen deine Eltern gerade am meisten Hilfe?",
+                "followup": (
+                    "Meine Mutter hat sich das Bein gebrochen und wurde aus dem Krankenhaus "
+                    "entlassen. Wir sind in Hamburg. Ich arbeite und kann sie nicht rund um "
+                    "die Uhr versorgen. Was soll ich tun?"
+                ),
+                "plan": [
+                    "Heute: Kontaktiere den Krankenhaussozialdienst wegen ihres Entlassplans.",
+                    "Das Entlassmanagement koordiniert die weitere Unterstützung; Krankenhaus "
+                    "und Krankenkasse müssen klären, welche Leistungen für deine Mutter infrage kommen.",
+                    "Für den Anruf: Meine Mutter wurde entlassen. Ich arbeite und kann sie nicht "
+                    "rund um die Uhr versorgen. Welche Hilfe können wir organisieren?",
+                ],
+                "optional": "Welche Alltagstätigkeiten schafft sie gerade ohne Hilfe?",
+            },
+        }
+        for language, scenario in scenarios.items():
+            first_intake = intake(
+                topic="care",
+                decision="clarification",
+                intro="",
+                facts=[scenario["opening"]],
+                questions=[scenario["clarification"]],
+                evidence_topics=[],
+            )
+            next_intake = intake(
+                topic="care",
+                facts=[scenario["followup"]],
+                questions=[scenario["optional"]],
+                evidence_topics=["discharge"],
+            )
+            paragraphs = [
+                {"text": scenario["plan"][0], "kind": "suggestion", "source_ids": []},
+                {
+                    "text": scenario["plan"][1],
+                    "kind": "explanation",
+                    "source_ids": ["bund-discharge"],
+                },
+                {"text": scenario["plan"][2], "kind": "suggestion", "source_ids": []},
+                {"text": scenario["optional"], "kind": "question", "source_ids": []},
+            ]
+            history = [{"role": "user", "content": scenario["opening"]}]
+            with (
+                self.subTest(language=language),
+                patch(
+                    "chats.provider.complete",
+                    side_effect=[
+                        first_intake,
+                        next_intake,
+                        {"medical_referral": "none", "paragraphs": paragraphs},
+                    ],
+                ) as model,
+                patch("chats.evidence.retrieve", wraps=evidence.retrieve) as retrieve,
+            ):
+                first_reply = self.call(language, history=history)
+                self.assertEqual(first_reply.kind, "clarification")
+                self.assertEqual(model.call_count, 1)
+                retrieve.assert_not_called()
+                history += [
+                    {"role": "assistant", "content": first_reply.content},
+                    {"role": "user", "content": scenario["followup"]},
+                ]
+                reply = self.call(language, history=history)
+                self.assertEqual(model.call_count, 3)
+                retrieve.assert_called_once_with("care", ["discharge"])
+            intake_request = json.loads(model.call_args_list[1].kwargs["messages"][1]["content"])
+            composition = json.loads(model.call_args_list[2].kwargs["messages"][1]["content"])
+            self.assertEqual(intake_request["conversation"], history)
+            self.assertEqual(composition["request"], intake_request)
+            self.assertEqual(composition["request"]["language"], language)
+            self.assertEqual(composition["intake"], next_intake)
+            self.assertEqual(
+                composition["untrusted_source_records"], evidence.retrieve("care", ["discharge"])
+            )
+            self.assertEqual(reply.kind, "answer")
+            self.assertEqual(reply.paragraphs, paragraphs)
+            self.assertEqual(reply.content, "\n\n".join(p["text"] for p in paragraphs))
+            self.assertEqual([source["id"] for source in reply.citations], ["bund-discharge"])
 
     def test_local_care_questions_receive_cited_guidance_using_only_anymize(self):
         for language in ("en", "de"):
