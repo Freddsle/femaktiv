@@ -22,3 +22,6 @@ __pycache__/
 .env.*
 !.env.example
 *.mo
+
+# screnshots
+!00_initial/screnshots

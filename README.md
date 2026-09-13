@@ -4,13 +4,15 @@
 
 <h1 align="center">femaktiv</h1>
 
-<p align="center"><strong>Personal context. Credible sources. Practical support.</strong></p>
+<p align="center"><strong>Helping women make informed health decisions with confidence.</strong></p>
 
-A personal space for women navigating wellbeing, nutrition and family care, in **English and German**. Keep the details that matter and turn everyday questions into practical next steps.
+Caring for yourself and the people you love can mean sorting through conflicting advice, scattered information and details you have to explain again.
 
-- **Bring your context.** Keep private notes and choose which ones to share in a conversation.
-- **Pick up where you left off.** Revisit saved chats and ask live chat to save useful information to My notes.
-- **See the sources.** In live mode, explore structured guidance with references from a curated nutrition and care library.
+**femaktiv brings your questions, personal context and source references into one place.** This **English/German** prototype helps women explore nutrition, wellbeing and family care with their needs and circumstances in mind.
+
+- **Start with your story.** Keep private notes about your preferences and circumstances; choose which ones to share in a chat.
+- **Understand the guidance.** In live mode, explore explanations and practical next steps with transparent source references.
+- **Keep what matters.** Revisit conversations and ask live chat to save useful information to My notes.
 
 > **Prototype:** use fictional information. Chat starts with offline placeholder replies; live AI requires approved tester access. Generated guidance is not clinically validated. Public conversations and community previews are illustrative.
 
@@ -18,32 +20,32 @@ A personal space for women navigating wellbeing, nutrition and family care, in *
 
 Prototype screenshots; tap any image to view it full size.
 
-**Discover femaktiv**
+**Find a starting point**
 
 <table>
   <tr>
-    <td align="center" valign="top"><a href="00_initial/screnshots/01.jpg"><img src="00_initial/screnshots/01.jpg" alt="Welcome page introducing femaktiv" width="260"></a><br><sub>A calmer starting point</sub></td>
-    <td align="center" valign="top"><a href="00_initial/screnshots/02.jpg"><img src="00_initial/screnshots/02.jpg" alt="Example conversations about wellbeing and family care" width="260"></a><br><sub>Wellbeing &amp; family care</sub></td>
-    <td align="center" valign="top"><a href="00_initial/screnshots/03.jpg"><img src="00_initial/screnshots/03.jpg" alt="Personal workspace introduction and illustrative community preview" width="260"></a><br><sub>A space for your story</sub></td>
+    <td align="center" valign="top"><a href="docs/screenshots/welcome.jpg"><img src="docs/screenshots/welcome.jpg" alt="Welcome page introducing femaktiv" width="260"></a><br><sub>A calmer starting point</sub></td>
+    <td align="center" valign="top"><a href="docs/screenshots/wellbeing-and-care.jpg"><img src="docs/screenshots/wellbeing-and-care.jpg" alt="Example conversations about wellbeing and family care" width="260"></a><br><sub>Wellbeing &amp; family care</sub></td>
+    <td align="center" valign="top"><a href="docs/screenshots/your-story.jpg"><img src="docs/screenshots/your-story.jpg" alt="Personal workspace introduction and illustrative community preview" width="260"></a><br><sub>A space for your story</sub></td>
   </tr>
 </table>
 
-**Your private space**
+**Keep your story in one place**
 
 <table>
   <tr>
-    <td align="center" valign="top"><a href="00_initial/screnshots/04.jpg"><img src="00_initial/screnshots/04.jpg" alt="Sign-in screen for a private femaktiv account" width="260"></a><br><sub>Sign in</sub></td>
-    <td align="center" valign="top"><a href="00_initial/screnshots/05.jpg"><img src="00_initial/screnshots/05.jpg" alt="My notes with a fictional health report" width="260"></a><br><sub>Keep personal notes</sub></td>
+    <td align="center" valign="top"><a href="docs/screenshots/sign-in.jpg"><img src="docs/screenshots/sign-in.jpg" alt="Sign-in screen for a private femaktiv account" width="260"></a><br><sub>Sign in</sub></td>
+    <td align="center" valign="top"><a href="docs/screenshots/personal-notes.jpg"><img src="docs/screenshots/personal-notes.jpg" alt="My notes with a fictional health report" width="260"></a><br><sub>Keep personal notes</sub></td>
   </tr>
 </table>
 
-**Conversations with context**
+**Turn context into practical next steps**
 
 <table>
   <tr>
-    <td align="center" valign="top"><a href="00_initial/screnshots/06.jpg"><img src="00_initial/screnshots/06.jpg" alt="Selecting a fictional note to include in live chat context" width="260"></a><br><sub>Choose what to share</sub></td>
-    <td align="center" valign="top"><a href="00_initial/screnshots/07.jpg"><img src="00_initial/screnshots/07.jpg" alt="A structured prototype reply with source references" width="260"></a><br><sub>Explore replies with sources</sub></td>
-    <td align="center" valign="top"><a href="00_initial/screnshots/08.jpg"><img src="00_initial/screnshots/08.jpg" alt="Prototype urgent response with German help numbers" width="260"></a><br><sub>Find urgent-help information</sub></td>
+    <td align="center" valign="top"><a href="docs/screenshots/chat-context.jpg"><img src="docs/screenshots/chat-context.jpg" alt="Selecting a fictional note to include in live chat context" width="260"></a><br><sub>Choose what to share</sub></td>
+    <td align="center" valign="top"><a href="docs/screenshots/cited-guidance.jpg"><img src="docs/screenshots/cited-guidance.jpg" alt="A structured prototype reply with source references" width="260"></a><br><sub>Explore replies with sources</sub></td>
+    <td align="center" valign="top"><a href="docs/screenshots/urgent-help.jpg"><img src="docs/screenshots/urgent-help.jpg" alt="Prototype urgent response with German help numbers" width="260"></a><br><sub>Find urgent-help information</sub></td>
   </tr>
 </table>
 
