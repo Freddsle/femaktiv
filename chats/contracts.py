@@ -38,8 +38,15 @@ def text_schema(limit, minimum=1):
 INTAKE_SCHEMA = object_schema(
     {
         "topic": {"type": "string", "enum": ["general", "nutrition", "care"]},
-        "decision": {"type": "string", "enum": ["answer", "clarification", "urgent"]},
+        "decision": {"type": "string", "enum": ["answer", "clarification", "urgent", "save_note"]},
         "medical_referral": {"type": "string", "enum": MEDICAL_REFERRALS},
+        "note_action": object_schema(
+            {
+                "action": {"type": "string", "enum": ["none", "create"]},
+                "title": text_schema(120, 0),
+                "body": text_schema(10000, 0),
+            }
+        ),
         "intro": text_schema(600, 0),
         "facts": {"type": "array", "items": text_schema(500), "maxItems": 24},
         "questions": {"type": "array", "items": text_schema(350), "maxItems": 3},

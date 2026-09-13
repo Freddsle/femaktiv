@@ -170,6 +170,107 @@ class LiveChatBrowserTests(LiveServerTestCase):
                 expect(panel.get_by_role("heading")).to_have_text(heading)
             self.assertEqual(model.call_count, 4)
 
+    def test_save_mothers_information_to_notes_both_locales_and_sizes(self):
+        self.login()
+        for language, report, request, title, body, confirmation, notes_label in (
+            (
+                "en",
+                "My mum fell and hurt her skull, does she need to go to the hospital?",
+                "Please save this info in my notes, its about my mother.",
+                "Mother — fall",
+                "My mother fell and hurt her skull. I asked whether she needs hospital assessment.",
+                "Your note has been saved.",
+                "My notes",
+            ),
+            (
+                "de",
+                "Meine Mutter ist gestürzt und hat sich am Kopf verletzt. Muss sie ins Krankenhaus?",
+                "Bitte speichere das in meinen Notizen. Es geht um meine Mutter.",
+                "Mutter — Sturz",
+                "Meine Mutter ist gestürzt und hat sich am Kopf verletzt. Ich habe gefragt, ob sie ins Krankenhaus muss.",
+                "Deine Notiz wurde gespeichert.",
+                "Meine Notizen",
+            ),
+        ):
+            for width, size in ((390, "mobile"), (1440, "desktop")):
+                with self.subTest(language=language, width=width):
+                    self.page.set_viewport_size({"width": 1440, "height": 1000})
+                    self.goto("/en/chats/")
+                    self.new_chat()
+                    path = self.page.url.removeprefix(self.live_server_url)
+                    path = path.replace("/en/", f"/{language}/")
+                    self.goto(path)
+                    self.page.set_viewport_size(
+                        {"width": width, "height": 1000 if width > 400 else 844}
+                    )
+                    initial_count = self.database_value(PersonalNote.objects.count)
+                    with patch(
+                        "chats.provider.complete",
+                        side_effect=[
+                            intake(decision="urgent", topic="care", facts=[report]),
+                            intake(
+                                decision="save_note",
+                                topic="care",
+                                facts=[report],
+                                evidence_topics=[],
+                                note_action={"action": "create", "title": title, "body": body},
+                            ),
+                        ],
+                    ) as model:
+                        self.send(report)
+                        expect(self.page.locator(".message-assistant")).to_have_count(1)
+                        self.assertEqual(
+                            self.database_value(PersonalNote.objects.count), initial_count
+                        )
+                        self.send(request)
+                        expect(self.page.locator(".message-assistant")).to_have_count(2)
+                        saved_reply = self.page.locator(".message-assistant").last
+                        expect(saved_reply).to_contain_text(confirmation)
+                        expect(saved_reply.locator(".urgent-help")).to_have_count(0)
+                        self.assertEqual(model.call_count, 2)
+                        self.assertEqual(
+                            self.database_value(PersonalNote.objects.count), initial_count + 1
+                        )
+                    note = self.database_value(lambda: PersonalNote.objects.latest("created_at"))
+                    self.assertEqual(note.owner_id, self.user.pk)
+                    self.assertEqual(note.body, body)
+                    note_path = f"/{language}/notes/{note.pk}/edit/"
+                    saved_link = saved_reply.locator(".message-saved-note a")
+                    expect(saved_link).to_have_text(f"{notes_label} · {title}")
+                    expect(saved_link).to_have_js_property("href", self.live_server_url + note_path)
+                    expect(self.page.locator("[data-active-count]")).to_have_text("0")
+                    self.page.locator(".note-picker > summary").click()
+                    checkbox = self.page.locator(f'input[name="note_ids"][value="{note.pk}"]')
+                    expect(checkbox).to_be_visible()
+                    expect(checkbox).not_to_be_checked()
+                    self.page.locator(".note-picker > summary").click()
+                    self.no_overflow()
+                    self.page.locator("#chat-thread").evaluate(
+                        "node => { node.style.scrollBehavior = 'auto'; node.scrollTop = node.scrollHeight; }"
+                    )
+                    self.page.screenshot(
+                        path=str(self.screenshot_dir / f"live-saved-note-{language}-{size}.png"),
+                        full_page=True,
+                    )
+                    self.page.reload()
+                    expect(saved_reply).to_contain_text(confirmation)
+                    expect(saved_link).to_have_js_property("href", self.live_server_url + note_path)
+                    saved_link.focus()
+                    self.page.keyboard.press("Enter")
+                    self.page.wait_for_url(f"**{note_path}")
+                    expect(self.page.locator("#id_title")).to_have_value(title)
+                    expect(self.page.locator("#id_body")).to_have_value(body)
+                    self.no_overflow()
+                    self.goto(f"/{language}/notes/")
+                    expect(self.page.locator("h1")).to_have_text(notes_label)
+                    note_card = self.page.locator(".note-card").filter(
+                        has=self.page.locator(f'h2 a[href="{note_path}"]')
+                    )
+                    expect(note_card).to_contain_text(body)
+                    self.page.reload()
+                    expect(note_card).to_contain_text(body)
+                    self.no_overflow()
+
     def test_care_cited_guidance_and_call_preparation_without_local_lookup(self):
         def model(**kwargs):
             return (

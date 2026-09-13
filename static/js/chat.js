@@ -80,6 +80,33 @@
     } catch { return element('span', '', label); }
     return link;
   };
+  const savedNoteLink = (note, label) => {
+    const link = element('a', 'text-link', label);
+    try {
+      const target = new URL(note.url, window.location.href);
+      if (!['https:', 'http:'].includes(target.protocol) || target.origin !== window.location.origin || target.username || target.password) return null;
+      link.href = target.href;
+    } catch { return null; }
+    return link;
+  };
+  const addSavedNoteChoice = (note) => {
+    if (noteInputs.some((input) => input.value === note.id)) return;
+    const edit = savedNoteLink(note, form.dataset.editNoteLabel);
+    if (!edit) return;
+    const choice = element('div', 'note-choice');
+    const label = element('label', '');
+    const checkbox = element('input', '');
+    checkbox.type = 'checkbox';
+    checkbox.name = 'note_ids';
+    checkbox.value = note.id;
+    checkbox.addEventListener('change', updateNotes);
+    label.append(checkbox, element('span', '', note.title));
+    choice.append(label, edit);
+    form.querySelector('[data-empty-notes]')?.remove();
+    form.querySelector('.note-picker-heading').after(choice);
+    noteInputs.push(checkbox);
+    updateNotes();
+  };
   const renderContext = (value) => {
     if (!contextPanel || !value) return;
     activeContext = value;
@@ -206,6 +233,15 @@
       });
       article.append(body);
     } else article.append(element('div', 'message-content', message.content));
+    if (message.saved_note) {
+      const link = savedNoteLink(message.saved_note, `${form.dataset.notesLabel} · ${message.saved_note.title}`);
+      if (link) {
+        const saved = element('p', 'message-saved-note');
+        saved.append(link);
+        article.append(saved);
+        addSavedNoteChoice(message.saved_note);
+      }
+    }
     if (message.context?.length) {
       const details = element('details', 'message-context');
       details.append(element('summary', '', `${form.dataset.context} (${message.context.length})`));

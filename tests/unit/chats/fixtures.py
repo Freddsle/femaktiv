@@ -14,6 +14,7 @@ def intake(**changes):
         "topic": "nutrition",
         "decision": "answer",
         "medical_referral": "none",
+        "note_action": {"action": "none", "title": "", "body": ""},
         "intro": "",
         "facts": ["The user has hypertension", "Milk allergy", "Fifteen minutes for cooking"],
         "questions": [],

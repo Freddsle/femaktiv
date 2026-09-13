@@ -6,7 +6,11 @@ import json
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, OperationalError, transaction
 from django.http import JsonResponse
-from django.utils import timezone
+from django.urls import reverse
+from django.utils import timezone, translation
+from django.utils.translation import gettext as _
+
+from notes.forms import PersonalNoteForm
 
 from . import context, provider, service, usage
 from .errors import ChatError
@@ -49,6 +53,15 @@ def serialize(message):
         "citations": citations,
         "urgent_help": message.urgent_help,
         "lookup_status": message.lookup_status,
+        "saved_note": (
+            {
+                "id": str(message.saved_note_id),
+                "title": message.saved_note.title,
+                "url": reverse("notes:edit", kwargs={"pk": message.saved_note_id}),
+            }
+            if message.saved_note_id
+            else None
+        ),
         "context": [
             {"title": note.title, "body": note.body} for note in message.context_snapshots.all()
         ],
@@ -82,9 +95,9 @@ def result(chat, turn, *, status=200):
             ChatError(turn.error_code, turn.error_status), terminal=True, chat=chat
         )
     pair = list(
-        chat.messages.filter(client_request_id=turn.client_request_id).prefetch_related(
-            "context_snapshots"
-        )
+        chat.messages.filter(client_request_id=turn.client_request_id)
+        .select_related("saved_note")
+        .prefetch_related("context_snapshots")
     )
     if len(pair) != 2:
         return error_response(ChatError("provider_unavailable", 503), terminal=True)
@@ -204,6 +217,25 @@ def save_reply(chat_id, turn_id, reply):
             return result(chat, turn)
         if chat.context_version != turn.context_version:
             raise ChatError("context_changed", 409)
+        ensure_active(turn.pk)
+        saved_note = None
+        paragraphs = list(reply.paragraphs)
+        reply_content = reply.content
+        if reply.note_to_save is not None:
+            form = PersonalNoteForm(
+                {"title": reply.note_to_save.title, "body": reply.note_to_save.body}
+            )
+            if not form.is_valid():
+                raise ChatError("invalid_reply")
+            saved_note = form.save(commit=False)
+            saved_note.owner_id = chat.owner_id
+            saved_note.save()
+            with translation.override(turn.language):
+                receipt = _("Your note has been saved.")
+            if not paragraphs and reply_content:
+                paragraphs.append({"text": reply_content, "kind": "suggestion", "source_ids": []})
+            paragraphs.append({"text": receipt, "kind": "suggestion", "source_ids": []})
+            reply_content = "\n\n".join(paragraph["text"] for paragraph in paragraphs)
         first_message = not chat.messages.exists()
         user_message = Message.objects.create(
             chat=chat,
@@ -229,16 +261,17 @@ def save_reply(chat_id, turn_id, reply):
         Message.objects.create(
             chat=chat,
             role=Message.Role.ASSISTANT,
-            content=reply.content,
+            content=reply_content,
             mode="live",
             language=turn.language,
             client_request_id=turn.client_request_id,
             context_version=turn.context_version,
             kind=reply.kind,
-            paragraphs=reply.paragraphs,
+            paragraphs=paragraphs,
             citations=reply.citations,
             urgent_help=reply.urgent_help,
             lookup_status=reply.lookup_status,
+            saved_note=saved_note,
         )
         if first_message:
             chat.title = " ".join(turn.content.split())[:70]

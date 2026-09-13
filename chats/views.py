@@ -20,9 +20,15 @@ from .service import ContextNote, generate_reply
 
 
 def _workspace(request, chat=None):
-    entries = list(chat.messages.prefetch_related("context_snapshots")) if chat else []
+    entries = (
+        list(chat.messages.select_related("saved_note").prefetch_related("context_snapshots"))
+        if chat
+        else []
+    )
     for entry in entries:
-        entry.display_paragraphs = turns.serialize(entry)["paragraphs"]
+        serialized = turns.serialize(entry)
+        entry.display_paragraphs = serialized["paragraphs"]
+        entry.display_saved_note = serialized["saved_note"]
     return render(
         request,
         "chats/workspace.html",

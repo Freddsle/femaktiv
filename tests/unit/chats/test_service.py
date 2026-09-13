@@ -44,6 +44,130 @@ class LiveServiceTests(SimpleTestCase):
                     "If there is immediate danger, contact the local emergency service now. This chat cannot assess an emergency. Ask someone nearby to help if you can.",
                 )
 
+    def test_save_request_returns_a_draft_without_claiming_database_success(self):
+        scenarios = [
+            ("en", "Mother — fall", "My mother fell and hurt her head."),
+            ("de", "Mutter — Sturz", "Meine Mutter ist gestürzt und hat sich am Kopf verletzt."),
+        ]
+        for language, title, body in scenarios:
+            with (
+                self.subTest(language=language),
+                patch(
+                    "chats.provider.complete",
+                    return_value=intake(
+                        decision="save_note",
+                        note_action={"action": "create", "title": title, "body": body},
+                    ),
+                ) as model,
+                patch("chats.evidence.retrieve") as retrieve,
+            ):
+                reply = self.call(language)
+            self.assertEqual(reply.note_to_save, service.ContextNote(title, body))
+            self.assertEqual(reply.content, "")
+            self.assertEqual(reply.paragraphs, [])
+            model.assert_called_once()
+            retrieve.assert_not_called()
+
+    def test_note_action_is_required_bounded_and_consistent(self):
+        invalid = [
+            {"action": "create", "title": " ", "body": "Reported fact"},
+            {"action": "create", "title": "Mother", "body": "\n"},
+            {"action": "create", "title": "x" * 121, "body": "Fact"},
+            {"action": "create", "title": "Mother", "body": "x" * 10001},
+            {"action": "none", "title": "Mother", "body": "Fact"},
+            {"action": "delete", "title": "Mother", "body": "Fact"},
+            {"action": "create", "title": "Mother", "body": "Fact", "owner_id": "other"},
+        ]
+        responses = [intake(note_action=action) for action in invalid]
+        missing = intake()
+        del missing["note_action"]
+        responses.extend(
+            [
+                missing,
+                intake(decision="save_note"),
+                intake(
+                    decision="clarification",
+                    questions=["What should I save?"],
+                    note_action={"action": "create", "title": "Guessed", "body": "Guessed fact"},
+                ),
+            ]
+        )
+        for changes in (
+            {"intro": "Uncommitted success claim"},
+            {"questions": ["And what advice do you need?"]},
+            {"medical_referral": "urgent"},
+        ):
+            responses.append(
+                intake(
+                    decision="save_note",
+                    note_action={"action": "create", "title": "Mother", "body": "Reported fact"},
+                    **changes,
+                )
+            )
+        for response in responses:
+            with (
+                self.subTest(response=response),
+                patch("chats.provider.complete", return_value=response) as model,
+                self.assertRaises(ChatError),
+            ):
+                self.call()
+            model.assert_called_once()
+
+    def test_ambiguous_note_request_clarifies_without_a_note_draft(self):
+        with patch(
+            "chats.provider.complete",
+            return_value=intake(
+                decision="clarification", questions=["Which information would you like to save?"]
+            ),
+        ) as model:
+            reply = self.call(history=[{"role": "user", "content": "Save this in my notes."}])
+        self.assertEqual(reply.kind, "clarification")
+        self.assertIsNone(reply.note_to_save)
+        model.assert_called_once()
+
+    def test_saving_does_not_suppress_new_urgent_or_medical_referral_guidance(self):
+        note_action = {"action": "create", "title": "Mother", "body": "Reported new symptoms."}
+        for decision, flag, calls in (
+            ("urgent", "emergency", 1),
+            ("answer", "urgent", 2),
+            ("answer", "none", 2),
+        ):
+            with (
+                self.subTest(decision=decision),
+                patch(
+                    "chats.provider.complete",
+                    side_effect=[
+                        intake(decision=decision, medical_referral=flag, note_action=note_action),
+                        {**answer(), "medical_referral": "urgent"},
+                    ],
+                ) as model,
+            ):
+                reply = self.call()
+            self.assertTrue(reply.content)
+            self.assertTrue(reply.urgent_help)
+            self.assertEqual(reply.note_to_save.body, note_action["body"])
+            self.assertEqual(model.call_count, calls)
+
+    def test_ordinary_answer_does_not_create_a_note_from_model_prose(self):
+        with patch(
+            "chats.provider.complete",
+            side_effect=[
+                intake(topic="general"),
+                {
+                    "medical_referral": "none",
+                    "paragraphs": [
+                        {
+                            "text": "Your note has been saved.",
+                            "kind": "suggestion",
+                            "source_ids": [],
+                        }
+                    ],
+                },
+            ],
+        ):
+            reply = self.call()
+        self.assertIsNone(reply.note_to_save)
+
     def test_referral_in_clarification_does_not_wait_for_more_details_or_composition(self):
         with patch(
             "chats.provider.complete",

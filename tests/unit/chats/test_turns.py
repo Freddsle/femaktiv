@@ -8,10 +8,10 @@ from django.db import OperationalError, connection
 from django.test import Client, TransactionTestCase, override_settings
 from django.utils import timezone
 
-from chats import turns
+from chats import turns, usage
 from chats.errors import ChatError
 from chats.models import ActiveNote, Chat, ChatTurn, Message
-from chats.service import ChatReply
+from chats.service import ChatReply, ContextNote
 from notes.models import PersonalNote
 
 from .fixtures import LIVE_SETTINGS, answer, intake
@@ -141,6 +141,229 @@ class LiveTurnTests(TransactionTestCase):
         self.assertEqual(self.status(payload["client_request_id"]).status_code, 404)
         self.assertEqual(self.client.get(f"/en/chats/{self.chat.pk}/").status_code, 404)
 
+    def test_followup_saves_mothers_information_in_owned_notes_in_both_languages(self):
+        for language, report, request, title, body, confirmation in (
+            (
+                "en",
+                "My mum fell and hurt her skull, does she need to go to the hospital?",
+                "Please save this info in my notes, its about my mother.",
+                "Mother — fall",
+                "My mother fell and hurt her skull. I asked whether she needs hospital assessment.",
+                "Your note has been saved.",
+            ),
+            (
+                "de",
+                "Meine Mutter ist gestürzt und hat sich am Kopf verletzt. Muss sie ins Krankenhaus?",
+                "Bitte speichere das in meinen Notizen. Es geht um meine Mutter.",
+                "Mutter — Sturz",
+                "Meine Mutter ist gestürzt und hat sich am Kopf verletzt. Ich habe gefragt, ob sie ins Krankenhaus muss.",
+                "Deine Notiz wurde gespeichert.",
+            ),
+        ):
+            with self.subTest(language=language):
+                self.chat = Chat.objects.create(owner=self.owner)
+                self.url = f"/{language}/api/chats/{self.chat.pk}/messages/"
+                self.mock.reset_mock()
+                self.mock.side_effect = [
+                    intake(decision="urgent", topic="care", facts=[report]),
+                    intake(
+                        decision="save_note",
+                        topic="care",
+                        facts=[report],
+                        evidence_topics=[],
+                        note_action={"action": "create", "title": title, "body": body},
+                    ),
+                ]
+                original_count = PersonalNote.objects.count()
+                first = self.send(self.payload(content=report, note_ids=[]))
+                self.assertEqual(first.status_code, 201)
+                self.assertIsNone(first.json()["assistant_message"]["saved_note"])
+                self.assertEqual(PersonalNote.objects.count(), original_count)
+
+                response = self.send(self.payload(content=request, note_ids=[]))
+                self.assertEqual(response.status_code, 201)
+                data = response.json()
+                note = PersonalNote.objects.get(owner=self.owner, title=title)
+                self.assertEqual(PersonalNote.objects.count(), original_count + 1)
+                self.assertEqual(note.body, body)
+                self.assertEqual(data["assistant_message"]["content"], confirmation)
+                self.assertEqual(
+                    data["assistant_message"]["saved_note"],
+                    {
+                        "id": str(note.pk),
+                        "title": title,
+                        "url": f"/{language}/notes/{note.pk}/edit/",
+                    },
+                )
+                self.assertIsNone(data["user_message"]["saved_note"])
+                self.assertEqual(data["active_context"]["notes"], [])
+                self.assertFalse(ActiveNote.objects.filter(chat=self.chat).exists())
+                self.assertEqual(self.mock.call_count, 2)
+                model_context = json.loads(self.mock.call_args.kwargs["messages"][1]["content"])
+                self.assertEqual(
+                    [
+                        entry["content"]
+                        for entry in model_context["conversation"]
+                        if entry["role"] == "user"
+                    ],
+                    [report, request],
+                )
+                self.assertContains(self.client.get(f"/{language}/notes/"), title)
+                self.assertContains(self.client.get(f"/{language}/notes/{note.pk}/edit/"), body)
+                self.assertContains(
+                    self.client.get(f"/{language}/chats/{self.chat.pk}/"),
+                    f'href="/{language}/notes/{note.pk}/edit/"',
+                )
+
+    def test_saved_note_retries_status_and_deletion_do_not_recreate_it(self):
+        self.mock.side_effect = lambda **kwargs: intake(
+            decision="save_note",
+            note_action={
+                "action": "create",
+                "title": "Mother — fall",
+                "body": "My mother fell and hurt her skull.",
+            },
+        )
+        payload = self.payload(
+            content="Save a note: my mother fell and hurt her skull.", note_ids=[]
+        )
+        initial_count = PersonalNote.objects.count()
+        response = self.send(payload)
+        self.assertEqual(response.status_code, 201)
+        original = response.json()
+        for recovered in (self.send(payload), self.status(payload["client_request_id"])):
+            self.assertEqual(recovered.json(), original)
+        self.assertEqual(PersonalNote.objects.count(), initial_count + 1)
+        self.assertEqual(Message.objects.count(), 2)
+        self.assertEqual(self.mock.call_count, 1)
+        saved_message = Message.objects.get(role=Message.Role.ASSISTANT)
+        note = saved_message.saved_note
+        self.assertEqual(str(note.pk), original["assistant_message"]["saved_note"]["id"])
+
+        self.other.is_staff = self.other.is_superuser = True
+        self.other.save()
+        self.client.force_login(self.other)
+        self.assertEqual(self.send(payload).status_code, 404)
+        self.assertEqual(self.status(payload["client_request_id"]).status_code, 404)
+        self.assertEqual(self.client.get(f"/en/notes/{note.pk}/edit/").status_code, 404)
+        self.assertNotContains(self.client.get("/en/notes/"), note.title)
+        self.assertFalse(PersonalNote.objects.filter(owner=self.other).exists())
+
+        self.client.force_login(self.owner)
+        self.assertEqual(self.client.post(f"/en/notes/{note.pk}/delete/").status_code, 302)
+        saved_message.refresh_from_db()
+        self.assertIsNone(saved_message.saved_note_id)
+        for recovered in (self.send(payload), self.status(payload["client_request_id"])):
+            self.assertIsNone(recovered.json()["assistant_message"]["saved_note"])
+        self.assertNotContains(
+            self.client.get(f"/en/chats/{self.chat.pk}/"),
+            f'href="/en/notes/{note.pk}/edit/"',
+        )
+        self.assertEqual(PersonalNote.objects.count(), initial_count)
+        self.assertEqual(self.mock.call_count, 1)
+
+    def test_note_write_failure_rolls_back_messages_and_never_confirms_saved(self):
+        self.mock.side_effect = lambda **kwargs: intake(
+            decision="save_note",
+            note_action={"action": "create", "title": "Mother", "body": "My mother fell."},
+        )
+        payload = self.payload(content="Save a note about my mother's fall.", note_ids=[])
+        initial_count = PersonalNote.objects.count()
+        with patch.object(
+            PersonalNote, "save", side_effect=OperationalError("private note content")
+        ):
+            response = self.send(payload)
+        self.assertEqual(response.status_code, 503)
+        self.assertNotIn("private note content", response.content.decode())
+        self.assertNotIn("Your note has been saved", response.content.decode())
+        self.assertFalse(Message.objects.exists())
+        self.assertEqual(PersonalNote.objects.count(), initial_count)
+        self.assertEqual(ChatTurn.objects.get().status, "failed")
+        self.assertEqual(self.send(payload).json(), response.json())
+        self.assertEqual(self.mock.call_count, 1)
+
+    def test_deleting_completed_chat_preserves_its_saved_personal_note(self):
+        self.mock.side_effect = lambda **kwargs: intake(
+            decision="save_note",
+            note_action={"action": "create", "title": "Mother", "body": "My mother fell."},
+        )
+        response = self.send(self.payload(content="Save a note: my mother fell.", note_ids=[]))
+        self.assertEqual(response.status_code, 201)
+        note_id = response.json()["assistant_message"]["saved_note"]["id"]
+        self.assertEqual(self.client.post(f"/en/chats/{self.chat.pk}/delete/").status_code, 302)
+        self.assertFalse(Message.objects.exists())
+        self.assertFalse(ChatTurn.objects.exists())
+        self.assertEqual(PersonalNote.objects.get(pk=note_id).owner_id, self.owner.pk)
+        self.assertContains(self.client.get(f"/en/notes/{note_id}/edit/"), "My mother fell.")
+
+    def test_later_turn_write_failure_rolls_back_created_note_and_messages(self):
+        original_save = ChatTurn.save
+
+        def fail_completion(turn, *args, **kwargs):
+            if turn.status == ChatTurn.Status.COMPLETED:
+                raise OperationalError("private note content")
+            return original_save(turn, *args, **kwargs)
+
+        initial_count = PersonalNote.objects.count()
+        with (
+            patch(
+                "chats.turns.service.generate_reply",
+                return_value=ChatReply(
+                    "",
+                    "live",
+                    note_to_save=ContextNote("Mother", "My mother fell."),
+                ),
+            ),
+            patch.object(ChatTurn, "save", fail_completion),
+        ):
+            response = self.send(self.payload(note_ids=[]))
+        self.assertEqual(response.status_code, 503)
+        self.assertFalse(Message.objects.exists())
+        self.assertEqual(PersonalNote.objects.count(), initial_count)
+        self.assertEqual(ChatTurn.objects.get().status, "failed")
+
+    def test_late_note_save_cannot_outlive_reset_or_private_data_deletion(self):
+        for action in ("reset", "delete", "delete_all"):
+            with self.subTest(action=action):
+                self.chat = Chat.objects.create(owner=self.owner)
+                _, turn, _ = turns.reserve(
+                    owner=self.owner,
+                    pk=self.chat.pk,
+                    request_id=uuid4(),
+                    content="Save a note about my mother.",
+                    note_ids=[],
+                    language="en",
+                )
+                chat_id = self.chat.pk
+                initial_count = PersonalNote.objects.count()
+                reply = ChatReply(
+                    "",
+                    "live",
+                    note_to_save=ContextNote("Mother", "My mother fell."),
+                )
+                if action == "reset":
+                    self.assertEqual(self.context(action="reset").status_code, 200)
+                    response = turns.save_reply(chat_id, turn.pk, reply)
+                    self.assertEqual(response.status_code, 409)
+                else:
+                    if action == "delete_all":
+                        self.assertEqual(
+                            self.client.post(
+                                "/en/accounts/settings/delete-data/", {"confirm": "on"}
+                            ).status_code,
+                            302,
+                        )
+                        initial_count = 0
+                    else:
+                        self.chat.delete()
+                    with self.assertRaises(ChatError) as caught:
+                        turns.save_reply(chat_id, turn.pk, reply)
+                    self.assertEqual(caught.exception.code, "not_found")
+                self.assertEqual(PersonalNote.objects.count(), initial_count)
+                self.assertFalse(Message.objects.exists())
+                usage.finish(turn.usage_id)
+        self.mock.assert_not_called()
+
     def test_failed_paid_request_is_terminal_and_duplicate_never_retries(self):
         for code in ("privacy_failed", "invalid_reply", "deadline_exceeded"):
             payload = self.payload()
@@ -169,11 +392,22 @@ class LiveTurnTests(TransactionTestCase):
         ChatTurn.objects.filter(pk=turn.pk).update(expires_at=timezone.now() - timedelta(seconds=1))
         self.assertEqual(self.status(payload["client_request_id"]).status_code, 504)
         self.assertEqual(self.send(payload).status_code, 504)
+        initial_note_count = PersonalNote.objects.count()
         self.assertEqual(
-            turns.save_reply(self.chat.pk, turn.pk, ChatReply("Late", "live")).status_code, 504
+            turns.save_reply(
+                self.chat.pk,
+                turn.pk,
+                ChatReply(
+                    "Late",
+                    "live",
+                    note_to_save=ContextNote("Mother", "My mother fell."),
+                ),
+            ).status_code,
+            504,
         )
         self.mock.assert_not_called()
         self.assertFalse(Message.objects.exists())
+        self.assertEqual(PersonalNote.objects.count(), initial_note_count)
 
     def test_pair_rolls_back_on_save_failure_but_reservation_remains_failed(self):
         with patch(

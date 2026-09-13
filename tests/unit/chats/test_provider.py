@@ -53,6 +53,10 @@ class ProviderTests(SimpleTestCase):
             del expected_intake["properties"][field]["items"]["minLength"]
             del expected_intake["properties"][field]["items"]["maxLength"]
         del expected_intake["properties"]["evidence_topics"]["uniqueItems"]
+        for field in ("title", "body"):
+            prop = expected_intake["properties"]["note_action"]["properties"][field]
+            del prop["minLength"]
+            del prop["maxLength"]
         cases = [(INTAKE_SCHEMA, intake(), expected_intake)]
         for source_ids in (["dge-food", "bund-discharge"], []):
             schema = answer_schema(source_ids)

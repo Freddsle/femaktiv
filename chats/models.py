@@ -40,6 +40,9 @@ class Message(models.Model):
     citations = models.JSONField(default=list, blank=True)
     urgent_help = models.JSONField(default=dict, blank=True)
     lookup_status = models.CharField(max_length=24, default="not_requested")
+    saved_note = models.ForeignKey(
+        "notes.PersonalNote", on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
 
     class Meta:
         ordering = ["created_at", "id"]
