@@ -3,6 +3,20 @@
 {% for paragraph in entry.display_paragraphs %}
   <div class="answer-paragraph"><p>{{ paragraph.text }}</p>{% if paragraph.citations %}<div class="paragraph-citations">{% for source in paragraph.citations %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.title }}</a>{% endfor %}</div>{% endif %}</div>
 {% endfor %}
+{% if entry.urgent_help.contacts %}
+  <section class="urgent-help" aria-labelledby="urgent-help-{{ entry.pk }}">
+    <h3 id="urgent-help-{{ entry.pk }}">{{ entry.urgent_help.heading }}</h3>
+    <ul class="urgent-help-contacts">
+    {% for contact in entry.urgent_help.contacts %}
+      <li>
+        <div class="urgent-help-contact-title"><a class="urgent-help-number" href="tel:{{ contact.number }}">{{ contact.number }}</a><strong>{{ contact.label }}</strong></div>
+        <p>{{ contact.description }}</p>
+        <a class="urgent-help-source" href="{{ contact.source_url }}" target="_blank" rel="noopener noreferrer">{{ contact.source_title }}</a>
+      </li>
+    {% endfor %}
+    </ul>
+  </section>
+{% endif %}
 {% for source in entry.citations %}
   <details class="source-card" {% if source.kind == 'contact' %}open{% endif %}>
     <summary>{{ source.title }}</summary>

@@ -13,6 +13,7 @@ def intake(**changes):
     return {
         "topic": "nutrition",
         "decision": "answer",
+        "medical_referral": "none",
         "intro": "",
         "facts": ["The user has hypertension", "Milk allergy", "Fifteen minutes for cooking"],
         "questions": [],
@@ -27,9 +28,11 @@ def answer(language="en", care=False):
         if language == "de":
             text = "Frage den Sozialdienst nach dem Entlassplan: Welche Unterstützung ist nach der Entlassung möglich?"
         return {
-            "paragraphs": [{"text": text, "kind": "explanation", "source_ids": ["bund-discharge"]}]
+            "medical_referral": "none",
+            "paragraphs": [{"text": text, "kind": "explanation", "source_ids": ["bund-discharge"]}],
         }
     return {
+        "medical_referral": "none",
         "paragraphs": [
             {
                 "text": "Lentils provide protein and fibre."
@@ -45,5 +48,5 @@ def answer(language="en", care=False):
                 "kind": "suggestion",
                 "source_ids": [],
             },
-        ]
+        ],
     }

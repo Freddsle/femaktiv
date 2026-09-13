@@ -19,6 +19,8 @@ TOPICS = [
     "vitamin_d",
 ]
 
+MEDICAL_REFERRALS = ["none", "urgent", "emergency"]
+
 
 def object_schema(properties):
     return {
@@ -37,6 +39,7 @@ INTAKE_SCHEMA = object_schema(
     {
         "topic": {"type": "string", "enum": ["general", "nutrition", "care"]},
         "decision": {"type": "string", "enum": ["answer", "clarification", "urgent"]},
+        "medical_referral": {"type": "string", "enum": MEDICAL_REFERRALS},
         "intro": text_schema(600, 0),
         "facts": {"type": "array", "items": text_schema(500), "maxItems": 24},
         "questions": {"type": "array", "items": text_schema(350), "maxItems": 3},
@@ -58,6 +61,7 @@ def answer_schema(source_ids):
         references["maxItems"] = 0
     return object_schema(
         {
+            "medical_referral": {"type": "string", "enum": MEDICAL_REFERRALS},
             "paragraphs": {
                 "type": "array",
                 "minItems": 1,

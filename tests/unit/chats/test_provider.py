@@ -65,9 +65,10 @@ class ProviderTests(SimpleTestCase):
                 answer()
                 if source_ids
                 else {
+                    "medical_referral": "none",
                     "paragraphs": [
                         {"text": "What would help?", "kind": "question", "source_ids": []}
-                    ]
+                    ],
                 }
             )
             cases.append((schema, output, expected))
@@ -102,9 +103,10 @@ class ProviderTests(SimpleTestCase):
                 (
                     answer_schema(["dge-food"]),
                     {
+                        "medical_referral": "none",
                         "paragraphs": [
                             {"text": text, "kind": "explanation", "source_ids": source_ids}
-                        ]
+                        ],
                     },
                     rule,
                 )

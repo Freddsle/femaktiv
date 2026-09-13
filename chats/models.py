@@ -38,6 +38,7 @@ class Message(models.Model):
     kind = models.CharField(max_length=20, default="answer")
     paragraphs = models.JSONField(default=list, blank=True)
     citations = models.JSONField(default=list, blank=True)
+    urgent_help = models.JSONField(default=dict, blank=True)
     lookup_status = models.CharField(max_length=24, default="not_requested")
 
     class Meta:

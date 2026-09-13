@@ -50,6 +50,7 @@ class LiveChatBrowserTests(LiveServerTestCase):
             self.send("More protein and fibre, please.")
             expect(self.page.locator(".message")).to_have_count(2)
             expect(self.page.locator(".message-assistant")).to_contain_text("without milk")
+            expect(self.page.locator(".urgent-help")).to_have_count(0)
             expect(self.page.locator(".paragraph-citations a")).to_have_attribute(
                 "href",
                 "https://www.dge.de/gesunde-ernaehrung/gut-essen-und-trinken/dge-empfehlungen/",
@@ -92,9 +93,82 @@ class LiveChatBrowserTests(LiveServerTestCase):
             )
             self.page.reload()
             expect(self.page.locator("[data-active-count]")).to_have_text("0")
+            expect(self.page.locator(".urgent-help")).to_have_count(0)
             expect(self.page.locator(".paragraph-citations a").first).to_have_attribute(
                 "rel", "noopener noreferrer"
             )
+
+    def test_urgent_help_both_locales_sizes_dynamic_saved_and_phone_links(self):
+        with patch("chats.provider.complete", return_value=intake(decision="urgent")) as model:
+            self.login()
+            for language, heading in (
+                ("en", "If you are in Germany"),
+                ("de", "Wenn du in Deutschland bist"),
+            ):
+                self.page.set_viewport_size({"width": 1440, "height": 1000})
+                self.goto("/en/chats/")
+                self.new_chat()
+                path = self.page.url.removeprefix(self.live_server_url)
+                if language == "de":
+                    self.goto(path.replace("/en/", "/de/"))
+                for count, (width, size) in enumerate(
+                    ((390, "mobile"), (1440, "desktop")), start=1
+                ):
+                    self.page.set_viewport_size(
+                        {"width": width, "height": 1000 if width > 400 else 844}
+                    )
+                    self.send(
+                        "Meine Mutter ist gestürzt und hat sich am Kopf verletzt."
+                        if language == "de"
+                        else "My mum fell and hurt her head."
+                    )
+                    expect(self.page.locator(".message-assistant")).to_have_count(count)
+                    panel = self.page.locator(".message-assistant").last.locator(".urgent-help")
+                    expect(panel.get_by_role("heading")).to_have_text(heading)
+                    for number in ("112", "116117"):
+                        expect(
+                            panel.get_by_role("link", name=number, exact=True)
+                        ).to_have_attribute("href", f"tel:{number}")
+                    for index, url in enumerate(
+                        (
+                            "https://gesund.bund.de/notfallnummern",
+                            "https://www.116117.de/de/englisch.php",
+                        )
+                    ):
+                        source = panel.locator(".urgent-help-source").nth(index)
+                        expect(source).to_have_attribute("href", url)
+                        expect(source).to_have_attribute("target", "_blank")
+                        expect(source).to_have_attribute("rel", "noopener noreferrer")
+                    saved_text = panel.inner_text()
+                    self.no_overflow()
+                    self.page.locator("#chat-thread").evaluate(
+                        "node => { node.style.scrollBehavior = 'auto'; node.scrollTop = node.scrollHeight; }"
+                    )
+                    self.page.screenshot(
+                        path=str(self.screenshot_dir / f"live-urgent-help-{language}-{size}.png"),
+                        full_page=True,
+                    )
+                    self.page.reload()
+                    expect(panel).to_have_text(saved_text, use_inner_text=True)
+                    expect(panel.locator(".urgent-help-number").first).to_have_attribute(
+                        "href", "tel:112"
+                    )
+                    # Prevent dialing, after the application's document click handler runs.
+                    # Activating a phone link must leave the next chat submission usable.
+                    self.page.evaluate("""() => {
+                        document.addEventListener('click', event => {
+                            if (event.target.closest('a[href^="tel:"]')) event.preventDefault();
+                        });
+                    }""")
+                    panel.locator(".urgent-help-number").first.focus()
+                    self.page.keyboard.press("Enter")
+                self.page.get_by_role(
+                    "button", name="Deutsch" if language == "en" else "English", exact=True
+                ).click()
+                self.page.wait_for_url(f"**/{'de' if language == 'en' else 'en'}/chats/*/")
+                expect(panel).to_have_text(saved_text, use_inner_text=True)
+                expect(panel.get_by_role("heading")).to_have_text(heading)
+            self.assertEqual(model.call_count, 4)
 
     def test_care_cited_guidance_and_call_preparation_without_local_lookup(self):
         def model(**kwargs):

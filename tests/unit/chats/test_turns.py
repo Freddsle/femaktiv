@@ -121,6 +121,26 @@ class LiveTurnTests(TransactionTestCase):
         self.assertEqual(reservation.note_copies, [])
         self.assertEqual(self.send({**payload, "content": "changed"}).status_code, 409)
 
+    def test_urgent_panel_is_saved_and_recovered_without_reclassification(self):
+        self.mock.side_effect = lambda **kwargs: intake(decision="urgent")
+        payload = self.payload(content="My mum fell and hurt her skull.", note_ids=[])
+        response = self.send(payload)
+        self.assertEqual(response.status_code, 201)
+        original = response.json()
+        saved = Message.objects.get(role=Message.Role.ASSISTANT)
+        self.assertEqual(saved.urgent_help, original["assistant_message"]["urgent_help"])
+        self.assertEqual(saved.urgent_help["heading"], "If you are in Germany")
+        self.assertEqual(original["user_message"]["urgent_help"], {})
+        self.assertEqual(self.send(payload).json(), original)
+        self.assertEqual(self.status(payload["client_request_id"]).json(), original)
+        page = self.client.get(f"/de/chats/{self.chat.pk}/")
+        self.assertContains(page, "If you are in Germany")
+        self.assertContains(page, 'href="tel:112"')
+        self.assertEqual(self.mock.call_count, 1)
+        self.client.force_login(self.other)
+        self.assertEqual(self.status(payload["client_request_id"]).status_code, 404)
+        self.assertEqual(self.client.get(f"/en/chats/{self.chat.pk}/").status_code, 404)
+
     def test_failed_paid_request_is_terminal_and_duplicate_never_retries(self):
         for code in ("privacy_failed", "invalid_reply", "deadline_exceeded"):
             payload = self.payload()

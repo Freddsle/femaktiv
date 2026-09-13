@@ -45,6 +45,7 @@
     const link = event.target.closest('a[href]');
     if (!link || event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0 || link.target === '_blank' || link.hasAttribute('download')) return;
     const destination = new URL(link.href, window.location.href);
+    if (!['https:', 'http:'].includes(destination.protocol)) return;
     const sameDocument = destination.origin === window.location.origin && destination.pathname === window.location.pathname && destination.search === window.location.search;
     if (sameDocument && destination.hash) return;
     prepareNavigation();
@@ -170,6 +171,26 @@
         }
         body.append(block);
       });
+      if (message.urgent_help?.contacts?.length) {
+        const help = element('section', 'urgent-help');
+        const heading = element('h3', '', message.urgent_help.heading);
+        heading.id = `urgent-help-${message.id}`;
+        help.setAttribute('aria-labelledby', heading.id);
+        const contacts = element('ul', 'urgent-help-contacts');
+        message.urgent_help.contacts.forEach((contact) => {
+          const item = element('li', '');
+          const title = element('div', 'urgent-help-contact-title');
+          const phone = element('a', 'urgent-help-number', contact.number);
+          phone.href = `tel:${contact.number}`;
+          title.append(phone, element('strong', '', contact.label));
+          const source = sourceLink(contact.source_url, contact.source_title);
+          source.classList.add('urgent-help-source');
+          item.append(title, element('p', '', contact.description), source);
+          contacts.append(item);
+        });
+        help.append(heading, contacts);
+        body.append(help);
+      }
       (message.citations || []).forEach((source) => {
         const card = element('details', 'source-card');
         card.open = source.kind === 'contact';

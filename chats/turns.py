@@ -47,6 +47,7 @@ def serialize(message):
         "kind": message.kind,
         "paragraphs": paragraphs,
         "citations": citations,
+        "urgent_help": message.urgent_help,
         "lookup_status": message.lookup_status,
         "context": [
             {"title": note.title, "body": note.body} for note in message.context_snapshots.all()
@@ -236,6 +237,7 @@ def save_reply(chat_id, turn_id, reply):
             kind=reply.kind,
             paragraphs=reply.paragraphs,
             citations=reply.citations,
+            urgent_help=reply.urgent_help,
             lookup_status=reply.lookup_status,
         )
         if first_message:

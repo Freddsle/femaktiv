@@ -18,6 +18,128 @@ class LiveServiceTests(SimpleTestCase):
             language=language,
         )
 
+    def test_urgent_intake_adds_national_help_without_a_second_call(self):
+        for language, heading in (
+            ("en", "If you are in Germany"),
+            ("de", "Wenn du in Deutschland bist"),
+        ):
+            with (
+                self.subTest(language=language),
+                patch("chats.provider.complete", return_value=intake(decision="urgent")) as model,
+            ):
+                reply = self.call(language)
+            self.assertEqual(model.call_count, 1)
+            self.assertEqual(reply.urgent_help["heading"], heading)
+            self.assertEqual(
+                [contact["number"] for contact in reply.urgent_help["contacts"]], ["112", "116117"]
+            )
+            self.assertNotIn("112", reply.content)
+            self.assertEqual(reply.lookup_status, "not_requested")
+            self.assertEqual(reply.citations, [])
+            if language == "en":
+                self.assertEqual(
+                    reply.content,
+                    "If there is immediate danger, contact the local emergency service now. This chat cannot assess an emergency. Ask someone nearby to help if you can.",
+                )
+
+    def test_referral_in_clarification_does_not_wait_for_more_details_or_composition(self):
+        with patch(
+            "chats.provider.complete",
+            return_value=intake(
+                decision="clarification",
+                medical_referral="urgent",
+                intro="Please get medical advice today.",
+                questions=["Is someone nearby who can help you make the call?"],
+            ),
+        ) as model:
+            reply = self.call()
+        self.assertEqual(reply.kind, "clarification")
+        self.assertTrue(reply.urgent_help)
+        model.assert_called_once()
+
+    def test_referral_in_either_model_step_adds_help_without_an_extra_classifier(self):
+        # Mocked flags verify routing, not the model's medical classification accuracy.
+        for intake_flag, answer_flag in (
+            ("none", "urgent"),
+            ("none", "emergency"),
+            ("urgent", "none"),
+            ("emergency", "none"),
+        ):
+            with (
+                self.subTest(intake_flag=intake_flag, answer_flag=answer_flag),
+                patch(
+                    "chats.provider.complete",
+                    side_effect=[
+                        intake(medical_referral=intake_flag),
+                        {**answer(), "medical_referral": answer_flag},
+                    ],
+                ) as model,
+            ):
+                reply = self.call()
+            self.assertEqual(model.call_count, 2)
+            self.assertTrue(reply.urgent_help)
+            self.assertEqual(reply.content, "\n\n".join(p["text"] for p in answer()["paragraphs"]))
+
+    def test_none_flag_does_not_infer_a_referral_from_numeric_or_negated_prose(self):
+        for text in (
+            "Plan a routine appointment next month.",
+            "You said the doctor told you last year to call immediately.",
+            "No immediate doctor referral is being made here.",
+            "If there is ever an emergency, contact emergency services.",
+            "Use 112 grams in this fictional meal example.",
+        ):
+            with (
+                self.subTest(text=text),
+                patch(
+                    "chats.provider.complete",
+                    side_effect=[
+                        intake(topic="general", evidence_topics=[]),
+                        {
+                            "medical_referral": "none",
+                            "paragraphs": [{"text": text, "kind": "suggestion", "source_ids": []}],
+                        },
+                    ],
+                ),
+            ):
+                reply = self.call()
+            self.assertEqual(reply.urgent_help, {})
+
+    def test_referral_flags_are_required_and_reject_generated_contact_data(self):
+        for flag in (None, True, "112", "routine", {"number": "911"}):
+            for stage in ("intake", "answer"):
+                responses = (
+                    [intake(medical_referral=flag)]
+                    if stage == "intake"
+                    else [intake(), {**answer(), "medical_referral": flag}]
+                )
+                with (
+                    self.subTest(flag=flag, stage=stage),
+                    patch("chats.provider.complete", side_effect=responses) as model,
+                    self.assertRaises(ChatError),
+                ):
+                    self.call()
+                self.assertEqual(model.call_count, len(responses))
+        for stage in ("intake", "answer"):
+            missing = intake() if stage == "intake" else answer()
+            del missing["medical_referral"]
+            with (
+                self.subTest(missing=stage),
+                patch(
+                    "chats.provider.complete",
+                    side_effect=[missing] if stage == "intake" else [intake(), missing],
+                ),
+                self.assertRaises(ChatError),
+            ):
+                self.call()
+
+    @override_settings(FEMAKTIV_AI_MODE="placeholder")
+    def test_placeholder_does_not_perform_referral_classification(self):
+        with patch("chats.provider.complete") as model:
+            reply = self.call(history=[{"role": "user", "content": "Call a doctor immediately?"}])
+        model.assert_not_called()
+        self.assertEqual(reply.urgent_help, {})
+        self.assertEqual(reply.mode, "placeholder")
+
     def test_provider_identifiers_and_placeholders_are_accepted_without_local_masking(self):
         for language, returned in (
             (
@@ -28,7 +150,10 @@ class LiveServiceTests(SimpleTestCase):
         ):
             outputs = [
                 intake(topic="general", intro=returned, facts=[returned], evidence_topics=[]),
-                {"paragraphs": [{"text": returned, "kind": "suggestion", "source_ids": []}]},
+                {
+                    "medical_referral": "none",
+                    "paragraphs": [{"text": returned, "kind": "suggestion", "source_ids": []}],
+                },
             ]
             with (
                 self.subTest(language=language),
@@ -145,7 +270,8 @@ class LiveServiceTests(SimpleTestCase):
             with (
                 self.subTest(paragraph=paragraph),
                 patch(
-                    "chats.provider.complete", side_effect=[intake(), {"paragraphs": [paragraph]}]
+                    "chats.provider.complete",
+                    side_effect=[intake(), {"medical_referral": "none", "paragraphs": [paragraph]}],
                 ),
             ):
                 with self.assertRaises(ChatError):
@@ -180,13 +306,14 @@ class LiveServiceTests(SimpleTestCase):
                 side_effect=[
                     intake(topic="general", evidence_topics=[]),
                     {
+                        "medical_referral": "none",
                         "paragraphs": [
                             {
                                 "text": "Tell me what you would like to organise.",
                                 "kind": "question",
                                 "source_ids": [],
                             }
-                        ]
+                        ],
                     },
                 ],
             ),
