@@ -9,6 +9,9 @@ from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
+# Deliberately explicit presentation copy, never read credentials during rendering.
+# Matched to the operator's configured openai/gpt-5.6-sol on 13 September 2026.
+MODEL_LABEL = "GPT-5.6"
 PAPER = "#fcf9f6"
 PLUM = "#39273e"
 PURPLE = "#785098"
@@ -59,9 +62,9 @@ def icon(name, x, y, color=PURPLE, size=28):
     add("</g>")
 
 
-def stage(x, number, label):
-    text(x, 358, number, 19, PURPLE, 700)
-    text(x + 39, 358, label, 17, MUTED, 700, 'letter-spacing="2"')
+def stage(x, number, label, y=427):
+    text(x, y, number, 19, PURPLE, 700)
+    text(x + 39, y, label, 17, MUTED, 700, 'letter-spacing="2"')
 
 
 def chip(x, y, width, label, fill="#ede5f2", color=PURPLE):
@@ -74,12 +77,23 @@ def image_data(path):
     return f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
 
 
+def logo(name, x, y, width, height, url):
+    add(f'<a xlink:href="{url}" target="_blank">')
+    add(
+        f'<image x="{x}" y="{y}" width="{width}" height="{height}" '
+        f'xlink:href="{image_data(HERE / "assets" / name)}"/>'
+    )
+    add("</a>")
+
+
 add("""<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
     width="1920" height="1080" viewBox="0 0 1920 1080" role="img"
     aria-labelledby="title description">
 <title id="title">The intelligence behind femaktiv</title>
-<desc id="description">Personal context enters femaktiv coordination. Selected evidence informs
-the instructions. Intake and answer drafting pass through Anymize, which handles identifier
+<desc id="description">Two separate inputs enter femaktiv coordination: private personal
+context and a curated library of public sources. They use separate panels and arrows;
+personal notes do not become evidence-library records. Intake and answer drafting pass
+through Anymize, which handles identifier
 masking before the AI model. femaktiv checks source references and returns practical guidance
 in English or German. The selected library includes DGE, NIH and NHLBI, EFSA, gesund.bund.de and ZQP.</desc>
 <defs>
@@ -96,6 +110,9 @@ in English or German. The selected library includes DGE, NIH and NHLBI, EFSA, ge
     <stop offset="1" stop-color="#fcf9f6" stop-opacity="0"/></radialGradient>
   <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
     <path d="M2 1 7 5 2 9" fill="none" stroke="#a78db3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="coral-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M2 1 7 5 2 9" fill="none" stroke="#c4876e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
   </marker>
   <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
     <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#39273e" flood-opacity=".055"/>
@@ -115,104 +132,112 @@ text(80, 82, "THE INTELLIGENCE BEHIND femaktiv", 18, PURPLE, 700, 'letter-spacin
 text(80, 173, "Personal context.", 77, PLUM, extra='class="serif"')
 text(80, 253, "Credible sources.", 77, PLUM, extra='class="serif"')
 text(632, 253, "Practical support.", 77, PURPLE, extra='class="serif" font-style="italic"')
-text(84, 303, "A thoughtful journey from her question to her next step.", 25, MUTED)
+text(84, 303, "Two distinct inputs. One thoughtful answer.", 25, MUTED)
 add(
     f'<image x="1633" y="52" width="190" height="190" '
     f'xlink:href="{image_data(ROOT / "static/img/femaktiv-logo-rounded.png")}"/>'
 )
 chip(1601, 263, 224, "LIVE PROTOTYPE", "#f5eae8", "#866276")
 
-stage(80, "01", "PERSONAL CONTEXT")
-stage(455, "02", "femaktiv COORDINATION")
-stage(980, "03", "PRIVACY + AI")
-stage(1475, "04", "PRACTICAL GUIDANCE")
+stage(80, "01", "TWO DISTINCT INPUTS", 348)
+stage(660, "02", "femaktiv")
+stage(1100, "03", "PRIVACY + AI")
+stage(1520, "04", "HER NEXT STEP")
 
-# Four distinct visual weights keep the product, rather than infrastructure, central.
-rect(80, 389, 300, 377, WHITE, "#e7dfe4", extra='filter="url(#shadow)"')
-rect(455, 389, 450, 377, "url(#core)", extra='filter="url(#shadow)"')
-rect(980, 389, 420, 377, "url(#privacy)", "#dfd2e6")
-rect(1475, 389, 365, 377, WHITE, "#ddcbdc", extra='filter="url(#shadow)"')
+# Two independent inputs: different ownership, visual treatment and entry arrows.
+rect(80, 375, 500, 254, "#f1eaf5", "#dfd2e6", extra='filter="url(#shadow)"')
+rect(80, 680, 500, 284, "url(#evidence)", "#e8ccc0", extra='filter="url(#shadow)"')
+rect(660, 455, 360, 412, "url(#core)", extra='filter="url(#shadow)"')
+rect(1100, 455, 340, 412, "url(#privacy)", "#dfd2e6")
+rect(1520, 455, 320, 412, WHITE, "#ddcbdc", extra='filter="url(#shadow)"')
 
-for start, end in [(393, 442), (918, 967), (1413, 1462)]:
-    path(f"M{start} 575H{end}", "#a78db3", 2.3, 'marker-end="url(#arrow)"')
-
-# Context card.
-rect(112, 423, 54, 54, "#f5eae8", radius=17)
-icon("user", 125, 435, "#ae7f8c", 29)
-text(112, 526, "Her world,", 36, PLUM, extra='class="serif"')
-text(112, 564, "in context.", 36, PLUM, extra='class="serif"')
+text(112, 414, "HER INFORMATION", 16, PURPLE, 700, 'letter-spacing="2"')
+chip(450, 395, 99, "PRIVATE", "#e4d8ed", PURPLE)
+text(112, 463, "Personal context", 35, PLUM, extra='class="serif"')
 for name, label, y in [
-    ("chat", "Her question", 612),
-    ("note", "Selected notes", 658),
-    ("history", "Active conversation", 704),
+    ("chat", "Her question", 511),
+    ("note", "Notes she selects", 552),
+    ("history", "Her active conversation", 593),
 ]:
-    icon(name, 113, y - 21, PURPLE, 25)
-    text(153, y, label, 22, MUTED)
+    icon(name, 113, y - 22, PURPLE, 25)
+    text(154, y, label, 23, MUTED)
 
-# Orchestration card.
-rect(487, 422, 56, 56, "#ffffff16", radius=17)
-icon("spark", 500, 435, "#ecd2d9", 29)
-text(561, 457, "The connecting layer", 24, "#f4e6ef", 600)
-text(488, 526, "Context meets evidence.", 36, WHITE, extra='class="serif"')
-text(488, 575, "Understand what matters.", 24, "#e4d5e9")
-text(488, 612, "Select relevant source passages.", 24, "#e4d5e9")
-text(488, 649, "Guide every model request.", 24, "#e4d5e9")
-path("M488 682H872", "#ffffff25", 1)
-icon("shield", 488, 706, "#d6b9de", 22)
-text(522, 725, "Private workspace · persistent context", 19, "#e4d5e9")
-
-# Anymize keeps its actual public logo; model identity stays configurable.
-add(
-    f'<image x="1013" y="428" width="217" height="42" '
-    f'xlink:href="{image_data(HERE / "assets/anymize.svg")}"/>'
-)
-icon("shield", 1322, 430, PURPLE, 36)
-text(1013, 519, "Identifier masking", 30, PLUM, 600)
-text(1013, 554, "Handled by Anymize", 23, MUTED)
-text(1013, 585, "before the AI model", 23, MUTED)
-path("M1190 604V628", "#a78db3", 2, 'marker-end="url(#arrow)"')
-rect(1012, 642, 356, 89, "#fffdfba8", "#ffffffa0", radius=18)
-icon("spark", 1034, 669, PURPLE, 30)
-text(1083, 679, "AI assistance", 25, PLUM, 600)
-text(1083, 710, "Understand + draft", 21, MUTED)
-
-# Result card depicts reference checks, not medical fact verification.
-rect(1507, 423, 54, 54, "#ede5f2", radius=17)
-icon("check", 1520, 435, PURPLE, 28)
-text(1507, 526, "Clear next steps.", 36, PLUM, extra='class="serif"')
-text(1507, 569, "Practical, personal guidance", 22, MUTED)
-text(1507, 601, "with references to explore.", 22, MUTED)
-rect(1507, 630, 300, 48, "#f5eae8", radius=13)
-icon("link", 1520, 643, "#9d758a", 22)
-text(1556, 661, "femaktiv checks references", 19, PLUM)
-chip(1507, 704, 118, "ENGLISH")
-chip(1637, 704, 117, "DEUTSCH")
-
-# Evidence is an input to orchestration, not an independent live search service.
-path("M680 832V782", "#a78db3", 2.2, 'marker-end="url(#arrow)"')
-text(702, 811, "relevant passages + source links", 20, MUTED)
-rect(455, 841, 1385, 147, "url(#evidence)", "#ecdeda", radius=24)
-icon("book", 487, 866, "#a2737c", 28)
-text(531, 890, "A curated foundation of credible sources", 27, PLUM, 600)
-text(1810, 889, "Nutrition + family care", 21, MUTED, extra='text-anchor="end"')
-
+text(112, 720, "PUBLIC KNOWLEDGE", 16, "#9d6b57", 700, 'letter-spacing="2"')
+icon("book", 516, 703, "#a2737c", 29)
+text(112, 763, "Curated sources", 35, PLUM, extra='class="serif"')
+text(112, 799, "Selected nutrition + care guidance", 22, MUTED)
 source_chips = [
-    (488, 163, "DGE"),
-    (667, 222, "NIH / NHLBI"),
-    (905, 157, "EFSA"),
-    (1078, 323, "gesund.bund.de"),
-    (1417, 153, "ZQP"),
+    (112, 822, 95, "DGE"),
+    (219, 822, 180, "NIH / NHLBI"),
+    (411, 822, 137, "EFSA"),
+    (112, 883, 287, "gesund.bund.de"),
+    (411, 883, 137, "ZQP"),
 ]
-for x, width, label in source_chips:
-    rect(x, 913, width, 47, "#fffdfb99", "#ffffff", radius=13)
-    text(x + width / 2, 944, label, 23, "#74566e", 600, 'text-anchor="middle"')
-text(1594, 932, "Selected guidance.", 18, MUTED)
-text(1594, 957, "Links with guidance.", 18, MUTED)
+for x, y, width, label in source_chips:
+    rect(x, y, width, 46, "#fffdfbb5", "#ffffff", radius=13)
+    text(x + width / 2, y + 30, label, 22, "#74566e", 600, 'text-anchor="middle"')
 
-# Two short benefits balance the source panel without another technical layer.
-text(83, 874, "Designed around her.", 28, PURPLE, extra='class="serif" font-style="italic"')
-text(84, 913, "Personal context", 22, MUTED)
-text(84, 944, "stays under her control.", 22, MUTED)
+path(
+    "M592 502H608Q622 502 622 516V555Q622 569 636 569H648",
+    "#a78db3",
+    2.5,
+    'marker-end="url(#arrow)"',
+)
+path(
+    "M592 822H608Q622 822 622 808V769Q622 755 636 755H648",
+    "#c4876e",
+    2.5,
+    'marker-end="url(#coral-arrow)"',
+)
+
+# Backend coordination: neither personal notes nor the source library owns the other.
+rect(692, 489, 50, 50, "#ffffff16", radius=15)
+icon("spark", 704, 501, "#ecd2d9", 26)
+text(692, 589, "Made relevant", 37, WHITE, extra='class="serif"')
+text(692, 629, "to her.", 37, WHITE, extra='class="serif"')
+text(692, 679, "Select relevant evidence.", 23, "#e4d5e9")
+text(692, 714, "Preserve her constraints.", 23, "#e4d5e9")
+text(692, 749, "Guide each model request.", 23, "#e4d5e9")
+path("M692 776H988", "#ffffff25", 1)
+text(692, 821, "BUILT WITH", 13, "#e4d5e9", 600, 'letter-spacing="1.7"')
+rect(822, 791, 166, 48, WHITE, radius=10)
+logo("django.svg", 844, 800, 122, 31, "https://www.djangoproject.com/")
+
+# Identify the real integration and the model configured for this presentation.
+logo("anymize.svg", 1132, 494, 206, 40, "https://anymize.ai/en")
+text(1132, 590, "Identifier masking", 26, PLUM, 600)
+text(1132, 630, "Handled by Anymize", 22, MUTED)
+text(1132, 662, "before the AI model", 22, MUTED)
+path("M1270 684V710", "#a78db3", 2, 'marker-end="url(#arrow)"')
+rect(1132, 729, 276, 108, WHITE, "#ffffffa0", radius=18)
+logo("openai.svg", 1152, 746, 41, 41, "https://openai.com/brand/")
+text(1210, 776, MODEL_LABEL, 25, PLUM, 600)
+text(1152, 814, "OpenAI model · via Anymize", 19, MUTED)
+
+for start, end in [(1032, 1088), (1452, 1508)]:
+    path(f"M{start} 661H{end}", "#a78db3", 2.3, 'marker-end="url(#arrow)"')
+
+# Source checks occur in femaktiv after the draft returns.
+rect(1552, 489, 50, 50, "#ede5f2", radius=15)
+icon("check", 1564, 501, PURPLE, 26)
+text(1552, 589, "Clear next steps.", 34, PLUM, extra='class="serif"')
+text(1552, 635, "Practical guidance", 23, MUTED)
+text(1552, 669, "with source references.", 23, MUTED)
+rect(1552, 703, 256, 65, "#f5eae8", radius=13)
+icon("link", 1568, 723, "#9d758a", 24)
+text(1606, 729, "References checked", 19, PLUM)
+text(1606, 753, "by femaktiv", 19, MUTED)
+chip(1552, 792, 118, "ENGLISH")
+chip(1682, 792, 117, "DEUTSCH")
+
+text(
+    660,
+    924,
+    "Her context brings relevance. Curated sources bring perspective.",
+    30,
+    PURPLE,
+    extra='class="serif" font-style="italic"',
+)
 path("M80 1015H1840", "#e7dfe4", 1)
 text(80, 1046, "LIVE PROTOTYPE ARCHITECTURE", 15, MUTED, 600, 'letter-spacing="1.8"')
 text(
